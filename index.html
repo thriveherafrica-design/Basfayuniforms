@@ -6,11 +6,11 @@
     <title>BASFAY School Uniforms — Shop</title>
     <meta
       name="description"
-      content="BASFAY School Uniforms — Shop by color or item. Add to order, then WhatsApp checkout. Pickup: Kangemi. Delivery by area."
+      content="BASFAY School Uniforms — Shop by color or item. Add to order, then WhatsApp checkout."
     />
     <meta name="theme-color" content="#1E88E5" />
 
-    <!-- SAFE RELATIVE PATHS -->
+    <!-- SAFE PATHS (won’t break on Cloudflare) -->
     <link rel="stylesheet" href="./styles.css" />
   </head>
 
@@ -59,7 +59,7 @@
     </header>
 
     <main id="main">
-      <!-- Hero (Short + Store-like) -->
+      <!-- Hero -->
       <section class="hero">
         <div class="container hero-grid">
           <div class="hero-copy">
@@ -72,7 +72,7 @@
             </div>
           </div>
 
-          <!-- Quick Shop -->
+          <!-- Quick Shop (keeps your app.js hooks) -->
           <div class="hero-card" aria-label="Quick shop">
             <div class="card">
               <div class="card-head">
@@ -186,6 +186,7 @@
 
             <div class="catalog" id="catalog" aria-label="Product catalog">
               <div class="grid" id="productGrid" aria-live="polite"></div>
+
               <div class="empty" id="emptyState" hidden>
                 <h3>No matches</h3>
                 <p class="muted">Clear filters or try a broader search.</p>
@@ -200,7 +201,7 @@
         <div class="container">
           <div class="section-head">
             <h2>Pickup & Delivery</h2>
-            <p class="muted">Simple.</p>
+            <p class="muted">Pickup: Kangemi • Delivery fee depends on your area.</p>
           </div>
 
           <div class="two-col">
@@ -212,7 +213,7 @@
             <div class="card">
               <h3>Delivery</h3>
               <p><strong>Available:</strong> Yes</p>
-              <p class="muted">Fee depends on your area. Confirm on WhatsApp.</p>
+              <p class="muted">Confirm fee and timing on WhatsApp.</p>
             </div>
           </div>
         </div>
@@ -223,7 +224,7 @@
         <div class="container">
           <div class="section-head">
             <h2>Contact</h2>
-            <p class="muted">Order and inquiries on WhatsApp.</p>
+            <p class="muted">Fastest way: WhatsApp.</p>
           </div>
 
           <div class="two-col">
@@ -253,7 +254,7 @@
               <span class="brand-sub">School Uniforms</span>
             </span>
           </div>
-          <p class="muted">Pickup: Kangemi • Delivery: fee by area • Quality fabrics • Fair pricing</p>
+          <p class="muted">Quality fabrics • Fair pricing • Pickup: Kangemi • Delivery by area</p>
         </div>
 
         <div class="footer-right">
@@ -269,7 +270,7 @@
       </div>
     </footer>
 
-    <!-- Order Drawer -->
+    <!-- Order Drawer (Cart) -->
     <div class="drawer" id="drawer" aria-hidden="true">
       <div class="drawer-backdrop" id="drawerBackdrop"></div>
       <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Order list">
@@ -320,7 +321,7 @@
       </div>
     </div>
 
-    <!-- SAFE RELATIVE PATH -->
+    <!-- SAFE PATH -->
     <script src="./app.js" defer></script>
   </body>
 </html>

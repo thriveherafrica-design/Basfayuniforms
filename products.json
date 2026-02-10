@@ -1,0 +1,86 @@
+[
+  {
+    "id": "red-sweater",
+    "name": "Red Sweater",
+    "color": "Red",
+    "type": "Sweater",
+    "pattern": "Plain",
+    "sizes": [],
+    "price": null,
+    "image": "",
+    "featured": true,
+    "description": "Durable school sweater for daily wear. Warm, comfortable, and long-lasting."
+  },
+  {
+    "id": "red-checked-dress",
+    "name": "Red Checked Dress",
+    "color": "Red",
+    "type": "Dress",
+    "pattern": "Checked",
+    "sizes": [],
+    "price": null,
+    "image": "",
+    "featured": true,
+    "description": "Checked school dress. Comfortable fit and strong stitching for daily use."
+  },
+  {
+    "id": "green-sweater",
+    "name": "Green Sweater",
+    "color": "Green",
+    "type": "Sweater",
+    "pattern": "Plain",
+    "sizes": [],
+    "price": null,
+    "image": "",
+    "featured": true,
+    "description": "Durable school sweater designed for everyday use."
+  },
+  {
+    "id": "blue-shirt",
+    "name": "Blue Shirt",
+    "color": "Blue",
+    "type": "Shirt",
+    "pattern": "Plain",
+    "sizes": [],
+    "price": null,
+    "image": "",
+    "featured": true,
+    "description": "Smart school shirt. Easy to wear, easy to maintain."
+  },
+  {
+    "id": "white-socks",
+    "name": "White Socks",
+    "color": "White",
+    "type": "Socks",
+    "pattern": "Plain",
+    "sizes": [],
+    "price": null,
+    "image": "",
+    "featured": true,
+    "description": "Comfortable school socks suitable for daily use."
+  },
+
+  { "id": "red-cardigan", "name": "Red Cardigan", "color": "Red", "type": "Cardigan", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+  { "id": "red-dress", "name": "Red Dress", "color": "Red", "type": "Dress", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+  { "id": "red-tshirt", "name": "Red T-Shirt", "color": "Red", "type": "T-Shirt", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+  { "id": "red-tracksuit", "name": "Red Tracksuit", "color": "Red", "type": "Tracksuit", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+  { "id": "red-socks", "name": "Red Socks", "color": "Red", "type": "Socks", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+
+  { "id": "green-cardigan", "name": "Green Cardigan", "color": "Green", "type": "Cardigan", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+  { "id": "green-dress", "name": "Green Dress", "color": "Green", "type": "Dress", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+  { "id": "green-checked-dress", "name": "Green Checked Dress", "color": "Green", "type": "Dress", "pattern": "Checked", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+  { "id": "green-tshirt", "name": "Green T-Shirt", "color": "Green", "type": "T-Shirt", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+  { "id": "green-socks", "name": "Green Socks", "color": "Green", "type": "Socks", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+
+  { "id": "blue-sweater", "name": "Blue Sweater", "color": "Blue", "type": "Sweater", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+  { "id": "blue-blouse", "name": "Blue Blouse", "color": "Blue", "type": "Blouse", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+  { "id": "blue-shorts", "name": "Blue Shorts", "color": "Blue", "type": "Shorts", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+  { "id": "blue-trousers", "name": "Blue Trousers", "color": "Blue", "type": "Trousers", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+  { "id": "blue-skirt", "name": "Blue Skirt", "color": "Blue", "type": "Skirt", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+
+  { "id": "grey-trousers", "name": "Grey Trousers", "color": "Grey", "type": "Trousers", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+  { "id": "white-shirt", "name": "White Shirt", "color": "White", "type": "Shirt", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+
+  { "id": "accessory-tie", "name": "School Tie", "color": "Universal", "type": "Accessory", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" },
+  { "id": "accessory-belt", "name": "School Belt", "color": "Universal", "type": "Accessory", "pattern": "Plain", "sizes": [], "price": null, "image": "", "featured": false, "description": "" }
+]

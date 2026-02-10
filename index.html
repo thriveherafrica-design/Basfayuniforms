@@ -6,12 +6,12 @@
     <title>BASFAY School Uniforms — Shop</title>
     <meta
       name="description"
-      content="BASFAY School Uniforms — Shop by color or item. Add to order, then WhatsApp checkout. Pickup: Kangemi. Delivery by area."
+      content="BASFAY School Uniforms — Shop by color or item. Add to order, then WhatsApp checkout. Pickup: Kangemi. Delivery available (fee by area)."
     />
-    <meta name="theme-color" content="#6D5BD0" />
+    <meta name="theme-color" content="#1E88E5" />
 
-    <!-- Use absolute paths to avoid deployment path issues -->
-    <link rel="stylesheet" href="/styles.css" />
+    <!-- SAFE RELATIVE PATHS -->
+    <link rel="stylesheet" href="./styles.css" />
   </head>
 
   <body>
@@ -25,7 +25,13 @@
           <span class="muted">Delivery available (fee by area)</span>
         </div>
         <div class="topbar-right">
-          <a class="topbar-link" id="topbarWhatsApp" href="#" rel="noopener">WhatsApp</a>
+          <a
+            class="topbar-link"
+            id="topbarWhatsApp"
+            href="https://wa.me/254119667836"
+            rel="noopener"
+            target="_blank"
+          >WhatsApp</a>
           <a class="topbar-link" href="#contact">Contact</a>
         </div>
       </div>
@@ -53,13 +59,20 @@
             <span aria-hidden="true">🧾</span>
             <span class="badge" id="cartCount" aria-live="polite">0</span>
           </button>
-          <a class="btn primary" id="headerWhatsApp" href="#" rel="noopener">Order on WhatsApp</a>
+
+          <a
+            class="btn primary"
+            id="headerWhatsApp"
+            href="https://wa.me/254119667836"
+            rel="noopener"
+            target="_blank"
+          >Order on WhatsApp</a>
         </div>
       </div>
     </header>
 
     <main id="main">
-      <!-- Hero (Short + Store-like) -->
+      <!-- Hero: short, direct -->
       <section class="hero">
         <div class="container hero-grid">
           <div class="hero-copy">
@@ -72,7 +85,7 @@
             </div>
           </div>
 
-          <!-- Quick Shop stays (useful, store-like) -->
+          <!-- Quick Shop -->
           <div class="hero-card" aria-label="Quick shop">
             <div class="card">
               <div class="card-head">
@@ -118,14 +131,14 @@
               </div>
 
               <div class="note">
-                <strong>Note:</strong> Some items may show “Image coming soon.”
+                <strong>Photos:</strong> Some items may show “Image coming soon.”
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Shop (Main) -->
+      <!-- Shop -->
       <section class="section" id="shop">
         <div class="container">
           <div class="section-head">
@@ -186,6 +199,7 @@
 
             <div class="catalog" id="catalog" aria-label="Product catalog">
               <div class="grid" id="productGrid" aria-live="polite"></div>
+
               <div class="empty" id="emptyState" hidden>
                 <h3>No matches</h3>
                 <p class="muted">Clear filters or try a broader search.</p>
@@ -195,12 +209,12 @@
         </div>
       </section>
 
-      <!-- Delivery (Short) -->
+      <!-- Delivery -->
       <section class="section alt" id="delivery">
         <div class="container">
           <div class="section-head">
             <h2>Pickup & Delivery</h2>
-            <p class="muted">Simple.</p>
+            <p class="muted">Pickup: Kangemi • Delivery fee depends on your area.</p>
           </div>
 
           <div class="two-col">
@@ -212,25 +226,31 @@
             <div class="card">
               <h3>Delivery</h3>
               <p><strong>Available:</strong> Yes</p>
-              <p class="muted">Fee depends on your area. Confirm on WhatsApp.</p>
+              <p class="muted">Confirm fee and timing on WhatsApp.</p>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Contact (Short) -->
+      <!-- Contact -->
       <section class="section" id="contact">
         <div class="container">
           <div class="section-head">
             <h2>Contact</h2>
-            <p class="muted">Order and inquiries on WhatsApp.</p>
+            <p class="muted">Fastest way: WhatsApp.</p>
           </div>
 
           <div class="two-col">
             <div class="card">
               <h3>WhatsApp</h3>
               <p class="muted">Tap below to message BASFAY.</p>
-              <a class="btn primary" id="contactWhatsApp" href="#" rel="noopener">Message on WhatsApp</a>
+              <a
+                class="btn primary"
+                id="contactWhatsApp"
+                href="https://wa.me/254119667836"
+                rel="noopener"
+                target="_blank"
+              >Message on WhatsApp</a>
             </div>
 
             <div class="card">
@@ -242,7 +262,7 @@
       </section>
     </main>
 
-    <!-- Footer (put the “convincing” here like you asked) -->
+    <!-- Footer (put “convincing” down here like you asked) -->
     <footer class="footer">
       <div class="container footer-inner">
         <div class="footer-left">
@@ -253,14 +273,22 @@
               <span class="brand-sub">School Uniforms</span>
             </span>
           </div>
-          <p class="muted">Pickup: Kangemi • Delivery: fee by area • Quality fabrics • Fair pricing</p>
+          <p class="muted">
+            Pickup: Kangemi • Delivery: fee by area • Quality fabrics • Fair pricing
+          </p>
         </div>
 
         <div class="footer-right">
           <a class="footer-link" href="#shop">Shop</a>
           <a class="footer-link" href="#delivery">Delivery</a>
           <a class="footer-link" href="#contact">Contact</a>
-          <a class="footer-link" id="footerWhatsApp" href="#" rel="noopener">WhatsApp</a>
+          <a
+            class="footer-link"
+            id="footerWhatsApp"
+            href="https://wa.me/254119667836"
+            rel="noopener"
+            target="_blank"
+          >WhatsApp</a>
         </div>
       </div>
 
@@ -289,7 +317,13 @@
 
         <div class="drawer-foot">
           <div class="cart-note muted">Add sizes in the message before sending if needed.</div>
-          <a class="btn primary full" id="sendWhatsApp" href="#" rel="noopener">Send order on WhatsApp</a>
+          <a
+            class="btn primary full"
+            id="sendWhatsApp"
+            href="https://wa.me/254119667836"
+            rel="noopener"
+            target="_blank"
+          >Send order on WhatsApp</a>
           <button class="btn ghost full" id="clearCart" type="button">Clear order list</button>
         </div>
       </div>
@@ -320,6 +354,6 @@
       </div>
     </div>
 
-    <script src="/app.js" defer></script>
+    <script src="./app.js" defer></script>
   </body>
 </html>

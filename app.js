@@ -11,7 +11,7 @@ const CONFIG = {
   pickup: "Kangemi",
   // IMPORTANT: Set your WhatsApp number in international format, no +, no spaces.
   // Example Kenya: 2547XXXXXXXX
-  whatsappNumber: "254700000000",
+  whatsappNumber: "254119667836",
   businessName: "BASFAY School Uniforms",
 };
 

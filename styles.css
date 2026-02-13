@@ -497,3 +497,39 @@ input:focus, select:focus {
   .two-col { grid-template-columns: 1fr 1fr; }
   .modal-body { grid-template-columns: 1fr 1fr; }
 }
+/* ============================
+   REMOVE SIDEBAR COMPLETELY
+   ============================ */
+
+/* Hide sidebar + its space */
+.sidebar { display: none !important; }
+
+/* Make shop layout single column, full width */
+.shop-layout {
+  grid-template-columns: 1fr !important;
+}
+
+/* Catalog spans full width */
+.catalog {
+  width: 100% !important;
+}
+
+/* Optional: tighten the section so it looks intentional */
+.section#shop .section-head {
+  margin-bottom: 10px;
+}
+
+/* On large screens, still keep full-width grid */
+@media (min-width: 880px) {
+  .shop-layout { grid-template-columns: 1fr !important; }
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* On small screens, keep 1–2 columns for readability */
+@media (max-width: 879px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px) {
+  .grid { grid-template-columns: 1fr; }
+}

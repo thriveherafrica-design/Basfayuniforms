@@ -9,8 +9,6 @@
 const CONFIG = {
   currency: "KES",
   pickup: "Kangemi",
-  // IMPORTANT: Set your WhatsApp number in international format, no +, no spaces.
-  // Example Kenya: 2547XXXXXXXX
   whatsappNumber: "254119667836",
   businessName: "BASFAY School Uniforms",
 };
@@ -18,14 +16,12 @@ const CONFIG = {
 const els = {
   year: document.getElementById("year"),
 
-  // hero filters
   q: document.getElementById("q"),
   colorFilter: document.getElementById("colorFilter"),
   typeFilter: document.getElementById("typeFilter"),
   sortBy: document.getElementById("sortBy"),
   clearFilters: document.getElementById("clearFilters"),
 
-  // sidebar filters
   q2: document.getElementById("q2"),
   colorFilter2: document.getElementById("colorFilter2"),
   typeFilter2: document.getElementById("typeFilter2"),
@@ -37,13 +33,11 @@ const els = {
   emptyState: document.getElementById("emptyState"),
   resultsCount: document.getElementById("resultsCount"),
 
-  // WhatsApp links
   topbarWhatsApp: document.getElementById("topbarWhatsApp"),
   headerWhatsApp: document.getElementById("headerWhatsApp"),
   contactWhatsApp: document.getElementById("contactWhatsApp"),
   footerWhatsApp: document.getElementById("footerWhatsApp"),
 
-  // drawer/cart
   openCart: document.getElementById("openCart"),
   closeDrawer: document.getElementById("closeDrawer"),
   drawer: document.getElementById("drawer"),
@@ -54,7 +48,6 @@ const els = {
   sendWhatsApp: document.getElementById("sendWhatsApp"),
   clearCart: document.getElementById("clearCart"),
 
-  // modal
   modal: document.getElementById("modal"),
   modalBackdrop: document.getElementById("modalBackdrop"),
   closeModal: document.getElementById("closeModal"),
@@ -68,12 +61,7 @@ const els = {
 };
 
 let PRODUCTS = [];
-let state = {
-  q: "",
-  color: "",
-  type: "",
-  sort: "featured",
-};
+let state = { q: "", color: "", type: "", sort: "featured" };
 
 const CART_KEY = "basfay_cart_v1";
 
@@ -90,13 +78,58 @@ function normalize(s) {
   return safeText(s).toLowerCase();
 }
 
+/** -------- Variant helpers (NEW) -------- */
+function getVariantPrices(p) {
+  const vs = Array.isArray(p.variants) ? p.variants : [];
+  const prices = vs.map(v => Number(v.price)).filter(n => Number.isFinite(n));
+  return prices;
+}
+
+function getMinMaxPrice(p) {
+  // If product has a direct price, use it
+  if (p.price != null && Number.isFinite(Number(p.price))) {
+    const n = Number(p.price);
+    return { min: n, max: n };
+  }
+  const prices = getVariantPrices(p);
+  if (!prices.length) return { min: null, max: null };
+  return { min: Math.min(...prices), max: Math.max(...prices) };
+}
+
+function getDisplayPrice(p) {
+  const { min, max } = getMinMaxPrice(p);
+  if (min == null) return "Price on request";
+  if (min === max) return formatMoney(min);
+  return `${formatMoney(min)} – ${formatMoney(max)}`;
+}
+
+function getAllSizes(p) {
+  // Support both old sizes[] and new variants[]
+  const fromSizes = Array.isArray(p.sizes) ? p.sizes.map(safeText).filter(Boolean) : [];
+  const fromVariants = Array.isArray(p.variants)
+    ? p.variants.map(v => safeText(v.size)).filter(Boolean)
+    : [];
+  const all = [...new Set([...fromSizes, ...fromVariants])];
+  return all;
+}
+
+function buildSizesPricesLines(p) {
+  const vs = Array.isArray(p.variants) ? p.variants : [];
+  if (!vs.length) return "";
+  // sort by size number if possible
+  const sorted = [...vs].sort((a, b) => (Number(a.size) || 0) - (Number(b.size) || 0));
+  return sorted
+    .map(v => `• ${safeText(v.size)} - ${formatMoney(v.price)}`)
+    .join("\n");
+}
+
+/** -------- Cart helpers -------- */
 function getCart() {
   try {
     const raw = localStorage.getItem(CART_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed;
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
@@ -108,15 +141,12 @@ function setCart(items) {
 }
 
 function cartCountTotal() {
-  const cart = getCart();
-  return cart.reduce((sum, item) => sum + (item.qty || 0), 0);
+  return getCart().reduce((sum, item) => sum + (item.qty || 0), 0);
 }
 
+/** -------- WhatsApp -------- */
 function buildWhatsAppLink(message) {
-  const base = "https://wa.me/";
-  const num = CONFIG.whatsappNumber;
-  const text = encodeURIComponent(message);
-  return `${base}${num}?text=${text}`;
+  return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
 
 function buildGenericWhatsAppMessage() {
@@ -130,6 +160,7 @@ function updateWhatsAppLinks() {
   }
 }
 
+/** -------- Filters -------- */
 function hydrateFiltersOptions() {
   const colors = new Set();
   const types = new Set();
@@ -149,18 +180,17 @@ function hydrateFiltersOptions() {
     options.forEach(v => {
       const opt = document.createElement("option");
       opt.value = v;
-      opt.textContent = v === "" ? (selectEl.id.includes("color") ? "All" : "All") : v;
+      opt.textContent = v === "" ? "All" : v;
       selectEl.appendChild(opt);
     });
-    // restore if possible
     if (options.includes(current)) selectEl.value = current;
   };
 
-  fillSelect(els.colorFilter, colorList.map(v => v === "" ? "" : v));
-  fillSelect(els.colorFilter2, colorList.map(v => v === "" ? "" : v));
+  fillSelect(els.colorFilter, colorList);
+  fillSelect(els.colorFilter2, colorList);
 
-  fillSelect(els.typeFilter, typeList.map(v => v === "" ? "" : v));
-  fillSelect(els.typeFilter2, typeList.map(v => v === "" ? "" : v));
+  fillSelect(els.typeFilter, typeList);
+  fillSelect(els.typeFilter2, typeList);
 }
 
 function applySort(list) {
@@ -168,11 +198,17 @@ function applySort(list) {
 
   const byNameAsc = (a, b) => safeText(a.name).localeCompare(safeText(b.name));
   const byNameDesc = (a, b) => safeText(b.name).localeCompare(safeText(a.name));
-  const byPriceAsc = (a, b) => (a.price ?? 1e15) - (b.price ?? 1e15);
-  const byPriceDesc = (a, b) => (b.price ?? -1) - (a.price ?? -1);
+
+  // Use minPrice for variant products
+  const priceVal = (p) => {
+    const { min } = getMinMaxPrice(p);
+    return min == null ? 1e15 : min;
+  };
+
+  const byPriceAsc = (a, b) => priceVal(a) - priceVal(b);
+  const byPriceDesc = (a, b) => priceVal(b) - priceVal(a);
 
   const featuredScore = (p) => {
-    // Higher score = earlier
     let score = 0;
     if (p.featured) score += 10;
     if (p.hasPhoto) score += 2;
@@ -185,7 +221,6 @@ function applySort(list) {
   if (sort === "price_asc") return [...list].sort(byPriceAsc);
   if (sort === "price_desc") return [...list].sort(byPriceDesc);
 
-  // featured default
   return [...list].sort((a, b) => featuredScore(b) - featuredScore(a) || byNameAsc(a, b));
 }
 
@@ -214,11 +249,17 @@ function renderProducts() {
   els.productGrid.innerHTML = "";
   els.emptyState.hidden = sorted.length !== 0;
 
-  sorted.forEach(p => {
-    els.productGrid.appendChild(productCard(p));
-  });
+  sorted.forEach(p => els.productGrid.appendChild(productCard(p)));
 }
 
+function chip(text) {
+  const el = document.createElement("span");
+  el.className = "chip";
+  el.textContent = text;
+  return el;
+}
+
+/** -------- Product card (UPDATED to show variants list) -------- */
 function productCard(p) {
   const wrap = document.createElement("article");
   wrap.className = "product";
@@ -251,11 +292,28 @@ function productCard(p) {
   meta.className = "meta";
   meta.appendChild(chip(p.type || "Item"));
   if (p.pattern) meta.appendChild(chip(p.pattern));
-  if (p.sizes && p.sizes.length) meta.appendChild(chip(`Sizes: ${p.sizes.join(", ")}`));
+
+  const allSizes = getAllSizes(p);
+  if (allSizes.length) meta.appendChild(chip(`Sizes: ${allSizes.join(", ")}`));
 
   const price = document.createElement("div");
   price.className = "price";
-  price.textContent = p.price ? formatMoney(p.price) : "Price on request";
+  price.textContent = getDisplayPrice(p);
+
+  // NEW: sizes+prices list under sweaters (or any item with variants)
+  const variantsBlock = document.createElement("div");
+  variantsBlock.className = "muted";
+  variantsBlock.style.marginTop = "8px";
+  variantsBlock.style.whiteSpace = "pre-line";
+  variantsBlock.style.fontWeight = "700";
+  variantsBlock.style.fontSize = "12px";
+
+  const lines = buildSizesPricesLines(p);
+  if (lines) {
+    variantsBlock.textContent = `Sizes & Prices:\n${lines}`;
+  } else {
+    variantsBlock.textContent = ""; // keep empty for non-variant items
+  }
 
   const actions = document.createElement("div");
   actions.className = "product-actions";
@@ -279,22 +337,16 @@ function productCard(p) {
   wrap.appendChild(title);
   wrap.appendChild(meta);
   wrap.appendChild(price);
+  if (lines) wrap.appendChild(variantsBlock);
   wrap.appendChild(actions);
 
-  // Also allow clicking media to open modal
   media.style.cursor = "pointer";
   media.addEventListener("click", () => openModal(p.id));
 
   return wrap;
 }
 
-function chip(text) {
-  const el = document.createElement("span");
-  el.className = "chip";
-  el.textContent = text;
-  return el;
-}
-
+/** -------- Filters bindings -------- */
 function bindFilters() {
   const syncFromHeroToSidebar = () => {
     if (els.q2) els.q2.value = els.q.value;
@@ -353,10 +405,10 @@ function bindFilters() {
     document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
-  // initial
   applyFrom(hero);
 }
 
+/** -------- Cart -------- */
 function addToCart(productId, qty = 1) {
   const cart = getCart();
   const found = cart.find(i => i.id === productId);
@@ -368,8 +420,7 @@ function addToCart(productId, qty = 1) {
 }
 
 function removeFromCart(productId) {
-  const cart = getCart().filter(i => i.id !== productId);
-  setCart(cart);
+  setCart(getCart().filter(i => i.id !== productId));
 }
 
 function setQty(productId, qty) {
@@ -410,7 +461,7 @@ function updateCartUI() {
     meta.className = "meta";
     meta.appendChild(chip(p.color || "Color"));
     meta.appendChild(chip(p.type || "Item"));
-    if (p.price) meta.appendChild(chip(formatMoney(p.price)));
+    meta.appendChild(chip(getDisplayPrice(p)));
 
     left.appendChild(title);
     left.appendChild(meta);
@@ -454,7 +505,6 @@ function updateCartUI() {
     els.cartItems.appendChild(row);
   });
 
-  // Update WhatsApp order link based on cart
   els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
 }
 
@@ -470,7 +520,7 @@ function buildOrderMessage() {
     cart.forEach(item => {
       const p = PRODUCTS.find(x => x.id === item.id);
       if (!p) return;
-      const priceStr = p.price ? ` (${formatMoney(p.price)})` : "";
+      const priceStr = ` (${getDisplayPrice(p)})`;
       lines.push(`- ${item.qty} × ${p.name}${priceStr}`);
     });
   }
@@ -479,7 +529,7 @@ function buildOrderMessage() {
   lines.push(`Pickup: ${CONFIG.pickup}`);
   lines.push("Delivery: (If needed, share your area and I’ll confirm delivery fee.)");
   lines.push("");
-  lines.push("Sizes needed (optional):");
+  lines.push("Sizes needed (required for sweaters):");
   lines.push("-");
   lines.push("");
   lines.push("Thank you.");
@@ -492,11 +542,8 @@ function bindCart() {
   els.closeDrawer?.addEventListener("click", closeDrawer);
   els.drawerBackdrop?.addEventListener("click", closeDrawer);
 
-  els.clearCart?.addEventListener("click", () => {
-    setCart([]);
-  });
+  els.clearCart?.addEventListener("click", () => setCart([]));
 
-  // init message
   els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
 }
 
@@ -510,6 +557,7 @@ function closeDrawer() {
   els.drawer.setAttribute("aria-hidden", "true");
 }
 
+/** -------- Modal (UPDATED to show variants) -------- */
 function bindModal() {
   els.closeModal?.addEventListener("click", closeModal);
   els.modalBackdrop?.addEventListener("click", closeModal);
@@ -520,16 +568,21 @@ function openModal(productId) {
   if (!p || !els.modal) return;
 
   els.modalTitle.textContent = p.name;
-  els.modalPrice.textContent = p.price ? formatMoney(p.price) : "Price on request";
+  els.modalPrice.textContent = getDisplayPrice(p);
 
   const bits = [];
   if (p.color) bits.push(`Color: ${p.color}`);
   if (p.type) bits.push(`Type: ${p.type}`);
   if (p.pattern) bits.push(`Pattern: ${p.pattern}`);
-  if (p.sizes && p.sizes.length) bits.push(`Sizes: ${p.sizes.join(", ")}`);
+  const allSizes = getAllSizes(p);
+  if (allSizes.length) bits.push(`Sizes: ${allSizes.join(", ")}`);
   els.modalMeta.textContent = bits.join(" • ");
 
-  els.modalDesc.textContent = p.description || "Durable, comfortable school uniform item. Order via WhatsApp.";
+  const variantLines = buildSizesPricesLines(p);
+  const baseDesc = p.description || "Durable, comfortable school uniform item. Order via WhatsApp.";
+  els.modalDesc.textContent = variantLines
+    ? `${baseDesc}\n\nSizes & Prices:\n${variantLines}`
+    : baseDesc;
 
   els.modalMedia.innerHTML = "";
   if (p.image) {
@@ -545,21 +598,23 @@ function openModal(productId) {
   }
 
   els.modalAdd.onclick = () => addToCart(p.id, 1);
+
   els.modalOrderNow.onclick = () => {
-    // create message for this single product
     const msg = [
       `Hi ${CONFIG.businessName}, I would like to order:`,
       ``,
-      `- 1 × ${p.name}${p.price ? ` (${formatMoney(p.price)})` : ""}`,
+      `- 1 × ${p.name} (${getDisplayPrice(p)})`,
+      variantLines ? `` : ``,
+      variantLines ? `Sizes & Prices:\n${variantLines}` : ``,
       ``,
       `Pickup: ${CONFIG.pickup}`,
       `Delivery: (If needed, share your area and I’ll confirm delivery fee.)`,
       ``,
-      `Sizes needed (optional):`,
+      `Size needed:`,
       `-`,
       ``,
       `Thank you.`,
-    ].join("\n");
+    ].filter(Boolean).join("\n");
 
     window.open(buildWhatsAppLink(msg), "_blank", "noopener");
   };
@@ -572,13 +627,13 @@ function closeModal() {
   els.modal.setAttribute("aria-hidden", "true");
 }
 
+/** -------- Load products (UPDATED to keep variants) -------- */
 async function loadProducts() {
   const res = await fetch("./products.json", { cache: "no-store" });
   if (!res.ok) throw new Error("Could not load products.json");
   const data = await res.json();
   if (!Array.isArray(data)) throw new Error("products.json must be an array");
 
-  // normalize
   PRODUCTS = data.map(p => ({
     id: p.id,
     name: safeText(p.name),
@@ -586,6 +641,11 @@ async function loadProducts() {
     type: safeText(p.type),
     pattern: safeText(p.pattern),
     sizes: Array.isArray(p.sizes) ? p.sizes.map(safeText).filter(Boolean) : [],
+    variants: Array.isArray(p.variants)
+      ? p.variants
+          .map(v => ({ size: safeText(v.size), price: Number(v.price) }))
+          .filter(v => v.size && Number.isFinite(v.price))
+      : [],
     price: p.price == null ? null : Number(p.price),
     image: safeText(p.image),
     hasPhoto: Boolean(p.image),

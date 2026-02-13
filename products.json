@@ -11,6 +11,18 @@
   "featured": true,
   "description": "Maroon plain school sweater size 22."
 },
+  {
+  "id": "sweater-navy-striped-light-blue-22",
+  "name": "Navy Striped Sweater Size 22",
+  "color": "Navy",
+  "type": "Sweater",
+  "pattern": "Striped Light Blue",
+  "sizes": ["22"],
+  "price": 600,
+  "image": "./images/sweater-navy-striped-light-blue-22.png",
+  "featured": true,
+  "description": "Navy school sweater with light blue stripes, size 22."
+},
 {
   "id": "sweater-grey-plain-22",
   "name": "Grey Sweater Size 22",

@@ -10,6 +10,17 @@
     "image": "",
     "featured": true,
     "description": "Durable school sweater for daily wear. Warm, comfortable, and long-lasting."
+  ,
+{
+  "id": "sweater-grey-plain-22",
+  "name": "Sweater",
+  "color": "Grey",
+  "type": "Sweater",
+  "size": "22",
+  "price": 600,
+  "image": "./images/sweater-grey-plain-22.jpg"
+}
+
   },
   {
     "id": "red-checked-dress",

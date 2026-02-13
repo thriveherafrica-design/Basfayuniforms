@@ -23,19 +23,19 @@
   "featured": true,
   "description": "Grey plain school sweater size 22."
 },
-  {
-    "id": "sweater-red-striped-white-22",
-    "name": "Red Striped Sweater Size 22",
-    "color": "Red",
-    "type": "Sweater",
-    "pattern": "Striped",
-    "sizes": ["22"],
-    "price": 600,
-    "image": "./images/sweater-red-striped-white-22.jpg",
-    "featured": true,
-    "description": "Red sweater with white stripes, size 22."
-  },
-  {
+ {
+  "id": "sweater-red-striped-white-22",
+  "name": "Red Striped Sweater Size 22",
+  "color": "Red",
+  "type": "Sweater",
+  "pattern": "Striped",
+  "sizes": ["22"],
+  "price": 600,
+  "image": "./images/sweater-red-striped-white-22.png",
+  "featured": true,
+  "description": "Red sweater with white stripes, size 22."
+},
+ {
     "id": "red-checked-dress",
     "name": "Red Checked Dress",
     "color": "Red",

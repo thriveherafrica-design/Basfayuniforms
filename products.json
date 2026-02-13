@@ -36,6 +36,18 @@
   "description": "Red sweater with white stripes, size 22."
 },
   {
+  "id": "sweater-grey-striped-blue-white-22",
+  "name": "Grey Sweater Size 22",
+  "color": "Grey",
+  "type": "Sweater",
+  "pattern": "Striped Blue & White",
+  "sizes": ["22"],
+  "price": 600,
+  "image": "./images/sweater-grey-striped-blue-white-22.png",
+  "featured": true,
+  "description": "Grey school sweater with blue outer stripe, white center stripe, and blue inner stripe. Size 22."
+},
+  {
   "id": "sweater-light-blue-white-striped-22",
   "name": "Light Blue Sweater Size 22",
   "color": "Light Blue",

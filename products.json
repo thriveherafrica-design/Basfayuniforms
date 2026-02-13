@@ -1,17 +1,17 @@
 [
   {
-    "id": "sweater-maroon-plain-22",
-    "name": "Maroon Sweater Size 22",
-    "color": "Maroon",
-    "type": "Sweater",
-    "pattern": "Plain",
-    "sizes": ["22"],
-    "price": 600,
-    "image": "./images/sweater-maroon-plain-22.jpg",
-    "featured": true,
-    "description": "Maroon plain school sweater size 22."
-  },
-  {
+  "id": "sweater-maroon-plain-22",
+  "name": "Maroon Sweater Size 22",
+  "color": "Maroon",
+  "type": "Sweater",
+  "pattern": "Plain",
+  "sizes": ["22"],
+  "price": 600,
+  "image": "./images/sweater-maroon-plain-22.png",
+  "featured": true,
+  "description": "Maroon plain school sweater size 22."
+},
+{
   "id": "sweater-grey-plain-22",
   "name": "Grey Sweater Size 22",
   "color": "Grey",

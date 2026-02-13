@@ -4,12 +4,12 @@
    - Filter/search/sort
    - Order list stored in localStorage
    - WhatsApp order message generator
+   - Category tabs (Type)
    ============================ */
 
 const CONFIG = {
   currency: "KES",
   pickup: "Kangemi",
-  // IMPORTANT: Set your WhatsApp number in international format, no +, no spaces.
   whatsappNumber: "254119667836",
   businessName: "BASFAY School Uniforms",
 };
@@ -24,6 +24,13 @@ const els = {
   sortBy: document.getElementById("sortBy"),
   clearFilters: document.getElementById("clearFilters"),
 
+  // NEW top shop toolbar
+  typeTabs: document.getElementById("typeTabs"),
+  qTop: document.getElementById("qTop"),
+  colorFilterTop: document.getElementById("colorFilterTop"),
+  sortByTop: document.getElementById("sortByTop"),
+  clearFiltersTop: document.getElementById("clearFiltersTop"),
+
   // sidebar filters
   q2: document.getElementById("q2"),
   colorFilter2: document.getElementById("colorFilter2"),
@@ -35,6 +42,7 @@ const els = {
   productGrid: document.getElementById("productGrid"),
   emptyState: document.getElementById("emptyState"),
   resultsCount: document.getElementById("resultsCount"),
+  resultsCountSidebar: document.getElementById("resultsCountSidebar"),
 
   // WhatsApp links
   topbarWhatsApp: document.getElementById("topbarWhatsApp"),
@@ -76,6 +84,9 @@ let state = {
 
 const CART_KEY = "basfay_cart_v1";
 
+/* ======================
+   Helpers
+   ====================== */
 function formatMoney(amount) {
   if (amount == null || Number.isNaN(Number(amount))) return "";
   return `${CONFIG.currency} ${Number(amount).toLocaleString("en-KE")}`;
@@ -190,8 +201,85 @@ function hydrateFiltersOptions() {
 
   fillSelect(els.colorFilter, colorList);
   fillSelect(els.colorFilter2, colorList);
+  fillSelect(els.colorFilterTop, colorList);
+
   fillSelect(els.typeFilter, typeList);
   fillSelect(els.typeFilter2, typeList);
+}
+
+/* ======================
+   Category tabs (Type)
+   ====================== */
+const FUTURE_CATEGORIES = [
+  "Sweater",
+  "Shirt",
+  "Dress",
+  "Socks",
+  "Marvins",
+  "Tracksuit",
+  "Gameskit",
+  "PE Shirt",
+  "Trousers",
+  "School Bag",
+  "Shoes",
+  "Blazer",
+  "Materials",
+  "Cardigan",
+  "Accessory",
+];
+
+function buildTypeTabs() {
+  if (!els.typeTabs) return;
+
+  const existing = new Set(PRODUCTS.map(p => safeText(p.type)).filter(Boolean));
+  const all = ["All", ...Array.from(new Set([...existing, ...FUTURE_CATEGORIES]))];
+
+  els.typeTabs.innerHTML = "";
+
+  all.forEach(label => {
+    const typeValue = label === "All" ? "" : label;
+    const enabled = label === "All" ? true : existing.has(label);
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "chip";
+    btn.textContent = label;
+
+    // disabled look for future categories with no products yet
+    if (!enabled) {
+      btn.disabled = true;
+      btn.style.opacity = "0.45";
+      btn.style.cursor = "not-allowed";
+      btn.title = "Coming soon";
+    } else {
+      btn.style.cursor = "pointer";
+      btn.addEventListener("click", () => {
+        state.type = typeValue;
+
+        // sync dropdowns
+        if (els.typeFilter) els.typeFilter.value = typeValue;
+        if (els.typeFilter2) els.typeFilter2.value = typeValue;
+
+        updateActiveTypeTab();
+        renderProducts();
+        document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+
+    btn.dataset.type = typeValue;
+    els.typeTabs.appendChild(btn);
+  });
+
+  updateActiveTypeTab();
+}
+
+function updateActiveTypeTab() {
+  if (!els.typeTabs) return;
+  const current = state.type || "";
+  [...els.typeTabs.querySelectorAll("button")].forEach(b => {
+    const isActive = (b.dataset.type || "") === current;
+    b.style.outline = isActive ? "2px solid rgba(30,136,229,0.55)" : "none";
+  });
 }
 
 /* ======================
@@ -203,7 +291,6 @@ function applySort(list) {
   const byNameAsc = (a, b) => safeText(a.name).localeCompare(safeText(b.name));
   const byNameDesc = (a, b) => safeText(b.name).localeCompare(safeText(a.name));
 
-  // If product has variants, we sort by min/max variant price
   const minPrice = (p) => {
     if (Array.isArray(p.variants) && p.variants.length) {
       return Math.min(...p.variants.map(v => Number(v.price) || 1e15));
@@ -259,7 +346,8 @@ function renderProducts() {
   const filtered = PRODUCTS.filter(matchesFilters);
   const sorted = applySort(filtered);
 
-  els.resultsCount.textContent = String(sorted.length);
+  if (els.resultsCount) els.resultsCount.textContent = String(sorted.length);
+  if (els.resultsCountSidebar) els.resultsCountSidebar.textContent = String(sorted.length);
 
   els.productGrid.innerHTML = "";
   els.emptyState.hidden = sorted.length !== 0;
@@ -267,6 +355,8 @@ function renderProducts() {
   sorted.forEach(p => {
     els.productGrid.appendChild(productCard(p));
   });
+
+  updateActiveTypeTab();
 }
 
 function chip(text) {
@@ -309,7 +399,6 @@ function productCard(p) {
   meta.appendChild(chip(p.type || "Item"));
   if (p.pattern) meta.appendChild(chip(p.pattern));
 
-  // Size selection + price behavior (professional one)
   const variants = Array.isArray(p.variants) ? p.variants : [];
   let selected = null;
 
@@ -333,7 +422,7 @@ function productCard(p) {
       b.textContent = String(v.size);
 
       b.addEventListener("click", () => {
-        [...sizeWrap.querySelectorAll(".chip")].forEach(x => x.style.outline = "none");
+        [...sizeWrap.querySelectorAll(".chip")].forEach(x => (x.style.outline = "none"));
         b.style.outline = "2px solid rgba(17,24,39,0.35)";
 
         selected = { size: String(v.size), price: Number(v.price) };
@@ -343,8 +432,7 @@ function productCard(p) {
       sizeWrap.appendChild(b);
     });
   } else {
-    // non-variant items
-    price.textContent = (p.price != null) ? formatMoney(p.price) : "Price on request";
+    price.textContent = p.price != null ? formatMoney(p.price) : "Price on request";
   }
 
   const actions = document.createElement("div");
@@ -368,7 +456,6 @@ function productCard(p) {
       }
       addToCart(p.id, selected.size, selected.price, 1);
     } else {
-      // fallback
       if (p.price == null) {
         alert("Price on request. Please message us on WhatsApp to confirm.");
         return;
@@ -394,66 +481,95 @@ function productCard(p) {
 }
 
 /* ======================
-   Filters binding
+   Filters binding (sync hero + top + sidebar)
    ====================== */
 function bindFilters() {
-  const syncFromHeroToSidebar = () => {
-    if (els.q2) els.q2.value = els.q.value;
-    if (els.colorFilter2) els.colorFilter2.value = els.colorFilter.value;
-    if (els.typeFilter2) els.typeFilter2.value = els.typeFilter.value;
-    if (els.sortBy2) els.sortBy2.value = els.sortBy.value;
-  };
+  const hero = { q: els.q, color: els.colorFilter, type: els.typeFilter, sort: els.sortBy };
+  const top = { q: els.qTop, color: els.colorFilterTop, type: null, sort: els.sortByTop };
+  const side = { q: els.q2, color: els.colorFilter2, type: els.typeFilter2, sort: els.sortBy2 };
 
-  const syncFromSidebarToHero = () => {
-    if (els.q) els.q.value = els.q2.value;
-    if (els.colorFilter) els.colorFilter.value = els.colorFilter2.value;
-    if (els.typeFilter) els.typeFilter.value = els.typeFilter2.value;
-    if (els.sortBy) els.sortBy.value = els.sortBy2.value;
+  const syncAll = (from) => {
+    // search
+    if (els.q && from.q) els.q.value = from.q.value;
+    if (els.q2 && from.q) els.q2.value = from.q.value;
+    if (els.qTop && from.q) els.qTop.value = from.q.value;
+
+    // color
+    if (els.colorFilter && from.color) els.colorFilter.value = from.color.value;
+    if (els.colorFilter2 && from.color) els.colorFilter2.value = from.color.value;
+    if (els.colorFilterTop && from.color) els.colorFilterTop.value = from.color.value;
+
+    // type (dropdowns only)
+    if (from.type) {
+      if (els.typeFilter) els.typeFilter.value = from.type.value;
+      if (els.typeFilter2) els.typeFilter2.value = from.type.value;
+    }
+
+    // sort
+    if (els.sortBy && from.sort) els.sortBy.value = from.sort.value;
+    if (els.sortBy2 && from.sort) els.sortBy2.value = from.sort.value;
+    if (els.sortByTop && from.sort) els.sortByTop.value = from.sort.value;
   };
 
   const applyFrom = (source) => {
-    state.q = source.q.value;
-    state.color = source.color.value;
-    state.type = source.type.value;
-    state.sort = source.sort.value;
+    state.q = source.q?.value ?? state.q;
+    state.color = source.color?.value ?? state.color;
+    state.type = source.type?.value ?? state.type;
+    state.sort = source.sort?.value ?? state.sort;
     renderProducts();
   };
 
-  const hero = { q: els.q, color: els.colorFilter, type: els.typeFilter, sort: els.sortBy };
-  const side = { q: els.q2, color: els.colorFilter2, type: els.typeFilter2, sort: els.sortBy2 };
+  const bindSet = (source) => {
+    [source.q, source.color, source.type, source.sort].forEach(el => {
+      if (!el) return;
+      el.addEventListener("input", () => {
+        syncAll(source);
+        applyFrom(source);
+      });
+      el.addEventListener("change", () => {
+        syncAll(source);
+        applyFrom(source);
+      });
+    });
+  };
 
-  [hero.q, hero.color, hero.type, hero.sort].forEach(el => el && el.addEventListener("input", () => {
-    syncFromHeroToSidebar();
-    applyFrom(hero);
-  }));
+  bindSet(hero);
+  bindSet(top);
+  bindSet(side);
 
-  [side.q, side.color, side.type, side.sort].forEach(el => el && el.addEventListener("input", () => {
-    syncFromSidebarToHero();
-    applyFrom(side);
-  }));
+  const clearAll = () => {
+    state.q = "";
+    state.color = "";
+    state.type = "";
+    state.sort = "featured";
 
-  els.clearFilters?.addEventListener("click", () => {
-    els.q.value = "";
-    els.colorFilter.value = "";
-    els.typeFilter.value = "";
-    els.sortBy.value = "featured";
-    syncFromHeroToSidebar();
-    applyFrom(hero);
-  });
+    if (els.q) els.q.value = "";
+    if (els.q2) els.q2.value = "";
+    if (els.qTop) els.qTop.value = "";
 
-  els.clearFilters2?.addEventListener("click", () => {
-    els.q2.value = "";
-    els.colorFilter2.value = "";
-    els.typeFilter2.value = "";
-    els.sortBy2.value = "featured";
-    syncFromSidebarToHero();
-    applyFrom(side);
-  });
+    if (els.colorFilter) els.colorFilter.value = "";
+    if (els.colorFilter2) els.colorFilter2.value = "";
+    if (els.colorFilterTop) els.colorFilterTop.value = "";
+
+    if (els.typeFilter) els.typeFilter.value = "";
+    if (els.typeFilter2) els.typeFilter2.value = "";
+
+    if (els.sortBy) els.sortBy.value = "featured";
+    if (els.sortBy2) els.sortBy2.value = "featured";
+    if (els.sortByTop) els.sortByTop.value = "featured";
+
+    renderProducts();
+  };
+
+  els.clearFilters?.addEventListener("click", clearAll);
+  els.clearFilters2?.addEventListener("click", clearAll);
+  els.clearFiltersTop?.addEventListener("click", clearAll);
 
   els.scrollToCatalog?.addEventListener("click", () => {
     document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
+  // initial apply
   applyFrom(hero);
 }
 
@@ -622,7 +738,6 @@ function openModal(productId) {
     els.modalMedia.appendChild(ph);
   }
 
-  // Build size picker in modal if variants exist
   if (variants.length) {
     els.modalPrice.textContent = "Select size";
 
@@ -640,7 +755,7 @@ function openModal(productId) {
       b.textContent = String(v.size);
 
       b.addEventListener("click", () => {
-        [...sizeLine.querySelectorAll(".chip")].forEach(x => x.style.outline = "none");
+        [...sizeLine.querySelectorAll(".chip")].forEach(x => (x.style.outline = "none"));
         b.style.outline = "2px solid rgba(17,24,39,0.35)";
         selected = { size: String(v.size), price: Number(v.price) };
         els.modalPrice.textContent = formatMoney(selected.price);
@@ -649,13 +764,10 @@ function openModal(productId) {
       sizeLine.appendChild(b);
     });
 
-    // Put sizes into modal meta line (without the big ugly list)
     bits.push(`Sizes: ${sorted.map(x => x.size).join(", ")}`);
     els.modalMeta.textContent = bits.join(" • ");
 
-    // append sizeLine under meta by inserting into modalDesc area (safe)
     els.modalDesc.parentElement?.insertBefore(sizeLine, els.modalDesc);
-    // store reference so we can remove it on close
     els.modal._sizeLine = sizeLine;
 
     els.modalAdd.onclick = () => {
@@ -686,7 +798,7 @@ function openModal(productId) {
     };
   } else {
     els.modalMeta.textContent = bits.join(" • ");
-    els.modalPrice.textContent = (p.price != null) ? formatMoney(p.price) : "Price on request";
+    els.modalPrice.textContent = p.price != null ? formatMoney(p.price) : "Price on request";
 
     els.modalAdd.onclick = () => {
       if (p.price == null) {
@@ -717,7 +829,6 @@ function openModal(productId) {
 
 function closeModal() {
   if (!els.modal) return;
-  // remove modal size buttons line if it exists
   if (els.modal._sizeLine && els.modal._sizeLine.parentElement) {
     els.modal._sizeLine.parentElement.removeChild(els.modal._sizeLine);
     els.modal._sizeLine = null;
@@ -749,7 +860,7 @@ async function loadProducts() {
       pattern: safeText(p.pattern),
       sizes: Array.isArray(p.sizes) ? p.sizes.map(safeText).filter(Boolean) : [],
       price: p.price == null ? null : Number(p.price),
-      variants, // ✅ NEW
+      variants,
       image: safeText(p.image),
       hasPhoto: Boolean(p.image),
       featured: Boolean(p.featured),
@@ -758,6 +869,7 @@ async function loadProducts() {
   });
 
   hydrateFiltersOptions();
+  buildTypeTabs();
 }
 
 /* ======================
@@ -790,6 +902,7 @@ function initKeyboard() {
     await loadProducts();
     bindFilters();
     updateCartUI();
+    renderProducts();
   } catch (err) {
     console.error(err);
     if (els.productGrid) {

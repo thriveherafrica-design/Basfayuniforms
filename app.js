@@ -9,6 +9,7 @@
 const CONFIG = {
   currency: "KES",
   pickup: "Kangemi",
+  // IMPORTANT: Set your WhatsApp number in international format, no +, no spaces.
   whatsappNumber: "254119667836",
   businessName: "BASFAY School Uniforms",
 };
@@ -16,12 +17,14 @@ const CONFIG = {
 const els = {
   year: document.getElementById("year"),
 
+  // hero filters
   q: document.getElementById("q"),
   colorFilter: document.getElementById("colorFilter"),
   typeFilter: document.getElementById("typeFilter"),
   sortBy: document.getElementById("sortBy"),
   clearFilters: document.getElementById("clearFilters"),
 
+  // sidebar filters
   q2: document.getElementById("q2"),
   colorFilter2: document.getElementById("colorFilter2"),
   typeFilter2: document.getElementById("typeFilter2"),
@@ -33,11 +36,13 @@ const els = {
   emptyState: document.getElementById("emptyState"),
   resultsCount: document.getElementById("resultsCount"),
 
+  // WhatsApp links
   topbarWhatsApp: document.getElementById("topbarWhatsApp"),
   headerWhatsApp: document.getElementById("headerWhatsApp"),
   contactWhatsApp: document.getElementById("contactWhatsApp"),
   footerWhatsApp: document.getElementById("footerWhatsApp"),
 
+  // drawer/cart
   openCart: document.getElementById("openCart"),
   closeDrawer: document.getElementById("closeDrawer"),
   drawer: document.getElementById("drawer"),
@@ -48,6 +53,7 @@ const els = {
   sendWhatsApp: document.getElementById("sendWhatsApp"),
   clearCart: document.getElementById("clearCart"),
 
+  // modal
   modal: document.getElementById("modal"),
   modalBackdrop: document.getElementById("modalBackdrop"),
   closeModal: document.getElementById("closeModal"),
@@ -61,7 +67,12 @@ const els = {
 };
 
 let PRODUCTS = [];
-let state = { q: "", color: "", type: "", sort: "featured" };
+let state = {
+  q: "",
+  color: "",
+  type: "",
+  sort: "featured",
+};
 
 const CART_KEY = "basfay_cart_v1";
 
@@ -78,58 +89,16 @@ function normalize(s) {
   return safeText(s).toLowerCase();
 }
 
-/** -------- Variant helpers (NEW) -------- */
-function getVariantPrices(p) {
-  const vs = Array.isArray(p.variants) ? p.variants : [];
-  const prices = vs.map(v => Number(v.price)).filter(n => Number.isFinite(n));
-  return prices;
-}
-
-function getMinMaxPrice(p) {
-  // If product has a direct price, use it
-  if (p.price != null && Number.isFinite(Number(p.price))) {
-    const n = Number(p.price);
-    return { min: n, max: n };
-  }
-  const prices = getVariantPrices(p);
-  if (!prices.length) return { min: null, max: null };
-  return { min: Math.min(...prices), max: Math.max(...prices) };
-}
-
-function getDisplayPrice(p) {
-  const { min, max } = getMinMaxPrice(p);
-  if (min == null) return "Price on request";
-  if (min === max) return formatMoney(min);
-  return `${formatMoney(min)} – ${formatMoney(max)}`;
-}
-
-function getAllSizes(p) {
-  // Support both old sizes[] and new variants[]
-  const fromSizes = Array.isArray(p.sizes) ? p.sizes.map(safeText).filter(Boolean) : [];
-  const fromVariants = Array.isArray(p.variants)
-    ? p.variants.map(v => safeText(v.size)).filter(Boolean)
-    : [];
-  const all = [...new Set([...fromSizes, ...fromVariants])];
-  return all;
-}
-
-function buildSizesPricesLines(p) {
-  const vs = Array.isArray(p.variants) ? p.variants : [];
-  if (!vs.length) return "";
-  // sort by size number if possible
-  const sorted = [...vs].sort((a, b) => (Number(a.size) || 0) - (Number(b.size) || 0));
-  return sorted
-    .map(v => `• ${safeText(v.size)} - ${formatMoney(v.price)}`)
-    .join("\n");
-}
-
-/** -------- Cart helpers -------- */
+/* ======================
+   CART (size-aware)
+   ====================== */
 function getCart() {
   try {
     const raw = localStorage.getItem(CART_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed;
   } catch {
     return [];
   }
@@ -141,12 +110,43 @@ function setCart(items) {
 }
 
 function cartCountTotal() {
-  return getCart().reduce((sum, item) => sum + (item.qty || 0), 0);
+  const cart = getCart();
+  return cart.reduce((sum, item) => sum + (item.qty || 0), 0);
 }
 
-/** -------- WhatsApp -------- */
+function addToCart(productId, size, price, qty = 1) {
+  const cart = getCart();
+  const key = `${productId}__${size}`;
+  const found = cart.find(i => i.key === key);
+
+  if (found) found.qty += qty;
+  else cart.push({ key, id: productId, size: String(size), price: Number(price), qty });
+
+  setCart(cart);
+  openDrawer();
+}
+
+function removeFromCart(key) {
+  const cart = getCart().filter(i => i.key !== key);
+  setCart(cart);
+}
+
+function setQty(key, qty) {
+  const cart = getCart();
+  const item = cart.find(i => i.key === key);
+  if (!item) return;
+  item.qty = Math.max(1, qty);
+  setCart(cart);
+}
+
+/* ======================
+   WhatsApp helpers
+   ====================== */
 function buildWhatsAppLink(message) {
-  return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+  const base = "https://wa.me/";
+  const num = CONFIG.whatsappNumber;
+  const text = encodeURIComponent(message);
+  return `${base}${num}?text=${text}`;
 }
 
 function buildGenericWhatsAppMessage() {
@@ -160,7 +160,9 @@ function updateWhatsAppLinks() {
   }
 }
 
-/** -------- Filters -------- */
+/* ======================
+   Filters options
+   ====================== */
 function hydrateFiltersOptions() {
   const colors = new Set();
   const types = new Set();
@@ -188,25 +190,35 @@ function hydrateFiltersOptions() {
 
   fillSelect(els.colorFilter, colorList);
   fillSelect(els.colorFilter2, colorList);
-
   fillSelect(els.typeFilter, typeList);
   fillSelect(els.typeFilter2, typeList);
 }
 
+/* ======================
+   Sorting / filtering
+   ====================== */
 function applySort(list) {
   const sort = state.sort;
 
   const byNameAsc = (a, b) => safeText(a.name).localeCompare(safeText(b.name));
   const byNameDesc = (a, b) => safeText(b.name).localeCompare(safeText(a.name));
 
-  // Use minPrice for variant products
-  const priceVal = (p) => {
-    const { min } = getMinMaxPrice(p);
-    return min == null ? 1e15 : min;
+  // If product has variants, we sort by min/max variant price
+  const minPrice = (p) => {
+    if (Array.isArray(p.variants) && p.variants.length) {
+      return Math.min(...p.variants.map(v => Number(v.price) || 1e15));
+    }
+    return p.price ?? 1e15;
+  };
+  const maxPrice = (p) => {
+    if (Array.isArray(p.variants) && p.variants.length) {
+      return Math.max(...p.variants.map(v => Number(v.price) || -1));
+    }
+    return p.price ?? -1;
   };
 
-  const byPriceAsc = (a, b) => priceVal(a) - priceVal(b);
-  const byPriceDesc = (a, b) => priceVal(b) - priceVal(a);
+  const byPriceAsc = (a, b) => minPrice(a) - minPrice(b);
+  const byPriceDesc = (a, b) => maxPrice(b) - maxPrice(a);
 
   const featuredScore = (p) => {
     let score = 0;
@@ -238,6 +250,9 @@ function matchesFilters(p) {
   return hay.includes(q);
 }
 
+/* ======================
+   Render products
+   ====================== */
 function renderProducts() {
   if (!els.productGrid) return;
 
@@ -249,7 +264,9 @@ function renderProducts() {
   els.productGrid.innerHTML = "";
   els.emptyState.hidden = sorted.length !== 0;
 
-  sorted.forEach(p => els.productGrid.appendChild(productCard(p)));
+  sorted.forEach(p => {
+    els.productGrid.appendChild(productCard(p));
+  });
 }
 
 function chip(text) {
@@ -259,7 +276,6 @@ function chip(text) {
   return el;
 }
 
-/** -------- Product card (UPDATED to show variants list) -------- */
 function productCard(p) {
   const wrap = document.createElement("article");
   wrap.className = "product";
@@ -281,7 +297,7 @@ function productCard(p) {
   } else {
     const ph = document.createElement("div");
     ph.className = "placeholder";
-    ph.innerHTML = `<div>Image coming soon</div><div class="muted" style="margin-top:6px;font-weight:750;font-size:12px;">Tap to view details</div>`;
+    ph.innerHTML = `<div>Image coming soon</div>`;
     media.appendChild(ph);
   }
 
@@ -293,26 +309,42 @@ function productCard(p) {
   meta.appendChild(chip(p.type || "Item"));
   if (p.pattern) meta.appendChild(chip(p.pattern));
 
-  const allSizes = getAllSizes(p);
-  if (allSizes.length) meta.appendChild(chip(`Sizes: ${allSizes.join(", ")}`));
+  // Size selection + price behavior (professional one)
+  const variants = Array.isArray(p.variants) ? p.variants : [];
+  let selected = null;
+
+  const sizeWrap = document.createElement("div");
+  sizeWrap.className = "meta";
+  sizeWrap.style.marginTop = "8px";
+  sizeWrap.style.flexWrap = "wrap";
 
   const price = document.createElement("div");
   price.className = "price";
-  price.textContent = getDisplayPrice(p);
 
-  // NEW: sizes+prices list under sweaters (or any item with variants)
-  const variantsBlock = document.createElement("div");
-  variantsBlock.className = "muted";
-  variantsBlock.style.marginTop = "8px";
-  variantsBlock.style.whiteSpace = "pre-line";
-  variantsBlock.style.fontWeight = "700";
-  variantsBlock.style.fontSize = "12px";
+  if (variants.length) {
+    price.textContent = "Select size";
 
-  const lines = buildSizesPricesLines(p);
-  if (lines) {
-    variantsBlock.textContent = `Sizes & Prices:\n${lines}`;
+    const sorted = [...variants].sort((a, b) => (Number(a.size) || 0) - (Number(b.size) || 0));
+    sorted.forEach(v => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.style.cursor = "pointer";
+      b.textContent = String(v.size);
+
+      b.addEventListener("click", () => {
+        [...sizeWrap.querySelectorAll(".chip")].forEach(x => x.style.outline = "none");
+        b.style.outline = "2px solid rgba(17,24,39,0.35)";
+
+        selected = { size: String(v.size), price: Number(v.price) };
+        price.textContent = formatMoney(selected.price);
+      });
+
+      sizeWrap.appendChild(b);
+    });
   } else {
-    variantsBlock.textContent = ""; // keep empty for non-variant items
+    // non-variant items
+    price.textContent = (p.price != null) ? formatMoney(p.price) : "Price on request";
   }
 
   const actions = document.createElement("div");
@@ -328,7 +360,22 @@ function productCard(p) {
   addBtn.type = "button";
   addBtn.className = "btn small primary";
   addBtn.textContent = "Add to order";
-  addBtn.addEventListener("click", () => addToCart(p.id, 1));
+  addBtn.addEventListener("click", () => {
+    if (variants.length) {
+      if (!selected) {
+        alert("Please select a size first.");
+        return;
+      }
+      addToCart(p.id, selected.size, selected.price, 1);
+    } else {
+      // fallback
+      if (p.price == null) {
+        alert("Price on request. Please message us on WhatsApp to confirm.");
+        return;
+      }
+      addToCart(p.id, "-", p.price, 1);
+    }
+  });
 
   actions.appendChild(viewBtn);
   actions.appendChild(addBtn);
@@ -336,8 +383,8 @@ function productCard(p) {
   wrap.appendChild(media);
   wrap.appendChild(title);
   wrap.appendChild(meta);
+  if (variants.length) wrap.appendChild(sizeWrap);
   wrap.appendChild(price);
-  if (lines) wrap.appendChild(variantsBlock);
   wrap.appendChild(actions);
 
   media.style.cursor = "pointer";
@@ -346,7 +393,9 @@ function productCard(p) {
   return wrap;
 }
 
-/** -------- Filters bindings -------- */
+/* ======================
+   Filters binding
+   ====================== */
 function bindFilters() {
   const syncFromHeroToSidebar = () => {
     if (els.q2) els.q2.value = els.q.value;
@@ -408,29 +457,9 @@ function bindFilters() {
   applyFrom(hero);
 }
 
-/** -------- Cart -------- */
-function addToCart(productId, qty = 1) {
-  const cart = getCart();
-  const found = cart.find(i => i.id === productId);
-  if (found) found.qty += qty;
-  else cart.push({ id: productId, qty: qty });
-
-  setCart(cart);
-  openDrawer();
-}
-
-function removeFromCart(productId) {
-  setCart(getCart().filter(i => i.id !== productId));
-}
-
-function setQty(productId, qty) {
-  const cart = getCart();
-  const item = cart.find(i => i.id === productId);
-  if (!item) return;
-  item.qty = Math.max(1, qty);
-  setCart(cart);
-}
-
+/* ======================
+   Drawer / Cart UI
+   ====================== */
 function updateCartUI() {
   const cart = getCart();
   const total = cartCountTotal();
@@ -455,13 +484,13 @@ function updateCartUI() {
 
     const left = document.createElement("div");
     const title = document.createElement("h4");
-    title.textContent = p.name;
+    title.textContent = item.size && item.size !== "-" ? `${p.name} (Size ${item.size})` : p.name;
 
     const meta = document.createElement("div");
     meta.className = "meta";
     meta.appendChild(chip(p.color || "Color"));
     meta.appendChild(chip(p.type || "Item"));
-    meta.appendChild(chip(getDisplayPrice(p)));
+    meta.appendChild(chip(formatMoney(item.price)));
 
     left.appendChild(title);
     left.appendChild(meta);
@@ -474,7 +503,7 @@ function updateCartUI() {
     minus.className = "qty-btn";
     minus.type = "button";
     minus.textContent = "−";
-    minus.addEventListener("click", () => setQty(p.id, item.qty - 1));
+    minus.addEventListener("click", () => setQty(item.key, item.qty - 1));
 
     const qty = document.createElement("div");
     qty.className = "qty";
@@ -484,13 +513,13 @@ function updateCartUI() {
     plus.className = "qty-btn";
     plus.type = "button";
     plus.textContent = "+";
-    plus.addEventListener("click", () => setQty(p.id, item.qty + 1));
+    plus.addEventListener("click", () => setQty(item.key, item.qty + 1));
 
     const del = document.createElement("button");
     del.className = "qty-btn";
     del.type = "button";
     del.textContent = "🗑";
-    del.addEventListener("click", () => removeFromCart(p.id));
+    del.addEventListener("click", () => removeFromCart(item.key));
 
     controls.appendChild(minus);
     controls.appendChild(qty);
@@ -520,17 +549,14 @@ function buildOrderMessage() {
     cart.forEach(item => {
       const p = PRODUCTS.find(x => x.id === item.id);
       if (!p) return;
-      const priceStr = ` (${getDisplayPrice(p)})`;
-      lines.push(`- ${item.qty} × ${p.name}${priceStr}`);
+      const sizeText = item.size && item.size !== "-" ? ` (Size ${item.size})` : "";
+      lines.push(`- ${item.qty} × ${p.name}${sizeText} (${formatMoney(item.price)})`);
     });
   }
 
   lines.push("");
   lines.push(`Pickup: ${CONFIG.pickup}`);
   lines.push("Delivery: (If needed, share your area and I’ll confirm delivery fee.)");
-  lines.push("");
-  lines.push("Sizes needed (required for sweaters):");
-  lines.push("-");
   lines.push("");
   lines.push("Thank you.");
 
@@ -542,7 +568,9 @@ function bindCart() {
   els.closeDrawer?.addEventListener("click", closeDrawer);
   els.drawerBackdrop?.addEventListener("click", closeDrawer);
 
-  els.clearCart?.addEventListener("click", () => setCart([]));
+  els.clearCart?.addEventListener("click", () => {
+    setCart([]);
+  });
 
   els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
 }
@@ -557,7 +585,9 @@ function closeDrawer() {
   els.drawer.setAttribute("aria-hidden", "true");
 }
 
-/** -------- Modal (UPDATED to show variants) -------- */
+/* ======================
+   Modal (size-aware)
+   ====================== */
 function bindModal() {
   els.closeModal?.addEventListener("click", closeModal);
   els.modalBackdrop?.addEventListener("click", closeModal);
@@ -568,21 +598,16 @@ function openModal(productId) {
   if (!p || !els.modal) return;
 
   els.modalTitle.textContent = p.name;
-  els.modalPrice.textContent = getDisplayPrice(p);
+
+  const variants = Array.isArray(p.variants) ? p.variants : [];
+  let selected = null;
 
   const bits = [];
   if (p.color) bits.push(`Color: ${p.color}`);
   if (p.type) bits.push(`Type: ${p.type}`);
   if (p.pattern) bits.push(`Pattern: ${p.pattern}`);
-  const allSizes = getAllSizes(p);
-  if (allSizes.length) bits.push(`Sizes: ${allSizes.join(", ")}`);
-  els.modalMeta.textContent = bits.join(" • ");
 
-  const variantLines = buildSizesPricesLines(p);
-  const baseDesc = p.description || "Durable, comfortable school uniform item. Order via WhatsApp.";
-  els.modalDesc.textContent = variantLines
-    ? `${baseDesc}\n\nSizes & Prices:\n${variantLines}`
-    : baseDesc;
+  els.modalDesc.textContent = p.description || "Durable, comfortable school uniform item. Order via WhatsApp.";
 
   els.modalMedia.innerHTML = "";
   if (p.image) {
@@ -593,69 +618,151 @@ function openModal(productId) {
   } else {
     const ph = document.createElement("div");
     ph.className = "placeholder";
-    ph.innerHTML = `<div style="font-weight:900;">Image coming soon</div><div class="muted" style="margin-top:6px;font-weight:750;font-size:12px;">You can upload this later</div>`;
+    ph.innerHTML = `<div style="font-weight:900;">Image coming soon</div>`;
     els.modalMedia.appendChild(ph);
   }
 
-  els.modalAdd.onclick = () => addToCart(p.id, 1);
+  // Build size picker in modal if variants exist
+  if (variants.length) {
+    els.modalPrice.textContent = "Select size";
 
-  els.modalOrderNow.onclick = () => {
-    const msg = [
-      `Hi ${CONFIG.businessName}, I would like to order:`,
-      ``,
-      `- 1 × ${p.name} (${getDisplayPrice(p)})`,
-      variantLines ? `` : ``,
-      variantLines ? `Sizes & Prices:\n${variantLines}` : ``,
-      ``,
-      `Pickup: ${CONFIG.pickup}`,
-      `Delivery: (If needed, share your area and I’ll confirm delivery fee.)`,
-      ``,
-      `Size needed:`,
-      `-`,
-      ``,
-      `Thank you.`,
-    ].filter(Boolean).join("\n");
+    const sizeLine = document.createElement("div");
+    sizeLine.className = "meta";
+    sizeLine.style.marginTop = "10px";
+    sizeLine.style.flexWrap = "wrap";
 
-    window.open(buildWhatsAppLink(msg), "_blank", "noopener");
-  };
+    const sorted = [...variants].sort((a, b) => (Number(a.size) || 0) - (Number(b.size) || 0));
+    sorted.forEach(v => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.style.cursor = "pointer";
+      b.textContent = String(v.size);
+
+      b.addEventListener("click", () => {
+        [...sizeLine.querySelectorAll(".chip")].forEach(x => x.style.outline = "none");
+        b.style.outline = "2px solid rgba(17,24,39,0.35)";
+        selected = { size: String(v.size), price: Number(v.price) };
+        els.modalPrice.textContent = formatMoney(selected.price);
+      });
+
+      sizeLine.appendChild(b);
+    });
+
+    // Put sizes into modal meta line (without the big ugly list)
+    bits.push(`Sizes: ${sorted.map(x => x.size).join(", ")}`);
+    els.modalMeta.textContent = bits.join(" • ");
+
+    // append sizeLine under meta by inserting into modalDesc area (safe)
+    els.modalDesc.parentElement?.insertBefore(sizeLine, els.modalDesc);
+    // store reference so we can remove it on close
+    els.modal._sizeLine = sizeLine;
+
+    els.modalAdd.onclick = () => {
+      if (!selected) {
+        alert("Please select a size first.");
+        return;
+      }
+      addToCart(p.id, selected.size, selected.price, 1);
+    };
+
+    els.modalOrderNow.onclick = () => {
+      if (!selected) {
+        alert("Please select a size first.");
+        return;
+      }
+      const msg = [
+        `Hi ${CONFIG.businessName}, I would like to order:`,
+        ``,
+        `- 1 × ${p.name} (Size ${selected.size}) (${formatMoney(selected.price)})`,
+        ``,
+        `Pickup: ${CONFIG.pickup}`,
+        `Delivery: (If needed, share your area and I’ll confirm delivery fee.)`,
+        ``,
+        `Thank you.`,
+      ].join("\n");
+
+      window.open(buildWhatsAppLink(msg), "_blank", "noopener");
+    };
+  } else {
+    els.modalMeta.textContent = bits.join(" • ");
+    els.modalPrice.textContent = (p.price != null) ? formatMoney(p.price) : "Price on request";
+
+    els.modalAdd.onclick = () => {
+      if (p.price == null) {
+        alert("Price on request. Please message us on WhatsApp to confirm.");
+        return;
+      }
+      addToCart(p.id, "-", p.price, 1);
+    };
+
+    els.modalOrderNow.onclick = () => {
+      const msg = [
+        `Hi ${CONFIG.businessName}, I would like to order:`,
+        ``,
+        `- 1 × ${p.name}${p.price != null ? ` (${formatMoney(p.price)})` : ""}`,
+        ``,
+        `Pickup: ${CONFIG.pickup}`,
+        `Delivery: (If needed, share your area and I’ll confirm delivery fee.)`,
+        ``,
+        `Thank you.`,
+      ].join("\n");
+
+      window.open(buildWhatsAppLink(msg), "_blank", "noopener");
+    };
+  }
 
   els.modal.setAttribute("aria-hidden", "false");
 }
 
 function closeModal() {
   if (!els.modal) return;
+  // remove modal size buttons line if it exists
+  if (els.modal._sizeLine && els.modal._sizeLine.parentElement) {
+    els.modal._sizeLine.parentElement.removeChild(els.modal._sizeLine);
+    els.modal._sizeLine = null;
+  }
   els.modal.setAttribute("aria-hidden", "true");
 }
 
-/** -------- Load products (UPDATED to keep variants) -------- */
+/* ======================
+   Load products
+   ====================== */
 async function loadProducts() {
   const res = await fetch("./products.json", { cache: "no-store" });
   if (!res.ok) throw new Error("Could not load products.json");
   const data = await res.json();
   if (!Array.isArray(data)) throw new Error("products.json must be an array");
 
-  PRODUCTS = data.map(p => ({
-    id: p.id,
-    name: safeText(p.name),
-    color: safeText(p.color),
-    type: safeText(p.type),
-    pattern: safeText(p.pattern),
-    sizes: Array.isArray(p.sizes) ? p.sizes.map(safeText).filter(Boolean) : [],
-    variants: Array.isArray(p.variants)
+  PRODUCTS = data.map(p => {
+    const variants = Array.isArray(p.variants)
       ? p.variants
           .map(v => ({ size: safeText(v.size), price: Number(v.price) }))
-          .filter(v => v.size && Number.isFinite(v.price))
-      : [],
-    price: p.price == null ? null : Number(p.price),
-    image: safeText(p.image),
-    hasPhoto: Boolean(p.image),
-    featured: Boolean(p.featured),
-    description: safeText(p.description),
-  }));
+          .filter(v => v.size && !Number.isNaN(v.price))
+      : [];
+
+    return {
+      id: p.id,
+      name: safeText(p.name),
+      color: safeText(p.color),
+      type: safeText(p.type),
+      pattern: safeText(p.pattern),
+      sizes: Array.isArray(p.sizes) ? p.sizes.map(safeText).filter(Boolean) : [],
+      price: p.price == null ? null : Number(p.price),
+      variants, // ✅ NEW
+      image: safeText(p.image),
+      hasPhoto: Boolean(p.image),
+      featured: Boolean(p.featured),
+      description: safeText(p.description),
+    };
+  });
 
   hydrateFiltersOptions();
 }
 
+/* ======================
+   Misc
+   ====================== */
 function initYear() {
   if (els.year) els.year.textContent = String(new Date().getFullYear());
 }
@@ -669,6 +776,9 @@ function initKeyboard() {
   });
 }
 
+/* ======================
+   Main
+   ====================== */
 (async function main() {
   initYear();
   updateWhatsAppLinks();

@@ -48,6 +48,18 @@
   "description": "Grey school sweater with blue outer stripe, white center stripe, and blue inner stripe. Size 22."
 },
   {
+  "id": "sweater-green-plain-22",
+  "name": "Green Sweater Size 22",
+  "color": "Green",
+  "type": "Sweater",
+  "pattern": "Plain",
+  "sizes": ["22"],
+  "price": 600,
+  "image": "./images/sweater-green-plain-22.png",
+  "featured": true,
+  "description": "Green plain school sweater size 22."
+},
+  {
   "id": "sweater-red-plain-22",
   "name": "Red Sweater Size 22",
   "color": "Red",

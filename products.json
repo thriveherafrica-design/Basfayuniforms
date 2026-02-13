@@ -83,6 +83,18 @@
   "featured": true,
   "description": "Light blue school sweater with white stripes. Size 22."
 },
+  {
+  "id": "sweater-navy-striped-white-22",
+  "name": "Navy Striped Sweater Size 22",
+  "color": "Navy",
+  "type": "Sweater",
+  "pattern": "Striped White",
+  "sizes": ["22"],
+  "price": 600,
+  "image": "./images/sweater-navy-striped-white-22.png",
+  "featured": true,
+  "description": "Navy school sweater with white stripes, size 22."
+},
  {
     "id": "red-checked-dress",
     "name": "Red Checked Dress",

@@ -10,18 +10,21 @@
     "image": "",
     "featured": true,
     "description": "Durable school sweater for daily wear. Warm, comfortable, and long-lasting."
-  ,
-{
-  "id": "sweater-grey-plain-22",
-  "name": "Sweater",
-  "color": "Grey",
-  "type": "Sweater",
-  "size": "22",
-  "price": 600,
-  "image": "./images/sweater-grey-plain-22.jpg"
-}
-
   },
+
+  {
+    "id": "sweater-grey-plain-22",
+    "name": "Grey Sweater Size 22",
+    "color": "Grey",
+    "type": "Sweater",
+    "pattern": "Plain",
+    "sizes": ["22"],
+    "price": 600,
+    "image": "./images/sweater-grey-plain-22.jpg",
+    "featured": true,
+    "description": "Grey plain school sweater size 22."
+  },
+
   {
     "id": "red-checked-dress",
     "name": "Red Checked Dress",
@@ -34,6 +37,7 @@
     "featured": true,
     "description": "Checked school dress. Comfortable fit and strong stitching for daily use."
   },
+
   {
     "id": "green-sweater",
     "name": "Green Sweater",
@@ -46,6 +50,7 @@
     "featured": true,
     "description": "Durable school sweater designed for everyday use."
   },
+
   {
     "id": "blue-shirt",
     "name": "Blue Shirt",
@@ -58,6 +63,7 @@
     "featured": true,
     "description": "Smart school shirt. Easy to wear, easy to maintain."
   },
+
   {
     "id": "white-socks",
     "name": "White Socks",

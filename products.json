@@ -60,6 +60,18 @@
   "description": "Red plain school sweater size 22."
 },
   {
+  "id": "sweater-navy-plain-22",
+  "name": "Navy Sweater Size 22",
+  "color": "Navy",
+  "type": "Sweater",
+  "pattern": "Plain",
+  "sizes": ["22"],
+  "price": 600,
+  "image": "./images/sweater-navy-plain-22.png",
+  "featured": true,
+  "description": "Navy plain school sweater size 22."
+},
+  {
   "id": "sweater-light-blue-white-striped-22",
   "name": "Light Blue Sweater Size 22",
   "color": "Light Blue",

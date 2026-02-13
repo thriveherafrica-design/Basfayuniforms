@@ -11,6 +11,15 @@
     "featured": true,
     "description": "Durable school sweater for daily wear. Warm, comfortable, and long-lasting."
   },
+{
+  "id": "sweater-maroon-plain-22",
+  "name": "Sweater",
+  "color": "Maroon",
+  "type": "Sweater",
+  "size": "22",
+  "price": 600,
+  "image": "./images/sweater-maroon-plain-22.jpg"
+}
 
   {
     "id": "sweater-grey-plain-22",

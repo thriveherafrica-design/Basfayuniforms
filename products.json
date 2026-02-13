@@ -11,18 +11,6 @@
   "featured": true,
   "description": "Maroon plain school sweater size 22."
 },
-  {
-  "id": "sweater-light-blue-white-striped-22",
-  "name": "Light Blue Sweater Size 22",
-  "color": "Light Blue",
-  "type": "Sweater",
-  "pattern": "Striped",
-  "sizes": ["22"],
-  "price": 600,
-  "image": "./images/sweater-light-blue-white-striped-22.png",
-  "featured": true,
-  "description": "Light blue school sweater with white stripes. Size 22."
-},
 {
   "id": "sweater-grey-plain-22",
   "name": "Grey Sweater Size 22",
@@ -46,6 +34,18 @@
   "image": "./images/sweater-red-striped-white-22.png",
   "featured": true,
   "description": "Red sweater with white stripes, size 22."
+},
+  {
+  "id": "sweater-light-blue-white-striped-22",
+  "name": "Light Blue Sweater Size 22",
+  "color": "Light Blue",
+  "type": "Sweater",
+  "pattern": "Striped",
+  "sizes": ["22"],
+  "price": 600,
+  "image": "./images/sweater-light-blue-white-striped-22.png",
+  "featured": true,
+  "description": "Light blue school sweater with white stripes. Size 22."
 },
  {
     "id": "red-checked-dress",

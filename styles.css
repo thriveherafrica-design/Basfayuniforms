@@ -667,5 +667,32 @@ input:focus, select:focus {
   padding-bottom: 12px !important;
 }
 
+/* === BASFAY: Lavender Top Header === */
+:root{
+  --lavender: #E6E0F8;        /* soft elegant lavender */
+  --lavender-deep: #D6CCF2;   /* slightly deeper */
+}
+
+.header{
+  background: linear-gradient(180deg, var(--lavender), var(--lavender-deep)) !important;
+  border-bottom: 1px solid rgba(17,24,39,.08) !important;
+}
+
+.header .brand-mark{
+  background: rgba(255,255,255,.6) !important;
+  border: 1px solid rgba(17,24,39,.10) !important;
+}
+
+.header .brand-name,
+.header .brand-sub{
+  color: rgba(17,24,39,.92) !important;
+}
+
+.header .header-inner{
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+
 
 

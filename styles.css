@@ -693,6 +693,55 @@ input:focus, select:focus {
   padding-bottom: 12px !important;
 }
 
+/* ===== BASFAY Mustard Luxury Header ===== */
+
+:root{
+  --mustard: #C89B2D;          /* rich mustard */
+  --mustard-deep: #B48822;     /* deeper shade */
+}
+
+/* Apply new fonts */
+body{
+  font-family: 'Manrope', sans-serif;
+}
+
+.brand-name{
+  font-family: 'Fraunces', serif !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.3px;
+}
+
+.section-head h2,
+.brand-lines h1{
+  font-family: 'Fraunces', serif !important;
+  font-weight: 600 !important;
+}
+
+/* Mustard top header */
+.header{
+  background: linear-gradient(180deg, var(--mustard), var(--mustard-deep)) !important;
+  border-bottom: none !important;
+}
+
+/* White brand icon box for contrast */
+.header .brand-mark{
+  background: rgba(255,255,255,.85) !important;
+  border: none !important;
+}
+
+/* Text color on mustard */
+.header .brand-name,
+.header .brand-sub{
+  color: #1F2937 !important;
+}
+
+/* Tighten header padding */
+.header .header-inner{
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+
 
 
 

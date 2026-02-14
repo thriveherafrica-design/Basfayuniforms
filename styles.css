@@ -639,4 +639,33 @@ input:focus, select:focus {
   }
 }
 
+/* === BASFAY: make the very top header sage green === */
+:root{
+  --sage: #C9D7C2;        /* soft sage green */
+  --sage-deeper:#B7C8AE;  /* slightly deeper */
+}
+
+.header{
+  background: var(--sage) !important;
+  border-bottom: 1px solid rgba(17,24,39,.08) !important;
+}
+
+.header .brand-mark{
+  background: rgba(255,255,255,.55) !important;
+  border: 1px solid rgba(17,24,39,.10) !important;
+}
+
+/* Make text readable on sage */
+.header .brand-name,
+.header .brand-sub{
+  color: rgba(17,24,39,.92) !important;
+}
+
+/* Optional: tighten padding so it looks cleaner */
+.header .header-inner{
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+
 

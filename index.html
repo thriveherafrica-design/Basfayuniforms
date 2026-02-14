@@ -14,13 +14,77 @@
     <!-- Small safety CSS so we can hide things without breaking JS -->
     <style>
       .is-hidden { display: none !important; }
+
+      /* New: beautiful compact hero */
+      .brand-hero {
+        padding: 22px 0 10px;
+        background:
+          radial-gradient(900px 420px at 15% 10%, rgba(30,136,229,.18), transparent 60%),
+          radial-gradient(700px 380px at 85% 30%, rgba(30,136,229,.12), transparent 60%);
+      }
+      .brand-hero .brand-hero-inner{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:16px;
+        flex-wrap:wrap;
+      }
+      .brand-badge{
+        display:flex;
+        align-items:center;
+        gap:12px;
+      }
+      .brand-logo{
+        width:54px;
+        height:54px;
+        border-radius:16px;
+        display:grid;
+        place-items:center;
+        font-weight:800;
+        font-size:22px;
+        background: rgba(30,136,229,.14);
+        border: 1px solid rgba(30,136,229,.20);
+      }
+      .brand-lines h1{
+        margin:0;
+        line-height:1.1;
+        font-size: clamp(22px, 3vw, 34px);
+        letter-spacing:-0.4px;
+      }
+      .brand-lines p{
+        margin:6px 0 0;
+      }
+      .brand-pill{
+        display:inline-flex;
+        gap:8px;
+        align-items:center;
+        padding:8px 12px;
+        border-radius:999px;
+        background: rgba(17,24,39,.06);
+        border: 1px solid rgba(17,24,39,.08);
+        font-size: 13px;
+      }
+      .brand-pill strong{ font-weight:700; }
+      .brand-mini{
+        display:flex;
+        gap:8px;
+        flex-wrap:wrap;
+        align-items:center;
+        justify-content:flex-end;
+      }
+      .brand-mini .brand-pill{
+        background: rgba(255,255,255,.55);
+      }
+
+      /* Reduce “space at the top” by hiding old hero grid spacing if any */
+      .hero { padding-top: 0 !important; }
     </style>
   </head>
 
   <body>
     <a class="skip" href="#main">Skip to content</a>
 
-    <!-- Top Bar (updated text, removed pickup/delivery + links) -->
+    <!-- Top Bar (simple) -->
     <div class="topbar">
       <div class="container topbar-inner" style="justify-content:center;">
         <div class="topbar-left">
@@ -49,7 +113,7 @@
           </span>
         </a>
 
-        <!-- Hide nav (Shop/Delivery/Contact removed visually) -->
+        <!-- Hide top nav -->
         <nav class="nav is-hidden" aria-label="Primary navigation" aria-hidden="true">
           <a class="nav-link" href="#shop">Shop</a>
           <a class="nav-link" href="#delivery">Delivery</a>
@@ -62,7 +126,7 @@
             <span class="badge" id="cartCount" aria-live="polite">0</span>
           </button>
 
-          <!-- Hide WhatsApp CTA (but keep element/ID so nothing breaks) -->
+          <!-- Hide WhatsApp CTA -->
           <a
             class="btn primary is-hidden"
             id="headerWhatsApp"
@@ -77,21 +141,35 @@
     </header>
 
     <main id="main">
-      <!-- Hero -->
-      <section class="hero">
+      <!-- NEW: Beautiful Top Brand Banner -->
+      <section class="brand-hero" aria-label="BASFAY brand banner">
+        <div class="container brand-hero-inner">
+          <div class="brand-badge">
+            <div class="brand-logo" aria-hidden="true">B</div>
+            <div class="brand-lines">
+              <h1>BASFAY Uniforms</h1>
+              <p class="muted">Quality &amp; Affordable</p>
+            </div>
+          </div>
+
+          <div class="brand-mini" aria-label="Highlights">
+            <span class="brand-pill"><strong>Quality fabrics</strong></span>
+            <span class="brand-pill"><strong>Fair pricing</strong></span>
+            <span class="brand-pill"><strong>Fast ordering</strong></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- OLD HERO kept ONLY for Quick Shop IDs, but hidden -->
+      <section class="hero is-hidden" aria-hidden="true">
         <div class="container hero-grid">
           <div class="hero-copy">
             <h1>BASFAY Uniforms</h1>
             <p class="lead">Quality &amp; Affordable</p>
-
-            <!-- Hide hero CTA buttons -->
-            <div class="hero-cta is-hidden" aria-hidden="true">
-              <a class="btn primary" href="#shop">Shop</a>
-              <a class="btn ghost" href="#delivery">Pickup & delivery</a>
-            </div>
+            <div class="hero-cta is-hidden" aria-hidden="true"></div>
           </div>
 
-          <!-- Quick Shop (KEEP, it’s part of your shopping experience) -->
+          <!-- Quick Shop kept in DOM for JS safety -->
           <div class="hero-card" aria-label="Quick shop">
             <div class="card">
               <div class="card-head">
@@ -144,7 +222,7 @@
         </div>
       </section>
 
-      <!-- Shop (KEEP functionality, but change visible heading away from “Shop” if you want) -->
+      <!-- Shop -->
       <section class="section" id="shop">
         <div class="container">
           <div class="section-head">
@@ -256,7 +334,7 @@
         </div>
       </section>
 
-      <!-- Delivery (kept but hidden, so anchors/structure don’t explode) -->
+      <!-- Delivery (kept but hidden) -->
       <section class="section alt is-hidden" id="delivery" aria-hidden="true">
         <div class="container">
           <div class="section-head">
@@ -274,7 +352,6 @@
             <p class="muted">Hidden</p>
           </div>
 
-          <!-- Keep WhatsApp link element in DOM for safety -->
           <a
             class="btn primary"
             id="contactWhatsApp"
@@ -288,32 +365,31 @@
       </section>
     </main>
 
-   <!-- Footer -->
-<footer class="footer">
-  <div class="container footer-inner">
-    <div class="footer-left">
-      <div class="brand tiny">
-        <span class="brand-mark" aria-hidden="true">B</span>
-        <span class="brand-text">
-          <span class="brand-name">BASFAY Uniforms</span>
-          <span class="brand-sub">Quality &amp; Affordable</span>
-        </span>
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div class="footer-left">
+          <div class="brand tiny">
+            <span class="brand-mark" aria-hidden="true">B</span>
+            <span class="brand-text">
+              <span class="brand-name">BASFAY Uniforms</span>
+              <span class="brand-sub">Quality &amp; Affordable</span>
+            </span>
+          </div>
+          <p class="muted">Quality &amp; Affordable</p>
+        </div>
+
+        <div class="footer-right">
+          <a class="footer-link" href="#shop">Shop</a>
+          <a class="footer-link" href="#delivery">Delivery</a>
+          <a class="footer-link" href="#contact">Contact</a>
+        </div>
       </div>
-      <p class="muted">Quality &amp; Affordable</p>
-    </div>
 
-    <!-- Navigation moved to bottom -->
-    <div class="footer-right">
-      <a class="footer-link" href="#shop">Shop</a>
-      <a class="footer-link" href="#delivery">Delivery</a>
-      <a class="footer-link" href="#contact">Contact</a>
-    </div>
-  </div>
-
-  <div class="container footer-bottom">
-    <span class="muted">© <span id="year"></span> BASFAY Uniforms</span>
-  </div>
-</footer>
+      <div class="container footer-bottom">
+        <span class="muted">© <span id="year"></span> BASFAY Uniforms</span>
+      </div>
+    </footer>
 
     <!-- Order Drawer (KEEP, but hide WhatsApp send button) -->
     <div class="drawer" id="drawer" aria-hidden="true">

@@ -760,6 +760,12 @@ body{
   border-radius: 14px !important;
 }
 
+.header .brand-mark,
+.header .brand-mark *{
+  color: #ffffff !important;
+}
+
+
 
 
 

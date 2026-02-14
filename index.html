@@ -6,36 +6,37 @@
     <title>BASFAYuniforms — Shop</title>
     <meta
       name="description"
-      content="BASFAYuniforms — Shop by category. select size, add to order, then WhatsApp checkout."
+      content="BASFAYuniforms — Shop by category, select size, add to order, then WhatsApp checkout. Pickup: Kangemi. Delivery available (fee by area)."
     />
     <meta name="theme-color" content="#1E88E5" />
-
     <link rel="stylesheet" href="./styles.css" />
   </head>
 
   <body>
     <a class="skip" href="#main">Skip to content</a>
 
-    <!-- CLEAN HEADER (brand + cart only) -->
-   <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>BASFAYuniforms — Shop</title>
-    <meta
-      name="description"
-      content="BASFAYuniforms — Shop by category. Add to order, then WhatsApp checkout."
-    />
-    <meta name="theme-color" content="#1E88E5" />
+    <!-- Top Bar (optional, but harmless) -->
+    <div class="topbar">
+      <div class="container topbar-inner">
+        <div class="topbar-left">
+          <span class="pill">Pickup: Kangemi</span>
+          <span class="muted">Delivery available (fee by area)</span>
+        </div>
+        <div class="topbar-right">
+          <a
+            class="topbar-link"
+            id="topbarWhatsApp"
+            href="https://wa.me/254119667836"
+            rel="noopener"
+            target="_blank"
+            >WhatsApp</a
+          >
+          <a class="topbar-link" href="#contact">Contact</a>
+        </div>
+      </div>
+    </div>
 
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-
-  <body>
-    <a class="skip" href="#main">Skip to content</a>
-
-    <!-- CLEAN HEADER (brand + cart only) -->
+    <!-- Header (single brand, nav on the right, cart on top) -->
     <header class="header">
       <div class="container header-inner">
         <a class="brand" href="#shop" aria-label="BASFAYuniforms home">
@@ -46,17 +47,32 @@
           </span>
         </a>
 
-        <div class="header-actions">
+        <div class="header-actions" style="margin-left:auto;">
+          <nav class="nav" aria-label="Primary navigation" style="display:flex;">
+            <a class="nav-link" href="#shop">Shop</a>
+            <a class="nav-link" href="#delivery">Delivery</a>
+            <a class="nav-link" href="#contact">Contact</a>
+          </nav>
+
           <button class="icon-btn" id="openCart" aria-label="Open order list">
             <span aria-hidden="true">🧾</span>
             <span class="badge" id="cartCount" aria-live="polite">0</span>
           </button>
+
+          <a
+            class="btn primary"
+            id="headerWhatsApp"
+            href="https://wa.me/254119667836"
+            rel="noopener"
+            target="_blank"
+            >Order on WhatsApp</a
+          >
         </div>
       </div>
     </header>
 
     <main id="main">
-      <!-- SHOP (kept) -->
+      <!-- Shop -->
       <section class="section" id="shop">
         <div class="container">
           <div class="section-head">
@@ -64,18 +80,65 @@
             <p class="muted">Choose a category, select sizes, add to order, then WhatsApp checkout.</p>
           </div>
 
-          <!-- YOUR FILTER/TABLE SECTION (kept) -->
-          <!-- Keep whatever markup you already have here for:
-               - Categories
-               - Search
-               - Color
-               - Sort
-               - Clear
-               - resultsCount
-               Just make sure the IDs below exist somewhere in it:
-               q, colorFilter, typeFilter, sortBy, clearFilters, resultsCount
-          -->
+          <!-- Filters bar (THIS replaces the ugly top box + keeps JS IDs working) -->
+          <div class="card soft" style="margin-top:14px;">
+            <div class="field" style="margin-bottom:10px;">
+              <label style="margin-bottom:8px; display:block;">Categories:</label>
+              <!-- Your JS can render category chips here later if you add it.
+                   For now you can keep static chips or leave blank. -->
+              <div class="meta" id="categoryBar" style="gap:10px;">
+                <span class="chip" style="cursor:pointer; outline:2px solid rgba(17,24,39,0.18);">All</span>
+                <span class="chip" style="cursor:pointer;">Sweater</span>
+                <span class="chip" style="cursor:pointer;">Dress</span>
+                <span class="chip" style="cursor:pointer;">Shirt</span>
+                <span class="chip" style="cursor:pointer;">Socks</span>
+                <span class="chip" style="cursor:pointer;">Cardigan</span>
+                <span class="chip" style="cursor:pointer;">Trousers</span>
+                <span class="chip" style="cursor:pointer;">Accessory</span>
+              </div>
+            </div>
 
+            <div class="filters" style="grid-template-columns: 1.3fr 1fr 1fr auto;">
+              <div class="field">
+                <label for="q">Search</label>
+                <input id="q" type="search" placeholder="Search in selected category..." autocomplete="off" />
+              </div>
+
+              <div class="field">
+                <label for="colorFilter">Color</label>
+                <select id="colorFilter">
+                  <option value="">All</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="sortBy">Sort</label>
+                <select id="sortBy">
+                  <option value="featured">Featured</option>
+                  <option value="name_asc">Name (A–Z)</option>
+                  <option value="name_desc">Name (Z–A)</option>
+                  <option value="price_asc">Price (Low–High)</option>
+                  <option value="price_desc">Price (High–Low)</option>
+                </select>
+              </div>
+
+              <div class="field" style="align-self:end;">
+                <button class="btn small" id="clearFilters" type="button">Clear</button>
+              </div>
+            </div>
+
+            <!-- Keep this hidden select so your JS filter still works without rewriting app.js -->
+            <select id="typeFilter" style="display:none;">
+              <option value="">All</option>
+            </select>
+
+            <div style="display:flex; justify-content:space-between; margin-top:12px; align-items:center;">
+              <div><strong id="resultsCount">0</strong> items</div>
+              <div class="muted">Prices in KES</div>
+            </div>
+          </div>
+
+          <!-- Catalog -->
           <div class="catalog" id="catalog" aria-label="Product catalog" style="margin-top:14px;">
             <div class="grid" id="productGrid" aria-live="polite"></div>
 
@@ -87,7 +150,7 @@
         </div>
       </section>
 
-      <!-- DELIVERY (optional section kept for page content, not header nav) -->
+      <!-- Delivery -->
       <section class="section alt" id="delivery">
         <div class="container">
           <div class="section-head">
@@ -110,7 +173,7 @@
         </div>
       </section>
 
-      <!-- CONTACT -->
+      <!-- Contact -->
       <section class="section" id="contact">
         <div class="container">
           <div class="section-head">
@@ -128,7 +191,8 @@
                 href="https://wa.me/254119667836"
                 rel="noopener"
                 target="_blank"
-              >Message on WhatsApp</a>
+                >Message on WhatsApp</a
+              >
             </div>
 
             <div class="card">
@@ -150,9 +214,7 @@
               <span class="brand-sub">School Uniforms</span>
             </span>
           </div>
-          <p class="muted">
-            Pickup: Kangemi • Delivery: fee by area • Quality fabrics • Fair pricing
-          </p>
+          <p class="muted">Pickup: Kangemi • Delivery: fee by area • Quality fabrics • Fair pricing</p>
         </div>
 
         <div class="footer-right">
@@ -165,7 +227,8 @@
             href="https://wa.me/254119667836"
             rel="noopener"
             target="_blank"
-          >WhatsApp</a>
+            >WhatsApp</a
+          >
         </div>
       </div>
 
@@ -193,14 +256,15 @@
         </div>
 
         <div class="drawer-foot">
-          <div class="cart-note muted">Add sizes in the message before sending if needed.</div>
+          <div class="cart-note muted">Sizes are captured when you select size before adding.</div>
           <a
             class="btn primary full"
             id="sendWhatsApp"
             href="https://wa.me/254119667836"
             rel="noopener"
             target="_blank"
-          >Send order on WhatsApp</a>
+            >Send order on WhatsApp</a
+          >
           <button class="btn ghost full" id="clearCart" type="button">Clear order list</button>
         </div>
       </div>

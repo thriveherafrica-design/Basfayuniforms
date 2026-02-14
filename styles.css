@@ -533,3 +533,10 @@ input:focus, select:focus {
 @media (max-width: 520px) {
   .grid { grid-template-columns: 1fr; }
 }
+
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+

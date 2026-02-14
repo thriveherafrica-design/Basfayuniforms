@@ -765,6 +765,34 @@ body{
   color: #ffffff !important;
 }
 
+/* ===== Fix Product Images on Mobile ===== */
+
+.grid .card img,
+.catalog .card img,
+.product-card img {
+  width: 100%;
+  height: 220px;              /* controlled height for phone */
+  object-fit: cover;          /* crop properly */
+  object-position: center;    /* center crop */
+  border-radius: 18px 18px 0 0;
+}
+
+/* Slightly smaller on very small phones */
+@media (max-width: 480px) {
+  .grid .card img,
+  .catalog .card img,
+  .product-card img {
+    height: 190px;
+  }
+}
+
+/* Optional: tighten card spacing */
+.grid .card {
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+
 
 
 

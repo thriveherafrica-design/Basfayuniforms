@@ -741,6 +741,26 @@ body{
   padding-bottom: 14px !important;
 }
 
+/* ===== Black square with white B ===== */
+
+.header .brand-mark{
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,.15);
+}
+
+/* Make sure the B is actually white */
+.header .brand-mark{
+  font-weight: 700;
+}
+
+/* Optional: slightly round but modern */
+.header .brand-mark{
+  border-radius: 14px !important;
+}
+
+
 
 
 

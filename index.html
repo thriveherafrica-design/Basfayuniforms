@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>BASFAY Uniforms</title>
+    <title>BASFAY School Uniforms — Shop</title>
     <meta
       name="description"
-      content="BASFAY Uniforms — Quality & Affordable."
+      content="BASFAY School Uniforms — Shop by color or item. Add to order, then WhatsApp checkout. Pickup: Kangemi. Delivery available (fee by area)."
     />
     <meta name="theme-color" content="#1E88E5" />
 
@@ -17,62 +17,291 @@
   <body>
     <a class="skip" href="#main">Skip to content</a>
 
-    <!-- Minimal Header -->
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="container topbar-inner">
+        <div class="topbar-left">
+          <span class="pill">Pickup: Kangemi</span>
+          <span class="muted">Delivery available (fee by area)</span>
+        </div>
+        <div class="topbar-right">
+          <a
+            class="topbar-link"
+            id="topbarWhatsApp"
+            href="https://wa.me/254119667836"
+            rel="noopener"
+            target="_blank"
+            >WhatsApp</a
+          >
+          <a class="topbar-link" href="#contact">Contact</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Header -->
     <header class="header">
       <div class="container header-inner">
         <a class="brand" href="#main" aria-label="BASFAY home">
           <span class="brand-mark" aria-hidden="true">B</span>
           <span class="brand-text">
-            <span class="brand-name">BASFAY Uniforms</span>
-            <span class="brand-sub">Quality & Affordable</span>
+            <span class="brand-name">BASFAY</span>
+            <span class="brand-sub">School Uniforms</span>
           </span>
         </a>
+
+        <nav class="nav" aria-label="Primary navigation">
+          <a class="nav-link" href="#shop">Shop</a>
+          <a class="nav-link" href="#delivery">Delivery</a>
+          <a class="nav-link" href="#contact">Contact</a>
+        </nav>
+
+        <div class="header-actions">
+          <button class="icon-btn" id="openCart" aria-label="Open order list">
+            <span aria-hidden="true">🧾</span>
+            <span class="badge" id="cartCount" aria-live="polite">0</span>
+          </button>
+
+          <a
+            class="btn primary"
+            id="headerWhatsApp"
+            href="https://wa.me/254119667836"
+            rel="noopener"
+            target="_blank"
+            >Order on WhatsApp</a
+          >
+        </div>
       </div>
     </header>
 
     <main id="main">
-      <!-- Hero -->
+      <!-- Hero: short, direct -->
       <section class="hero">
         <div class="container hero-grid">
           <div class="hero-copy">
-            <h1>BASFAY Uniforms</h1>
-            <p class="lead">Quality &amp; Affordable</p>
+            <h1>BASFAY School Uniforms</h1>
+            <p class="lead">Shop by category. Add to order, then WhatsApp checkout.</p>
+
+            <div class="hero-cta">
+              <a class="btn primary" href="#shop">Shop</a>
+              <a class="btn ghost" href="#delivery">Pickup & delivery</a>
+            </div>
           </div>
 
-          <!-- Optional: simple highlight card (no shop, no filters, no WhatsApp) -->
-          <div class="hero-card" aria-label="Brand highlights">
+          <!-- Quick Shop -->
+          <div class="hero-card" aria-label="Quick shop">
             <div class="card">
               <div class="card-head">
-                <h2>What we focus on</h2>
-                <p class="muted">Clean uniforms. Durable fabric. Fair pricing.</p>
+                <h2>Quick Shop</h2>
+                <p class="muted">Search, filter, add to order.</p>
+              </div>
+
+              <div class="filters">
+                <div class="field">
+                  <label for="q">Search</label>
+                  <input id="q" type="search" placeholder="e.g. sweater, checked dress, socks" autocomplete="off" />
+                </div>
+
+                <div class="field">
+                  <label for="colorFilter">Color</label>
+                  <select id="colorFilter">
+                    <option value="">All colors</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="typeFilter">Item type</label>
+                  <select id="typeFilter">
+                    <option value="">All item types</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="sortBy">Sort</label>
+                  <select id="sortBy">
+                    <option value="featured">Featured</option>
+                    <option value="name_asc">Name (A–Z)</option>
+                    <option value="name_desc">Name (Z–A)</option>
+                    <option value="price_asc">Price (Low–High)</option>
+                    <option value="price_desc">Price (High–Low)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mini-actions">
+                <button class="btn small" id="clearFilters" type="button">Clear</button>
+                <a class="btn small ghost" href="#catalog">View catalog</a>
               </div>
 
               <div class="note">
-                <strong>BASFAY Uniforms</strong><br />
-                Quality &amp; Affordable
+                <strong>Photos:</strong> Some items may show “Image coming soon.”
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Simple Section -->
-      <section class="section">
+      <!-- Shop -->
+      <section class="section" id="shop">
         <div class="container">
           <div class="section-head">
-            <h2>Our Promise</h2>
-            <p class="muted">Uniforms that look good, last longer, and stay within budget.</p>
+            <h2>Shop</h2>
+            <p class="muted">Choose a category, select sizes, add to order, then WhatsApp checkout.</p>
+          </div>
+
+          <!-- NEW: Clean top toolbar (category tabs + top filters) -->
+          <div class="card soft" style="margin-bottom: 16px;">
+            <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
+              <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                <strong style="margin-right:6px;">Categories:</strong>
+                <div id="typeTabs" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+              </div>
+
+              <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:end;">
+                <div class="field" style="min-width:240px;">
+                  <label for="qTop">Search</label>
+                  <input id="qTop" type="search" placeholder="Search in selected category..." autocomplete="off" />
+                </div>
+
+                <div class="field" style="min-width:180px;">
+                  <label for="colorFilterTop">Color</label>
+                  <select id="colorFilterTop">
+                    <option value="">All</option>
+                  </select>
+                </div>
+
+                <div class="field" style="min-width:180px;">
+                  <label for="sortByTop">Sort</label>
+                  <select id="sortByTop">
+                    <option value="featured">Featured</option>
+                    <option value="name_asc">Name (A–Z)</option>
+                    <option value="name_desc">Name (Z–A)</option>
+                    <option value="price_asc">Price (Low–High)</option>
+                    <option value="price_desc">Price (High–Low)</option>
+                  </select>
+                </div>
+
+                <button class="btn small" id="clearFiltersTop" type="button" style="height:42px;">Clear</button>
+              </div>
+            </div>
+
+            <div class="sidebar-meta" style="margin-top:12px; display:flex; justify-content:space-between;">
+              <div><strong id="resultsCount">0</strong> items</div>
+              <div class="muted">Prices in KES</div>
+            </div>
+          </div>
+
+          <div class="shop-layout">
+            <!-- Keeping sidebar (optional) -->
+            <aside class="sidebar" aria-label="Catalog filters">
+              <div class="card soft">
+                <h3>Filters</h3>
+
+                <div class="field">
+                  <label for="q2">Search</label>
+                  <input id="q2" type="search" placeholder="Search products..." autocomplete="off" />
+                </div>
+
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="colorFilter2">Color</label>
+                    <select id="colorFilter2">
+                      <option value="">All</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="typeFilter2">Item type</label>
+                    <select id="typeFilter2">
+                      <option value="">All</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="sortBy2">Sort</label>
+                  <select id="sortBy2">
+                    <option value="featured">Featured</option>
+                    <option value="name_asc">Name (A–Z)</option>
+                    <option value="name_desc">Name (Z–A)</option>
+                    <option value="price_asc">Price (Low–High)</option>
+                    <option value="price_desc">Price (High–Low)</option>
+                  </select>
+                </div>
+
+                <div class="mini-actions">
+                  <button class="btn small" id="clearFilters2" type="button">Clear</button>
+                  <button class="btn small primary" id="scrollToCatalog" type="button">See products</button>
+                </div>
+
+                <hr class="sep" />
+
+                <div class="sidebar-meta">
+                  <div><strong id="resultsCountSidebar">0</strong> items</div>
+                  <div class="muted">Prices in KES</div>
+                </div>
+              </div>
+            </aside>
+
+            <div class="catalog" id="catalog" aria-label="Product catalog">
+              <div class="grid" id="productGrid" aria-live="polite"></div>
+
+              <div class="empty" id="emptyState" hidden>
+                <h3>No matches</h3>
+                <p class="muted">Clear filters or try a broader search.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Delivery -->
+      <section class="section alt" id="delivery">
+        <div class="container">
+          <div class="section-head">
+            <h2>Pickup & Delivery</h2>
+            <p class="muted">Pickup: Kangemi • Delivery fee depends on your area.</p>
           </div>
 
           <div class="two-col">
             <div class="card">
-              <h3>Quality</h3>
-              <p class="muted">Strong stitching and durable fabric for everyday wear.</p>
+              <h3>Pickup</h3>
+              <p><strong>Location:</strong> Kangemi</p>
+              <p class="muted">Directions shared on WhatsApp after ordering.</p>
+            </div>
+            <div class="card">
+              <h3>Delivery</h3>
+              <p><strong>Available:</strong> Yes</p>
+              <p class="muted">Confirm fee and timing on WhatsApp.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact -->
+      <section class="section" id="contact">
+        <div class="container">
+          <div class="section-head">
+            <h2>Contact</h2>
+            <p class="muted">Fastest way: WhatsApp.</p>
+          </div>
+
+          <div class="two-col">
+            <div class="card">
+              <h3>WhatsApp</h3>
+              <p class="muted">Tap below to message BASFAY.</p>
+              <a
+                class="btn primary"
+                id="contactWhatsApp"
+                href="https://wa.me/254119667836"
+                rel="noopener"
+                target="_blank"
+                >Message on WhatsApp</a
+              >
             </div>
 
             <div class="card">
-              <h3>Affordable</h3>
-              <p class="muted">Fair pricing with value that makes sense.</p>
+              <h3>Business hours</h3>
+              <p class="muted">Add your hours here when ready.</p>
             </div>
           </div>
         </div>
@@ -86,22 +315,91 @@
           <div class="brand tiny">
             <span class="brand-mark" aria-hidden="true">B</span>
             <span class="brand-text">
-              <span class="brand-name">BASFAY Uniforms</span>
-              <span class="brand-sub">Quality &amp; Affordable</span>
+              <span class="brand-name">BASFAY</span>
+              <span class="brand-sub">School Uniforms</span>
             </span>
           </div>
-          <p class="muted">Quality &amp; Affordable</p>
+          <p class="muted">Pickup: Kangemi • Delivery: fee by area • Quality fabrics • Fair pricing</p>
+        </div>
+
+        <div class="footer-right">
+          <a class="footer-link" href="#shop">Shop</a>
+          <a class="footer-link" href="#delivery">Delivery</a>
+          <a class="footer-link" href="#contact">Contact</a>
+          <a
+            class="footer-link"
+            id="footerWhatsApp"
+            href="https://wa.me/254119667836"
+            rel="noopener"
+            target="_blank"
+            >WhatsApp</a
+          >
         </div>
       </div>
 
       <div class="container footer-bottom">
-        <span class="muted">© <span id="year"></span> BASFAY Uniforms</span>
+        <span class="muted">© <span id="year"></span> BASFAY School Uniforms</span>
       </div>
     </footer>
 
-    <script>
-      // Year
-      document.getElementById("year").textContent = new Date().getFullYear();
-    </script>
+    <!-- Order Drawer -->
+    <div class="drawer" id="drawer" aria-hidden="true">
+      <div class="drawer-backdrop" id="drawerBackdrop"></div>
+      <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Order list">
+        <div class="drawer-head">
+          <h3>Your order list</h3>
+          <button class="icon-btn" id="closeDrawer" aria-label="Close order list">✕</button>
+        </div>
+
+        <div class="drawer-body">
+          <div id="cartItems"></div>
+
+          <div class="cart-empty" id="cartEmpty" hidden>
+            <p><strong>No items yet.</strong></p>
+            <p class="muted">Add products from the catalog.</p>
+          </div>
+        </div>
+
+        <div class="drawer-foot">
+          <div class="cart-note muted">Add sizes in the message before sending if needed.</div>
+          <a
+            class="btn primary full"
+            id="sendWhatsApp"
+            href="https://wa.me/254119667836"
+            rel="noopener"
+            target="_blank"
+            >Send order on WhatsApp</a
+          >
+          <button class="btn ghost full" id="clearCart" type="button">Clear order list</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal" id="modal" aria-hidden="true">
+      <div class="modal-backdrop" id="modalBackdrop"></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Product details">
+        <div class="modal-head">
+          <h3 id="modalTitle">Product</h3>
+          <button class="icon-btn" id="closeModal" aria-label="Close product details">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-media" id="modalMedia"></div>
+          <div class="modal-info">
+            <div class="price" id="modalPrice"></div>
+            <div class="meta" id="modalMeta"></div>
+            <p class="muted" id="modalDesc"></p>
+
+            <div class="modal-actions">
+              <button class="btn primary" id="modalAdd" type="button">Add to order</button>
+              <button class="btn ghost" id="modalOrderNow" type="button">Order now (WhatsApp)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./app.js" defer></script>
   </body>
-</html>
+</html>   help me remove the shop, delivery, contact, pickup: kangemi, delivery available (fee by area), whatsapp, contact, and order on whatsapp, instead have Basfay uniforms, quality and affordable

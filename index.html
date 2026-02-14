@@ -3,34 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>BASFAY School Uniforms — Shop</title>
+    <title>BASFAY Uniforms — Shop</title>
     <meta
       name="description"
-      content="BASFAY School Uniforms — Shop by color or item. Add to order, then WhatsApp checkout. Pickup: Kangemi. Delivery available (fee by area)."
+      content="BASFAY Uniforms — Quality & Affordable. Browse items, add to order."
     />
     <meta name="theme-color" content="#1E88E5" />
-
-    <!-- SAFE RELATIVE PATHS -->
     <link rel="stylesheet" href="./styles.css" />
+
+    <!-- Small safety CSS so we can hide things without breaking JS -->
+    <style>
+      .is-hidden { display: none !important; }
+    </style>
   </head>
 
   <body>
     <a class="skip" href="#main">Skip to content</a>
 
-    <!-- Top Bar -->
+    <!-- Top Bar (updated text, removed pickup/delivery + links) -->
     <div class="topbar">
-      <div class="container topbar-inner">
+      <div class="container topbar-inner" style="justify-content:center;">
         <div class="topbar-left">
-          <span class="pill">Pickup: Kangemi</span>
-          <span class="muted">Delivery available (fee by area)</span>
+          <span class="pill">BASFAY Uniforms</span>
+          <span class="muted">Quality &amp; Affordable</span>
         </div>
-        <div class="topbar-right">
-          <a
-            class="topbar-link"
-            id="topbarWhatsApp"
-            href="https://wa.me/254119667836"
-            rel="noopener"
-            target="_blank"
+
+        <!-- Keep in DOM but hidden (in case styles/JS expect it) -->
+        <div class="topbar-right is-hidden" aria-hidden="true">
+          <a class="topbar-link" id="topbarWhatsApp" href="https://wa.me/254119667836" rel="noopener" target="_blank"
             >WhatsApp</a
           >
           <a class="topbar-link" href="#contact">Contact</a>
@@ -44,12 +44,13 @@
         <a class="brand" href="#main" aria-label="BASFAY home">
           <span class="brand-mark" aria-hidden="true">B</span>
           <span class="brand-text">
-            <span class="brand-name">BASFAY</span>
-            <span class="brand-sub">School Uniforms</span>
+            <span class="brand-name">BASFAY Uniforms</span>
+            <span class="brand-sub">Quality &amp; Affordable</span>
           </span>
         </a>
 
-        <nav class="nav" aria-label="Primary navigation">
+        <!-- Hide nav (Shop/Delivery/Contact removed visually) -->
+        <nav class="nav is-hidden" aria-label="Primary navigation" aria-hidden="true">
           <a class="nav-link" href="#shop">Shop</a>
           <a class="nav-link" href="#delivery">Delivery</a>
           <a class="nav-link" href="#contact">Contact</a>
@@ -61,12 +62,14 @@
             <span class="badge" id="cartCount" aria-live="polite">0</span>
           </button>
 
+          <!-- Hide WhatsApp CTA (but keep element/ID so nothing breaks) -->
           <a
-            class="btn primary"
+            class="btn primary is-hidden"
             id="headerWhatsApp"
             href="https://wa.me/254119667836"
             rel="noopener"
             target="_blank"
+            aria-hidden="true"
             >Order on WhatsApp</a
           >
         </div>
@@ -74,20 +77,21 @@
     </header>
 
     <main id="main">
-      <!-- Hero: short, direct -->
+      <!-- Hero -->
       <section class="hero">
         <div class="container hero-grid">
           <div class="hero-copy">
-            <h1>BASFAY School Uniforms</h1>
-            <p class="lead">Shop by category. Add to order, then WhatsApp checkout.</p>
+            <h1>BASFAY Uniforms</h1>
+            <p class="lead">Quality &amp; Affordable</p>
 
-            <div class="hero-cta">
+            <!-- Hide hero CTA buttons -->
+            <div class="hero-cta is-hidden" aria-hidden="true">
               <a class="btn primary" href="#shop">Shop</a>
               <a class="btn ghost" href="#delivery">Pickup & delivery</a>
             </div>
           </div>
 
-          <!-- Quick Shop -->
+          <!-- Quick Shop (KEEP, it’s part of your shopping experience) -->
           <div class="hero-card" aria-label="Quick shop">
             <div class="card">
               <div class="card-head">
@@ -140,15 +144,14 @@
         </div>
       </section>
 
-      <!-- Shop -->
+      <!-- Shop (KEEP functionality, but change visible heading away from “Shop” if you want) -->
       <section class="section" id="shop">
         <div class="container">
           <div class="section-head">
-            <h2>Shop</h2>
-            <p class="muted">Choose a category, select sizes, add to order, then WhatsApp checkout.</p>
+            <h2>Uniforms Catalog</h2>
+            <p class="muted">Browse items, select sizes, add to order.</p>
           </div>
 
-          <!-- NEW: Clean top toolbar (category tabs + top filters) -->
           <div class="card soft" style="margin-bottom: 16px;">
             <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
               <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
@@ -191,7 +194,6 @@
           </div>
 
           <div class="shop-layout">
-            <!-- Keeping sidebar (optional) -->
             <aside class="sidebar" aria-label="Catalog filters">
               <div class="card soft">
                 <h3>Filters</h3>
@@ -254,75 +256,53 @@
         </div>
       </section>
 
-      <!-- Delivery -->
-      <section class="section alt" id="delivery">
+      <!-- Delivery (kept but hidden, so anchors/structure don’t explode) -->
+      <section class="section alt is-hidden" id="delivery" aria-hidden="true">
         <div class="container">
           <div class="section-head">
             <h2>Pickup & Delivery</h2>
-            <p class="muted">Pickup: Kangemi • Delivery fee depends on your area.</p>
-          </div>
-
-          <div class="two-col">
-            <div class="card">
-              <h3>Pickup</h3>
-              <p><strong>Location:</strong> Kangemi</p>
-              <p class="muted">Directions shared on WhatsApp after ordering.</p>
-            </div>
-            <div class="card">
-              <h3>Delivery</h3>
-              <p><strong>Available:</strong> Yes</p>
-              <p class="muted">Confirm fee and timing on WhatsApp.</p>
-            </div>
+            <p class="muted">Hidden</p>
           </div>
         </div>
       </section>
 
-      <!-- Contact -->
-      <section class="section" id="contact">
+      <!-- Contact (kept but hidden) -->
+      <section class="section is-hidden" id="contact" aria-hidden="true">
         <div class="container">
           <div class="section-head">
             <h2>Contact</h2>
-            <p class="muted">Fastest way: WhatsApp.</p>
+            <p class="muted">Hidden</p>
           </div>
 
-          <div class="two-col">
-            <div class="card">
-              <h3>WhatsApp</h3>
-              <p class="muted">Tap below to message BASFAY.</p>
-              <a
-                class="btn primary"
-                id="contactWhatsApp"
-                href="https://wa.me/254119667836"
-                rel="noopener"
-                target="_blank"
-                >Message on WhatsApp</a
-              >
-            </div>
-
-            <div class="card">
-              <h3>Business hours</h3>
-              <p class="muted">Add your hours here when ready.</p>
-            </div>
-          </div>
+          <!-- Keep WhatsApp link element in DOM for safety -->
+          <a
+            class="btn primary"
+            id="contactWhatsApp"
+            href="https://wa.me/254119667836"
+            rel="noopener"
+            target="_blank"
+            style="display:none;"
+            >Message on WhatsApp</a
+          >
         </div>
       </section>
     </main>
 
-    <!-- Footer -->
+    <!-- Footer (simplified) -->
     <footer class="footer">
       <div class="container footer-inner">
         <div class="footer-left">
           <div class="brand tiny">
             <span class="brand-mark" aria-hidden="true">B</span>
             <span class="brand-text">
-              <span class="brand-name">BASFAY</span>
-              <span class="brand-sub">School Uniforms</span>
+              <span class="brand-name">BASFAY Uniforms</span>
+              <span class="brand-sub">Quality &amp; Affordable</span>
             </span>
           </div>
-          <p class="muted">Pickup: Kangemi • Delivery: fee by area • Quality fabrics • Fair pricing</p>
+          <p class="muted">Quality &amp; Affordable</p>
         </div>
 
-        <div class="footer-right">
+        <div class="footer-right is-hidden" aria-hidden="true">
           <a class="footer-link" href="#shop">Shop</a>
           <a class="footer-link" href="#delivery">Delivery</a>
           <a class="footer-link" href="#contact">Contact</a>
@@ -338,11 +318,11 @@
       </div>
 
       <div class="container footer-bottom">
-        <span class="muted">© <span id="year"></span> BASFAY School Uniforms</span>
+        <span class="muted">© <span id="year"></span> BASFAY Uniforms</span>
       </div>
     </footer>
 
-    <!-- Order Drawer -->
+    <!-- Order Drawer (KEEP, but hide WhatsApp send button) -->
     <div class="drawer" id="drawer" aria-hidden="true">
       <div class="drawer-backdrop" id="drawerBackdrop"></div>
       <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Order list">
@@ -362,14 +342,17 @@
 
         <div class="drawer-foot">
           <div class="cart-note muted">Add sizes in the message before sending if needed.</div>
+
           <a
-            class="btn primary full"
+            class="btn primary full is-hidden"
             id="sendWhatsApp"
             href="https://wa.me/254119667836"
             rel="noopener"
             target="_blank"
+            aria-hidden="true"
             >Send order on WhatsApp</a
           >
+
           <button class="btn ghost full" id="clearCart" type="button">Clear order list</button>
         </div>
       </div>
@@ -393,7 +376,9 @@
 
             <div class="modal-actions">
               <button class="btn primary" id="modalAdd" type="button">Add to order</button>
-              <button class="btn ghost" id="modalOrderNow" type="button">Order now (WhatsApp)</button>
+              <button class="btn ghost is-hidden" id="modalOrderNow" type="button" aria-hidden="true">
+                Order now (WhatsApp)
+              </button>
             </div>
           </div>
         </div>
@@ -401,5 +386,8 @@
     </div>
 
     <script src="./app.js" defer></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
   </body>
-</html>   help me remove the shop, delivery, contact, pickup: kangemi, delivery available (fee by area), whatsapp, contact, and order on whatsapp, instead have Basfay uniforms, quality and affordable
+</html>

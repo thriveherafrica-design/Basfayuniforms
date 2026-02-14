@@ -10,6 +10,7 @@
     />
     <meta name="theme-color" content="#1E88E5" />
 
+    <!-- SAFE RELATIVE PATHS -->
     <link rel="stylesheet" href="./styles.css" />
   </head>
 
@@ -44,18 +45,25 @@
           basfayuniforms
         </a>
 
-        <nav class="nav always" aria-label="Primary navigation">
-          <a class="nav-link" href="#shop">Shop</a>
-          <a class="nav-link" href="#delivery">Delivery</a>
-          <a class="nav-link" href="#contact">Contact</a>
-        </nav>
+        <div class="header-right">
+          <nav class="nav always" aria-label="Primary navigation">
+            <a class="nav-link" href="#shop">Shop</a>
+            <a class="nav-link" href="#delivery">Delivery</a>
+            <a class="nav-link" href="#contact">Contact</a>
+          </nav>
+
+          <button class="icon-btn" id="openCart" aria-label="Open order list">
+            <span aria-hidden="true">🧾</span>
+            <span class="badge" id="cartCount" aria-live="polite">0</span>
+          </button>
+        </div>
       </div>
     </header>
 
     <main id="main">
-      <!-- Hero (no right card, no empty space) -->
-      <section class="hero simple-hero">
-        <div class="container">
+      <!-- Hero (no quick shop box) -->
+      <section class="hero">
+        <div class="container hero-grid" style="grid-template-columns: 1fr;">
           <div class="hero-copy">
             <h1>BASFAY School Uniforms</h1>
             <p class="lead">Shop by category. Add to order, then WhatsApp checkout.</p>
@@ -68,7 +76,7 @@
         </div>
       </section>
 
-      <!-- Shop -->
+      <!-- Shop (no sidebar, just catalog) -->
       <section class="section" id="shop">
         <div class="container">
           <div class="section-head">
@@ -76,7 +84,6 @@
             <p class="muted">Add items to your order list, then send on WhatsApp.</p>
           </div>
 
-          <!-- Sidebar already removed -->
           <div class="catalog" id="catalog" aria-label="Product catalog">
             <div class="grid" id="productGrid" aria-live="polite"></div>
 
@@ -142,6 +149,7 @@
       </section>
     </main>
 
+    <!-- Footer -->
     <footer class="footer">
       <div class="container footer-inner">
         <div class="footer-left">
@@ -177,7 +185,7 @@
       </div>
     </footer>
 
-    <!-- Order Drawer (still works, opened via JS if you keep it) -->
+    <!-- Order Drawer -->
     <div class="drawer" id="drawer" aria-hidden="true">
       <div class="drawer-backdrop" id="drawerBackdrop"></div>
       <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Order list">

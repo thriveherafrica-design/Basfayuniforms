@@ -6,7 +6,7 @@
     <title>BASFAY School Uniforms — Shop</title>
     <meta
       name="description"
-      content="BASFAY School Uniforms — Shop by category. Add to order, then WhatsApp checkout. Pickup: Kangemi. Delivery available (fee by area)."
+      content="BASFAY School Uniforms — Shop by color or item. Add to order, then WhatsApp checkout. Pickup: Kangemi. Delivery available (fee by area)."
     />
     <meta name="theme-color" content="#1E88E5" />
 
@@ -38,32 +38,45 @@
       </div>
     </div>
 
-    <!-- Header (clean) -->
+    <!-- Header -->
     <header class="header">
       <div class="container header-inner">
-        <a class="brand simple" href="#main" aria-label="BASFAY home">
-          basfayuniforms
+        <a class="brand" href="#main" aria-label="BASFAY home">
+          <span class="brand-mark" aria-hidden="true">B</span>
+          <span class="brand-text">
+            <span class="brand-name">BASFAY</span>
+            <span class="brand-sub">School Uniforms</span>
+          </span>
         </a>
 
-        <div class="header-right">
-          <nav class="nav always" aria-label="Primary navigation">
-            <a class="nav-link" href="#shop">Shop</a>
-            <a class="nav-link" href="#delivery">Delivery</a>
-            <a class="nav-link" href="#contact">Contact</a>
-          </nav>
+        <nav class="nav" aria-label="Primary navigation">
+          <a class="nav-link" href="#shop">Shop</a>
+          <a class="nav-link" href="#delivery">Delivery</a>
+          <a class="nav-link" href="#contact">Contact</a>
+        </nav>
 
+        <div class="header-actions">
           <button class="icon-btn" id="openCart" aria-label="Open order list">
             <span aria-hidden="true">🧾</span>
             <span class="badge" id="cartCount" aria-live="polite">0</span>
           </button>
+
+          <a
+            class="btn primary"
+            id="headerWhatsApp"
+            href="https://wa.me/254119667836"
+            rel="noopener"
+            target="_blank"
+            >Order on WhatsApp</a
+          >
         </div>
       </div>
     </header>
 
     <main id="main">
-      <!-- Hero (no quick shop box) -->
+      <!-- Hero: short, direct -->
       <section class="hero">
-        <div class="container hero-grid" style="grid-template-columns: 1fr;">
+        <div class="container hero-grid">
           <div class="hero-copy">
             <h1>BASFAY School Uniforms</h1>
             <p class="lead">Shop by category. Add to order, then WhatsApp checkout.</p>
@@ -73,23 +86,169 @@
               <a class="btn ghost" href="#delivery">Pickup & delivery</a>
             </div>
           </div>
+
+          <!-- Quick Shop -->
+          <div class="hero-card" aria-label="Quick shop">
+            <div class="card">
+              <div class="card-head">
+                <h2>Quick Shop</h2>
+                <p class="muted">Search, filter, add to order.</p>
+              </div>
+
+              <div class="filters">
+                <div class="field">
+                  <label for="q">Search</label>
+                  <input id="q" type="search" placeholder="e.g. sweater, checked dress, socks" autocomplete="off" />
+                </div>
+
+                <div class="field">
+                  <label for="colorFilter">Color</label>
+                  <select id="colorFilter">
+                    <option value="">All colors</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="typeFilter">Item type</label>
+                  <select id="typeFilter">
+                    <option value="">All item types</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="sortBy">Sort</label>
+                  <select id="sortBy">
+                    <option value="featured">Featured</option>
+                    <option value="name_asc">Name (A–Z)</option>
+                    <option value="name_desc">Name (Z–A)</option>
+                    <option value="price_asc">Price (Low–High)</option>
+                    <option value="price_desc">Price (High–Low)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mini-actions">
+                <button class="btn small" id="clearFilters" type="button">Clear</button>
+                <a class="btn small ghost" href="#catalog">View catalog</a>
+              </div>
+
+              <div class="note">
+                <strong>Photos:</strong> Some items may show “Image coming soon.”
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <!-- Shop (no sidebar, just catalog) -->
+      <!-- Shop -->
       <section class="section" id="shop">
         <div class="container">
           <div class="section-head">
             <h2>Shop</h2>
-            <p class="muted">Add items to your order list, then send on WhatsApp.</p>
+            <p class="muted">Choose a category, select sizes, add to order, then WhatsApp checkout.</p>
           </div>
 
-          <div class="catalog" id="catalog" aria-label="Product catalog">
-            <div class="grid" id="productGrid" aria-live="polite"></div>
+          <!-- NEW: Clean top toolbar (category tabs + top filters) -->
+          <div class="card soft" style="margin-bottom: 16px;">
+            <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
+              <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                <strong style="margin-right:6px;">Categories:</strong>
+                <div id="typeTabs" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+              </div>
 
-            <div class="empty" id="emptyState" hidden>
-              <h3>No matches</h3>
-              <p class="muted">Try a broader search.</p>
+              <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:end;">
+                <div class="field" style="min-width:240px;">
+                  <label for="qTop">Search</label>
+                  <input id="qTop" type="search" placeholder="Search in selected category..." autocomplete="off" />
+                </div>
+
+                <div class="field" style="min-width:180px;">
+                  <label for="colorFilterTop">Color</label>
+                  <select id="colorFilterTop">
+                    <option value="">All</option>
+                  </select>
+                </div>
+
+                <div class="field" style="min-width:180px;">
+                  <label for="sortByTop">Sort</label>
+                  <select id="sortByTop">
+                    <option value="featured">Featured</option>
+                    <option value="name_asc">Name (A–Z)</option>
+                    <option value="name_desc">Name (Z–A)</option>
+                    <option value="price_asc">Price (Low–High)</option>
+                    <option value="price_desc">Price (High–Low)</option>
+                  </select>
+                </div>
+
+                <button class="btn small" id="clearFiltersTop" type="button" style="height:42px;">Clear</button>
+              </div>
+            </div>
+
+            <div class="sidebar-meta" style="margin-top:12px; display:flex; justify-content:space-between;">
+              <div><strong id="resultsCount">0</strong> items</div>
+              <div class="muted">Prices in KES</div>
+            </div>
+          </div>
+
+          <div class="shop-layout">
+            <!-- Keeping sidebar (optional) -->
+            <aside class="sidebar" aria-label="Catalog filters">
+              <div class="card soft">
+                <h3>Filters</h3>
+
+                <div class="field">
+                  <label for="q2">Search</label>
+                  <input id="q2" type="search" placeholder="Search products..." autocomplete="off" />
+                </div>
+
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="colorFilter2">Color</label>
+                    <select id="colorFilter2">
+                      <option value="">All</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="typeFilter2">Item type</label>
+                    <select id="typeFilter2">
+                      <option value="">All</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="sortBy2">Sort</label>
+                  <select id="sortBy2">
+                    <option value="featured">Featured</option>
+                    <option value="name_asc">Name (A–Z)</option>
+                    <option value="name_desc">Name (Z–A)</option>
+                    <option value="price_asc">Price (Low–High)</option>
+                    <option value="price_desc">Price (High–Low)</option>
+                  </select>
+                </div>
+
+                <div class="mini-actions">
+                  <button class="btn small" id="clearFilters2" type="button">Clear</button>
+                  <button class="btn small primary" id="scrollToCatalog" type="button">See products</button>
+                </div>
+
+                <hr class="sep" />
+
+                <div class="sidebar-meta">
+                  <div><strong id="resultsCountSidebar">0</strong> items</div>
+                  <div class="muted">Prices in KES</div>
+                </div>
+              </div>
+            </aside>
+
+            <div class="catalog" id="catalog" aria-label="Product catalog">
+              <div class="grid" id="productGrid" aria-live="polite"></div>
+
+              <div class="empty" id="emptyState" hidden>
+                <h3>No matches</h3>
+                <p class="muted">Clear filters or try a broader search.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -160,9 +319,7 @@
               <span class="brand-sub">School Uniforms</span>
             </span>
           </div>
-          <p class="muted">
-            Pickup: Kangemi • Delivery: fee by area • Quality fabrics • Fair pricing
-          </p>
+          <p class="muted">Pickup: Kangemi • Delivery: fee by area • Quality fabrics • Fair pricing</p>
         </div>
 
         <div class="footer-right">

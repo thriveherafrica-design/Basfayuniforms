@@ -534,6 +534,41 @@ input:focus, select:focus {
   .grid { grid-template-columns: 1fr; }
 }
 
+/* ===== CLEAN HEADER: basfayuniforms left, nav right ===== */
+.brand.simple {
+  font-weight: 1000;
+  letter-spacing: 0.2px;
+  text-transform: lowercase;
+  font-size: 18px;
+  padding: 10px 0;
+}
+
+.nav.always {
+  display: flex !important;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Remove the old brand block spacing */
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ===== HERO: single column, no empty right area ===== */
+.simple-hero {
+  padding: 38px 0 6px;
+}
+
+.simple-hero .hero-copy {
+  max-width: 720px;
+}
+
+/* Optional: tighten overall look */
+.hero { padding-bottom: 0; }
+
+
 .header-right{
   display:flex;
   align-items:center;

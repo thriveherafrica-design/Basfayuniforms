@@ -14,25 +14,26 @@
     <style>
       .is-hidden { display: none !important; }
 
-      /* Beautiful compact hero */
+      /* Beautiful top hero */
       .brand-hero {
         padding: 18px 0 14px;
         background:
           radial-gradient(900px 420px at 15% 10%, rgba(30,136,229,.18), transparent 60%),
           radial-gradient(700px 380px at 85% 30%, rgba(30,136,229,.12), transparent 60%);
       }
-      .brand-hero .brand-hero-inner{
+      .brand-hero-inner{
         display:flex;
         align-items:center;
         justify-content:space-between;
         gap:16px;
         flex-wrap:wrap;
-        position: relative;
       }
+
       .brand-badge{
         display:flex;
         align-items:center;
         gap:12px;
+        min-width: 260px;
       }
       .brand-logo{
         width:54px;
@@ -51,8 +52,15 @@
         font-size: clamp(22px, 3vw, 34px);
         letter-spacing:-0.4px;
       }
-      .brand-lines p{
-        margin:6px 0 0;
+      .brand-lines p{ margin:6px 0 0; }
+
+      .brand-right{
+        display:flex;
+        align-items:center;
+        justify-content:flex-end;
+        gap:12px;
+        flex: 1;
+        min-width: 260px;
       }
 
       .brand-mini{
@@ -71,18 +79,11 @@
         background: rgba(255,255,255,.60);
         border: 1px solid rgba(17,24,39,.08);
         font-size: 13px;
+        white-space: nowrap;
       }
       .brand-pill strong{ font-weight:700; }
 
-      /* Move cart button DOWN into hero area (lower part) */
-      .hero-cart {
-        display:flex;
-        align-items:center;
-        gap:10px;
-        margin-top: 10px;
-      }
-
-      /* Real cart icon button styling (keeps your IDs) */
+      /* Cart button (trolley) on RIGHT */
       .cart-btn {
         display:inline-flex;
         align-items:center;
@@ -95,12 +96,9 @@
         box-shadow: 0 10px 30px rgba(17,24,39,.08);
         position: relative;
         cursor: pointer;
+        flex: 0 0 auto;
       }
-      .cart-btn svg {
-        width:22px;
-        height:22px;
-        opacity: .92;
-      }
+      .cart-btn svg { width:22px; height:22px; opacity:.92; }
       .cart-badge {
         position:absolute;
         top:-8px;
@@ -119,7 +117,7 @@
         border: 2px solid rgba(255,255,255,.95);
       }
 
-      /* Remove extra top spacing if any */
+      /* Ensure no weird top spacing */
       .hero { padding-top: 0 !important; }
     </style>
   </head>
@@ -127,7 +125,9 @@
   <body>
     <a class="skip" href="#main">Skip to content</a>
 
-    <!-- Header (no cart here anymore) -->
+    <!-- (REMOVED) Topbar completely -->
+
+    <!-- Header (clean) -->
     <header class="header">
       <div class="container header-inner">
         <a class="brand" href="#main" aria-label="BASFAY home">
@@ -161,44 +161,39 @@
     </header>
 
     <main id="main">
-      <!-- Beautiful Top Brand Banner (cart moved here, lower part) -->
+      <!-- Brand hero (cart on RIGHT) -->
       <section class="brand-hero" aria-label="BASFAY brand banner">
         <div class="container brand-hero-inner">
-          <div>
-            <div class="brand-badge">
-              <div class="brand-logo" aria-hidden="true">B</div>
-              <div class="brand-lines">
-                <h1>BASFAY Uniforms</h1>
-                <p class="muted">Quality &amp; Affordable</p>
-              </div>
-            </div>
-
-            <!-- Cart is now LOWER (under the brand), with real cart icon -->
-            <div class="hero-cart" aria-label="Cart">
-              <button class="cart-btn" id="openCart" aria-label="Open order list" type="button">
-                <!-- Real cart icon (SVG) -->
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    fill="currentColor"
-                    d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2Zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2ZM6.2 6h14.6c.55 0 1 .45 1 1 0 .09-.01.18-.04.27l-2.1 7.35c-.24.83-1 1.38-1.86 1.38H8.1c-.86 0-1.62-.55-1.86-1.38L3.8 3H2c-.55 0-1-.45-1-1s.45-1 1-1h2.6c.46 0 .86.31.97.75L6.2 6Zm1.1 2 1.62 5.67c.06.2.25.33.46.33h9.7c.21 0 .4-.13.46-.33L21 8H7.3Z"
-                  />
-                </svg>
-
-                <!-- Keep badge ID for JS -->
-                <span class="cart-badge" id="cartCount" aria-live="polite">0</span>
-              </button>
+          <div class="brand-badge">
+            <div class="brand-logo" aria-hidden="true">B</div>
+            <div class="brand-lines">
+              <h1>BASFAY Uniforms</h1>
+              <p class="muted">Quality &amp; Affordable</p>
             </div>
           </div>
 
-          <div class="brand-mini" aria-label="Highlights">
-            <span class="brand-pill"><strong>Quality fabrics</strong></span>
-            <span class="brand-pill"><strong>Fair pricing</strong></span>
-            <span class="brand-pill"><strong>Fast ordering</strong></span>
+          <div class="brand-right">
+            <div class="brand-mini" aria-label="Highlights">
+              <span class="brand-pill"><strong>Quality fabrics</strong></span>
+              <span class="brand-pill"><strong>Fair pricing</strong></span>
+              <span class="brand-pill"><strong>Fast ordering</strong></span>
+            </div>
+
+            <!-- Trolley on the RIGHT -->
+            <button class="cart-btn" id="openCart" aria-label="Open order list" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2Zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2ZM6.2 6h14.6c.55 0 1 .45 1 1 0 .09-.01.18-.04.27l-2.1 7.35c-.24.83-1 1.38-1.86 1.38H8.1c-.86 0-1.62-.55-1.86-1.38L3.8 3H2c-.55 0-1-.45-1-1s.45-1 1-1h2.6c.46 0 .86.31.97.75L6.2 6Zm1.1 2 1.62 5.67c.06.2.25.33.46.33h9.7c.21 0 .4-.13.46-.33L21 8H7.3Z"
+                />
+              </svg>
+              <span class="cart-badge" id="cartCount" aria-live="polite">0</span>
+            </button>
           </div>
         </div>
       </section>
 
-      <!-- OLD HERO kept ONLY for Quick Shop IDs, but hidden (JS safety) -->
+      <!-- OLD HERO kept ONLY for Quick Shop IDs (hidden, JS safety) -->
       <section class="hero is-hidden" aria-hidden="true">
         <div class="container hero-grid">
           <div class="hero-copy">

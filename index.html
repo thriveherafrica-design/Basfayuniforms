@@ -11,13 +11,12 @@
     <meta name="theme-color" content="#1E88E5" />
     <link rel="stylesheet" href="./styles.css" />
 
-    <!-- Small safety CSS so we can hide things without breaking JS -->
     <style>
       .is-hidden { display: none !important; }
 
-      /* New: beautiful compact hero */
+      /* Beautiful compact hero */
       .brand-hero {
-        padding: 22px 0 10px;
+        padding: 18px 0 14px;
         background:
           radial-gradient(900px 420px at 15% 10%, rgba(30,136,229,.18), transparent 60%),
           radial-gradient(700px 380px at 85% 30%, rgba(30,136,229,.12), transparent 60%);
@@ -28,6 +27,7 @@
         justify-content:space-between;
         gap:16px;
         flex-wrap:wrap;
+        position: relative;
       }
       .brand-badge{
         display:flex;
@@ -54,17 +54,7 @@
       .brand-lines p{
         margin:6px 0 0;
       }
-      .brand-pill{
-        display:inline-flex;
-        gap:8px;
-        align-items:center;
-        padding:8px 12px;
-        border-radius:999px;
-        background: rgba(17,24,39,.06);
-        border: 1px solid rgba(17,24,39,.08);
-        font-size: 13px;
-      }
-      .brand-pill strong{ font-weight:700; }
+
       .brand-mini{
         display:flex;
         gap:8px;
@@ -72,11 +62,64 @@
         align-items:center;
         justify-content:flex-end;
       }
-      .brand-mini .brand-pill{
-        background: rgba(255,255,255,.55);
+      .brand-pill{
+        display:inline-flex;
+        gap:8px;
+        align-items:center;
+        padding:8px 12px;
+        border-radius:999px;
+        background: rgba(255,255,255,.60);
+        border: 1px solid rgba(17,24,39,.08);
+        font-size: 13px;
+      }
+      .brand-pill strong{ font-weight:700; }
+
+      /* Move cart button DOWN into hero area (lower part) */
+      .hero-cart {
+        display:flex;
+        align-items:center;
+        gap:10px;
+        margin-top: 10px;
       }
 
-      /* Reduce “space at the top” by hiding old hero grid spacing if any */
+      /* Real cart icon button styling (keeps your IDs) */
+      .cart-btn {
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        width:52px;
+        height:52px;
+        border-radius:16px;
+        background: rgba(255,255,255,.72);
+        border: 1px solid rgba(17,24,39,.10);
+        box-shadow: 0 10px 30px rgba(17,24,39,.08);
+        position: relative;
+        cursor: pointer;
+      }
+      .cart-btn svg {
+        width:22px;
+        height:22px;
+        opacity: .92;
+      }
+      .cart-badge {
+        position:absolute;
+        top:-8px;
+        right:-8px;
+        min-width: 22px;
+        height: 22px;
+        padding: 0 6px;
+        border-radius: 999px;
+        background: #1E88E5;
+        color: white;
+        font-size: 12px;
+        font-weight: 700;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border: 2px solid rgba(255,255,255,.95);
+      }
+
+      /* Remove extra top spacing if any */
       .hero { padding-top: 0 !important; }
     </style>
   </head>
@@ -84,25 +127,7 @@
   <body>
     <a class="skip" href="#main">Skip to content</a>
 
-    <!-- Top Bar (simple) -->
-    <div class="topbar">
-      <div class="container topbar-inner" style="justify-content:center;">
-        <div class="topbar-left">
-          <span class="pill">BASFAY Uniforms</span>
-          <span class="muted">Quality &amp; Affordable</span>
-        </div>
-
-        <!-- Keep in DOM but hidden (in case styles/JS expect it) -->
-        <div class="topbar-right is-hidden" aria-hidden="true">
-          <a class="topbar-link" id="topbarWhatsApp" href="https://wa.me/254119667836" rel="noopener" target="_blank"
-            >WhatsApp</a
-          >
-          <a class="topbar-link" href="#contact">Contact</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Header -->
+    <!-- Header (no cart here anymore) -->
     <header class="header">
       <div class="container header-inner">
         <a class="brand" href="#main" aria-label="BASFAY home">
@@ -113,20 +138,15 @@
           </span>
         </a>
 
-        <!-- Hide top nav -->
+        <!-- hide top nav -->
         <nav class="nav is-hidden" aria-label="Primary navigation" aria-hidden="true">
           <a class="nav-link" href="#shop">Shop</a>
           <a class="nav-link" href="#delivery">Delivery</a>
           <a class="nav-link" href="#contact">Contact</a>
         </nav>
 
+        <!-- keep structure but no cart button here -->
         <div class="header-actions">
-          <button class="icon-btn" id="openCart" aria-label="Open order list">
-            <span aria-hidden="true">🧾</span>
-            <span class="badge" id="cartCount" aria-live="polite">0</span>
-          </button>
-
-          <!-- Hide WhatsApp CTA -->
           <a
             class="btn primary is-hidden"
             id="headerWhatsApp"
@@ -141,14 +161,32 @@
     </header>
 
     <main id="main">
-      <!-- NEW: Beautiful Top Brand Banner -->
+      <!-- Beautiful Top Brand Banner (cart moved here, lower part) -->
       <section class="brand-hero" aria-label="BASFAY brand banner">
         <div class="container brand-hero-inner">
-          <div class="brand-badge">
-            <div class="brand-logo" aria-hidden="true">B</div>
-            <div class="brand-lines">
-              <h1>BASFAY Uniforms</h1>
-              <p class="muted">Quality &amp; Affordable</p>
+          <div>
+            <div class="brand-badge">
+              <div class="brand-logo" aria-hidden="true">B</div>
+              <div class="brand-lines">
+                <h1>BASFAY Uniforms</h1>
+                <p class="muted">Quality &amp; Affordable</p>
+              </div>
+            </div>
+
+            <!-- Cart is now LOWER (under the brand), with real cart icon -->
+            <div class="hero-cart" aria-label="Cart">
+              <button class="cart-btn" id="openCart" aria-label="Open order list" type="button">
+                <!-- Real cart icon (SVG) -->
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2Zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2ZM6.2 6h14.6c.55 0 1 .45 1 1 0 .09-.01.18-.04.27l-2.1 7.35c-.24.83-1 1.38-1.86 1.38H8.1c-.86 0-1.62-.55-1.86-1.38L3.8 3H2c-.55 0-1-.45-1-1s.45-1 1-1h2.6c.46 0 .86.31.97.75L6.2 6Zm1.1 2 1.62 5.67c.06.2.25.33.46.33h9.7c.21 0 .4-.13.46-.33L21 8H7.3Z"
+                  />
+                </svg>
+
+                <!-- Keep badge ID for JS -->
+                <span class="cart-badge" id="cartCount" aria-live="polite">0</span>
+              </button>
             </div>
           </div>
 
@@ -160,16 +198,14 @@
         </div>
       </section>
 
-      <!-- OLD HERO kept ONLY for Quick Shop IDs, but hidden -->
+      <!-- OLD HERO kept ONLY for Quick Shop IDs, but hidden (JS safety) -->
       <section class="hero is-hidden" aria-hidden="true">
         <div class="container hero-grid">
           <div class="hero-copy">
             <h1>BASFAY Uniforms</h1>
             <p class="lead">Quality &amp; Affordable</p>
-            <div class="hero-cta is-hidden" aria-hidden="true"></div>
           </div>
 
-          <!-- Quick Shop kept in DOM for JS safety -->
           <div class="hero-card" aria-label="Quick shop">
             <div class="card">
               <div class="card-head">
@@ -292,7 +328,7 @@
                   <div class="field">
                     <label for="typeFilter2">Item type</label>
                     <select id="typeFilter2">
-                      <option value="">All</option>
+                      <option value="">All item types</option>
                     </select>
                   </div>
                 </div>
@@ -391,7 +427,7 @@
       </div>
     </footer>
 
-    <!-- Order Drawer (KEEP, but hide WhatsApp send button) -->
+    <!-- Order Drawer -->
     <div class="drawer" id="drawer" aria-hidden="true">
       <div class="drawer-backdrop" id="drawerBackdrop"></div>
       <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Order list">

@@ -911,7 +911,25 @@ body{
   #productGrid [style*="background-image"] { height: 145px !important; max-height: 145px !important; }
 }
 
-#productGrid { outline: 6px solid red !important; }
+@media (max-width: 768px){
+  /* target the actual product image container */
+  #productGrid .card img,
+  #productGrid img{
+    height: 160px !important;
+    width: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block !important;
+  }
+
+  /* if it’s a div with background-image */
+  #productGrid [style*="background-image"]{
+    height: 160px !important;
+    background-size: cover !important;
+    background-position: center !important;
+  }
+}
+
 
 
 

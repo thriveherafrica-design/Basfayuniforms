@@ -911,6 +911,8 @@ body{
   #productGrid [style*="background-image"] { height: 145px !important; max-height: 145px !important; }
 }
 
+#productGrid { outline: 6px solid red !important; }
+
 
 
 

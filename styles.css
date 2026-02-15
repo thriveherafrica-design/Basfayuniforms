@@ -829,6 +829,48 @@ body{
   }
 }
 
+/* ===== FORCE product image size on mobile (img + background-image) ===== */
+@media (max-width: 768px) {
+
+  /* If cards use <img> */
+  #productGrid img {
+    width: 100% !important;
+    height: 170px !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block !important;
+  }
+
+  /* If cards use a div with background-image */
+  #productGrid .media,
+  #productGrid .product-media,
+  #productGrid .card-media,
+  #productGrid .img,
+  #productGrid .img-wrap,
+  #productGrid .image,
+  #productGrid .image-wrap,
+  #productGrid [style*="background-image"] {
+    height: 170px !important;
+    background-size: cover !important;
+    background-position: center !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+  }
+}
+
+@media (max-width: 380px) {
+  #productGrid img { height: 155px !important; }
+  #productGrid .media,
+  #productGrid .product-media,
+  #productGrid .card-media,
+  #productGrid .img,
+  #productGrid .img-wrap,
+  #productGrid .image,
+  #productGrid .image-wrap,
+  #productGrid [style*="background-image"] { height: 155px !important; }
+}
+
+
 
 
 

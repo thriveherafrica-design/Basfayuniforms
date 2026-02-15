@@ -870,6 +870,51 @@ body{
   #productGrid [style*="background-image"] { height: 155px !important; }
 }
 
+/* ===== FORCE product card image block smaller on mobile ===== */
+@media (max-width: 768px) {
+
+  /* 1) Any image inside product cards */
+  #productGrid img {
+    width: 100% !important;
+    height: 160px !important;
+    max-height: 160px !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block !important;
+  }
+
+  /* 2) Any element that LOOKS like the image container (often first child) */
+  #productGrid > * > *:first-child {
+    height: 160px !important;
+    max-height: 160px !important;
+    overflow: hidden !important;
+  }
+
+  /* 3) If images are background-image divs */
+  #productGrid [style*="background-image"] {
+    height: 160px !important;
+    max-height: 160px !important;
+    background-size: cover !important;
+    background-position: center !important;
+    overflow: hidden !important;
+  }
+
+  /* 4) Kill padding-top aspect ratio tricks (common culprit) */
+  #productGrid * {
+    padding-top: 0 !important;
+  }
+}
+
+@media (max-width: 380px) {
+  #productGrid img { height: 145px !important; max-height: 145px !important; }
+  #productGrid > * > *:first-child { height: 145px !important; max-height: 145px !important; }
+  #productGrid [style*="background-image"] { height: 145px !important; max-height: 145px !important; }
+}
+
+
+
+
+
 
 
 

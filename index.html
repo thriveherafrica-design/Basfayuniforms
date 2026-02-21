@@ -443,6 +443,77 @@
         <div class="drawer-foot">
           <div class="cart-note muted">Add sizes in the message before sending if needed.</div>
 
+          <!-- PAYMENT OPTIONS (Cash + M-Pesa) -->
+          <div class="card soft" id="paymentOptions" style="margin: 12px 0; padding: 12px;">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+              <div>
+                <strong style="display:block; margin-bottom:4px;">Payment options</strong>
+                <div class="muted" style="font-size: 13px;">
+                  After you send your order on WhatsApp, we’ll confirm total + delivery fee (if any).
+                </div>
+              </div>
+              <span class="chip" aria-hidden="true">KES</span>
+            </div>
+
+            <hr class="sep" style="margin:12px 0;" />
+
+            <!-- CASH -->
+            <div style="display:flex; gap:10px; align-items:flex-start; margin-bottom: 10px;">
+              <span class="chip">Cash</span>
+              <div style="min-width:0;">
+                <div style="font-weight:700;">Cash on pickup / delivery</div>
+                <div class="muted" style="font-size:13px;">
+                  Pay when collecting in <strong>Kangemi</strong> or on delivery (where applicable).
+                </div>
+              </div>
+            </div>
+
+            <!-- M-PESA -->
+            <div style="display:flex; gap:10px; align-items:flex-start;">
+              <span class="chip">M-Pesa</span>
+              <div style="min-width:0;">
+                <div style="font-weight:700;">Pay via M-Pesa</div>
+
+                <!-- EDIT THESE DETAILS -->
+                <div class="muted" style="font-size:13px; margin-top:4px;">
+                  <div><strong>Paybill:</strong> <span id="mpesaPaybill">XXXXXXXX</span> <span class="muted">(edit)</span></div>
+                  <div><strong>Account:</strong> <span id="mpesaAccount">BASFAY</span></div>
+                  <div><strong>Till (optional):</strong> <span id="mpesaTill">XXXXXXXX</span></div>
+                </div>
+
+                <div class="muted" style="font-size:13px; margin-top:8px;">
+                  <strong>Reference:</strong> Use your <strong>Name</strong> + <strong>School</strong> (e.g. “Amina Kihumbuini”).
+                </div>
+
+                <div class="muted" style="font-size:13px; margin-top:6px;">
+                  After paying, please send the <strong>M-Pesa message</strong> / transaction code on WhatsApp.
+                </div>
+
+                <!-- OPTIONAL: Pay now button (we’ll enable later if using Flutterwave/Paystack link) -->
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+                  <a class="btn small primary is-hidden"
+                     id="payNowLink"
+                     href="#"
+                     target="_blank"
+                     rel="noopener"
+                     aria-hidden="true">
+                    Pay now (M-Pesa)
+                  </a>
+
+                  <button class="btn small ghost" type="button"
+                          onclick="navigator.clipboard && navigator.clipboard.writeText(document.getElementById('mpesaPaybill')?.textContent || '')">
+                    Copy Paybill
+                  </button>
+                </div>
+
+                <div class="muted" style="font-size:12px; margin-top:8px;">
+                  Note: Delivery fee depends on area and will be confirmed on WhatsApp.
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- /PAYMENT OPTIONS -->
+
           <a
             class="btn primary full is-hidden"
             id="sendWhatsApp"

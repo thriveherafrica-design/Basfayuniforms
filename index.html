@@ -8,17 +8,8 @@
       name="description"
       content="BASFAY Uniforms — Quality & Affordable. Browse items, add to order."
     />
-    <meta name="theme-color" content="#6B3F2A" />
-
-    <!-- Fonts (you referenced these before, so now we actually load them) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500,600,700&family=Manrope:wght@400;600;700;800;900&display=swap"
-      rel="stylesheet"
-    />
-
-    <link rel="stylesheet" href="./styles.css?v=20260221-1" />
+    <meta name="theme-color" content="#1E88E5" />
+    <link rel="stylesheet" href="./styles.css?v=20260215-1" />
 
     <style>
       .is-hidden { display: none !important; }
@@ -27,8 +18,8 @@
       .brand-hero {
         padding: 18px 0 14px;
         background:
-          radial-gradient(900px 420px at 15% 10%, rgba(107,63,42,.22), transparent 60%),
-          radial-gradient(700px 380px at 85% 30%, rgba(231,222,255,.35), transparent 60%);
+          radial-gradient(900px 420px at 15% 10%, rgba(30,136,229,.18), transparent 60%),
+          radial-gradient(700px 380px at 85% 30%, rgba(30,136,229,.12), transparent 60%);
       }
       .brand-hero-inner{
         display:flex;
@@ -52,18 +43,16 @@
         place-items:center;
         font-weight:800;
         font-size:22px;
-        background: rgba(255,255,255,.10);
-        border: 1px solid rgba(255,255,255,.18);
-        color: #fff;
+        background: rgba(30,136,229,.14);
+        border: 1px solid rgba(30,136,229,.20);
       }
       .brand-lines h1{
         margin:0;
         line-height:1.1;
         font-size: clamp(22px, 3vw, 34px);
         letter-spacing:-0.4px;
-        color: #fff;
       }
-      .brand-lines p{ margin:6px 0 0; color: rgba(255,255,255,0.86); }
+      .brand-lines p{ margin:6px 0 0; }
 
       .brand-right{
         display:flex;
@@ -87,13 +76,12 @@
         align-items:center;
         padding:8px 12px;
         border-radius:999px;
-        background: rgba(255,255,255,.12);
-        border: 1px solid rgba(255,255,255,.16);
+        background: rgba(255,255,255,.60);
+        border: 1px solid rgba(17,24,39,.08);
         font-size: 13px;
         white-space: nowrap;
-        color: rgba(255,255,255,.92);
       }
-      .brand-pill strong{ font-weight:800; }
+      .brand-pill strong{ font-weight:700; }
 
       /* Cart button (trolley) on RIGHT */
       .cart-btn {
@@ -103,15 +91,14 @@
         width:52px;
         height:52px;
         border-radius:16px;
-        background: rgba(255,255,255,.14);
-        border: 1px solid rgba(255,255,255,.18);
-        box-shadow: 0 10px 30px rgba(17,24,39,.10);
+        background: rgba(255,255,255,.72);
+        border: 1px solid rgba(17,24,39,.10);
+        box-shadow: 0 10px 30px rgba(17,24,39,.08);
         position: relative;
         cursor: pointer;
         flex: 0 0 auto;
-        color: #fff;
       }
-      .cart-btn svg { width:22px; height:22px; opacity:.95; }
+      .cart-btn svg { width:22px; height:22px; opacity:.92; }
       .cart-badge {
         position:absolute;
         top:-8px;
@@ -120,10 +107,10 @@
         height: 22px;
         padding: 0 6px;
         border-radius: 999px;
-        background: #111827;
+        background: #1E88E5;
         color: white;
         font-size: 12px;
-        font-weight: 800;
+        font-weight: 700;
         display:flex;
         align-items:center;
         justify-content:center;
@@ -132,11 +119,40 @@
 
       /* Ensure no weird top spacing */
       .hero { padding-top: 0 !important; }
+
+      /* Payment section in drawer */
+      .pay-card{
+        margin-top: 10px;
+        padding: 12px;
+      }
+      .pay-title{
+        font-weight: 950;
+        margin-bottom: 8px;
+      }
+      .pay-options{
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+      }
+      .pay-opt{
+        display:flex;
+        gap:10px;
+        align-items:center;
+        cursor:pointer;
+        user-select:none;
+      }
+      .pay-opt input{ transform: translateY(1px); }
+      .pay-help{
+        margin-top: 8px;
+        font-size: 13px;
+      }
     </style>
   </head>
 
   <body>
     <a class="skip" href="#main">Skip to content</a>
+
+    <!-- (REMOVED) Topbar completely -->
 
     <!-- Header (clean) -->
     <header class="header">
@@ -149,12 +165,14 @@
           </span>
         </a>
 
+        <!-- hide top nav -->
         <nav class="nav is-hidden" aria-label="Primary navigation" aria-hidden="true">
           <a class="nav-link" href="#shop">Shop</a>
           <a class="nav-link" href="#delivery">Delivery</a>
           <a class="nav-link" href="#contact">Contact</a>
         </nav>
 
+        <!-- keep structure but no cart button here -->
         <div class="header-actions">
           <a
             class="btn primary is-hidden"
@@ -373,6 +391,36 @@
           </div>
         </div>
       </section>
+
+      <!-- Delivery (kept but hidden) -->
+      <section class="section alt is-hidden" id="delivery" aria-hidden="true">
+        <div class="container">
+          <div class="section-head">
+            <h2>Pickup & Delivery</h2>
+            <p class="muted">Hidden</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact (kept but hidden) -->
+      <section class="section is-hidden" id="contact" aria-hidden="true">
+        <div class="container">
+          <div class="section-head">
+            <h2>Contact</h2>
+            <p class="muted">Hidden</p>
+          </div>
+
+          <a
+            class="btn primary"
+            id="contactWhatsApp"
+            href="https://wa.me/254119667836"
+            rel="noopener"
+            target="_blank"
+            style="display:none;"
+            >Message on WhatsApp</a
+          >
+        </div>
+      </section>
     </main>
 
     <!-- Footer -->
@@ -391,7 +439,8 @@
 
         <div class="footer-right">
           <a class="footer-link" href="#shop">Shop</a>
-          <a class="footer-link" href="#catalog">Catalog</a>
+          <a class="footer-link" href="#delivery">Delivery</a>
+          <a class="footer-link" href="#contact">Contact</a>
         </div>
       </div>
 
@@ -420,6 +469,27 @@
 
         <div class="drawer-foot">
           <div class="cart-note muted">Sizes are included automatically if selected.</div>
+
+          <!-- PAYMENT METHOD (M-PESA + CASH) -->
+          <div class="card soft pay-card">
+            <div class="pay-title">Payment Method</div>
+
+            <div class="pay-options">
+              <label class="pay-opt">
+                <input type="radio" name="payMethod" value="M-Pesa" checked />
+                <span><strong>M-Pesa</strong> (Pay after confirmation)</span>
+              </label>
+
+              <label class="pay-opt">
+                <input type="radio" name="payMethod" value="Cash" />
+                <span><strong>Cash</strong> (On pickup / delivery)</span>
+              </label>
+            </div>
+
+            <div class="muted pay-help">
+              We confirm total + delivery fee (if any) before you pay.
+            </div>
+          </div>
 
           <a
             class="btn primary full"
@@ -453,7 +523,7 @@
 
             <div class="modal-actions">
               <button class="btn primary" id="modalAdd" type="button">Add to order</button>
-              <button class="btn ghost" id="modalOrderNow" type="button">
+              <button class="btn ghost is-hidden" id="modalOrderNow" type="button" aria-hidden="true">
                 Order now (WhatsApp)
               </button>
             </div>

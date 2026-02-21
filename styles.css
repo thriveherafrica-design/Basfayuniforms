@@ -483,3 +483,35 @@ input:focus, select:focus {
   #productGrid img{ height: 165px !important; }
   #productGrid .media{ height: 165px !important; }
 }
+/* =========================================
+   BASFAY – Black Add to Order Buttons
+   ========================================= */
+
+/* Primary buttons become black */
+.btn.primary {
+  background: #000000 !important;
+  border: 1px solid #000000 !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.18) !important;
+  transition: all 0.2s ease;
+}
+
+/* Hover effect */
+.btn.primary:hover {
+  background: #1a1a1a !important;
+  border-color: #1a1a1a !important;
+  transform: translateY(-2px);
+}
+
+/* Press effect */
+.btn.primary:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15) !important;
+}
+
+/* Make sure product cards Add buttons follow this */
+.product .btn.primary {
+  background: #000 !important;
+  border: 1px solid #000 !important;
+  color: #fff !important;
+}

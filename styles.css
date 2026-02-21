@@ -825,3 +825,73 @@ body{
   #productGrid .card-media,
   #productGrid .img-wrap,
   #productGrid .image-wrap{
+
+    /* ===========================
+   BASFAY PATCH (paste at end)
+   Brown header + dark product cards + lively size chips
+   =========================== */
+
+/* --- Brown top header --- */
+:root{
+  --basfay-brown: #6B3F2A;
+  --basfay-brown-deep: #4E2A1E;
+}
+
+.header{
+  background: linear-gradient(180deg, var(--basfay-brown), var(--basfay-brown-deep)) !important;
+  border-bottom: none !important;
+}
+
+/* Keep your black square B */
+.header .brand-mark{
+  background: #000 !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,.15) !important;
+}
+
+/* Make header text readable on brown */
+.header .brand-name{ color: #fff !important; }
+.header .brand-sub{ color: rgba(255,255,255,0.82) !important; }
+
+/* --- Dark product card area (clothes + sizes section) --- */
+.product{
+  background: #111827 !important; /* charcoal black */
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  color: rgba(255,255,255,0.92) !important;
+  box-shadow: 0 16px 40px rgba(15,28,43,0.12) !important;
+}
+
+.product h3{ color: #fff !important; }
+
+.product .meta{
+  color: rgba(255,255,255,0.75) !important;
+}
+
+/* Keep normal chips readable on dark */
+.product .chip{
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.16) !important;
+  color: rgba(255,255,255,0.88) !important;
+}
+
+/* Price pop on dark */
+.product .price{
+  color: #4ADE80 !important;
+}
+
+/* --- Lively size chips only (the 2nd meta row where sizes are) --- */
+.product .meta + .meta .chip{
+  background: rgba(0, 200, 170, 0.26) !important;
+  border: 1px solid rgba(0, 200, 170, 0.50) !important;
+  color: #fff !important;
+}
+.product .meta + .meta .chip:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0, 200, 170, 0.18);
+}
+/* When JS sets outline on selected size, make it look selected */
+.product .meta + .meta .chip[style*="outline"]{
+  background: rgba(0, 200, 170, 0.34) !important;
+  border-color: rgba(0, 200, 170, 0.70) !important;
+}

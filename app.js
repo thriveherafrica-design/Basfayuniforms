@@ -5,7 +5,8 @@
    - Order list stored in localStorage
    - WhatsApp order message generator
    - Category tabs (Type) — future categories clickable
-   - ✅ Add to order opens WhatsApp immediately
+   - ✅ Payment method selector (Cash / M-Pesa)
+   - ✅ Add to order opens drawer (does NOT auto-open WhatsApp)
    ============================ */
 
 const CONFIG = {
@@ -62,6 +63,14 @@ const els = {
   sendWhatsApp: document.getElementById("sendWhatsApp"),
   clearCart: document.getElementById("clearCart"),
 
+  // payment UI
+  payCash: document.getElementById("payCash"),
+  payMpesa: document.getElementById("payMpesa"),
+  cashBlock: document.getElementById("cashBlock"),
+  mpesaBlock: document.getElementById("mpesaBlock"),
+  copyPaybillBtn: document.getElementById("copyPaybillBtn"),
+  mpesaPaybill: document.getElementById("mpesaPaybill"),
+
   // modal
   modal: document.getElementById("modal"),
   modalBackdrop: document.getElementById("modalBackdrop"),
@@ -102,6 +111,46 @@ function normalize(s) {
 }
 
 /* ======================
+   Payment selection
+   ====================== */
+function getSelectedPayMethod() {
+  if (els.payMpesa?.checked) return "mpesa";
+  return "cash";
+}
+
+function updatePaymentUI() {
+  const method = getSelectedPayMethod();
+  if (els.cashBlock) els.cashBlock.classList.toggle("is-hidden", method !== "cash");
+  if (els.mpesaBlock) els.mpesaBlock.classList.toggle("is-hidden", method !== "mpesa");
+
+  // Keep WhatsApp link current
+  if (els.sendWhatsApp) {
+    els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+  }
+}
+
+function bindPayments() {
+  els.payCash?.addEventListener("change", updatePaymentUI);
+  els.payMpesa?.addEventListener("change", updatePaymentUI);
+
+  els.copyPaybillBtn?.addEventListener("click", async () => {
+    const paybill = els.mpesaPaybill?.textContent?.trim() || "";
+    if (!paybill || paybill === "XXXXXXXX") {
+      alert("Please update the Paybill number in the HTML first.");
+      return;
+    }
+    try {
+      await navigator.clipboard?.writeText(paybill);
+      alert("Paybill copied.");
+    } catch {
+      alert("Could not copy. Please copy manually.");
+    }
+  });
+
+  updatePaymentUI();
+}
+
+/* ======================
    WhatsApp helpers
    ====================== */
 function buildWhatsAppLink(message) {
@@ -120,13 +169,6 @@ function updateWhatsAppLinks() {
   for (const el of [els.topbarWhatsApp, els.headerWhatsApp, els.contactWhatsApp, els.footerWhatsApp]) {
     if (el) el.href = link;
   }
-}
-
-// ✅ Open WhatsApp with the current cart message
-function openWhatsAppOrder() {
-  const url = buildWhatsAppLink(buildOrderMessage());
-  // try opening a new tab/window (works best when triggered by a click)
-  window.open(url, "_blank", "noopener");
 }
 
 /* ======================
@@ -163,10 +205,7 @@ function addToCart(productId, size, price, qty = 1) {
   else cart.push({ key, id: productId, size: String(size), price: Number(price), qty });
 
   setCart(cart);
-  openDrawer();
-
-  // ✅ Immediately open WhatsApp after adding
-  openWhatsAppOrder();
+  openDrawer(); // ✅ no auto WhatsApp opening
 }
 
 function removeFromCart(key) {
@@ -256,23 +295,17 @@ function buildTypeTabs() {
     btn.className = "chip";
     btn.textContent = label;
 
-    // ✅ all clickable
     btn.disabled = false;
     btn.dataset.type = typeValue;
     btn.dataset.empty = hasProducts ? "0" : "1";
 
-    if (!hasProducts) {
-      btn.style.opacity = "0.55";
-      btn.title = "Coming soon";
-    } else {
-      btn.style.opacity = "1";
-    }
+    btn.style.opacity = hasProducts ? "1" : "0.55";
+    btn.title = hasProducts ? "" : "Coming soon";
     btn.style.cursor = "pointer";
 
     btn.addEventListener("click", () => {
       state.type = typeValue;
 
-      // sync dropdowns
       if (els.typeFilter) els.typeFilter.value = typeValue;
       if (els.typeFilter2) els.typeFilter2.value = typeValue;
 
@@ -366,7 +399,6 @@ function renderProducts() {
   els.productGrid.innerHTML = "";
   els.emptyState.hidden = sorted.length !== 0;
 
-  // ✅ Better empty message for “coming soon” categories
   if (sorted.length === 0 && els.emptyState) {
     const h3 = els.emptyState.querySelector("h3");
     const p = els.emptyState.querySelector("p");
@@ -514,7 +546,7 @@ function productCard(p) {
 }
 
 /* ======================
-   Filters binding (sync hero + top + sidebar)
+   Filters binding
    ====================== */
 function bindFilters() {
   const hero = { q: els.q, color: els.colorFilter, type: els.typeFilter, sort: els.sortBy };
@@ -616,7 +648,6 @@ function updateCartUI() {
   if (!cart.length) {
     els.cartEmpty.hidden = false;
 
-    // Hide WhatsApp button when cart is empty (your HTML hides it by default)
     if (els.sendWhatsApp) {
       els.sendWhatsApp.classList.add("is-hidden");
       els.sendWhatsApp.setAttribute("aria-hidden", "true");
@@ -627,10 +658,10 @@ function updateCartUI() {
 
   els.cartEmpty.hidden = true;
 
-  // Show WhatsApp button when cart has items
   if (els.sendWhatsApp) {
     els.sendWhatsApp.classList.remove("is-hidden");
     els.sendWhatsApp.setAttribute("aria-hidden", "false");
+    els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
   }
 
   cart.forEach(item => {
@@ -692,6 +723,7 @@ function updateCartUI() {
     els.cartItems.appendChild(row);
   });
 
+  // update link again (includes payment method)
   if (els.sendWhatsApp) {
     els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
   }
@@ -700,7 +732,11 @@ function updateCartUI() {
 function buildOrderMessage() {
   const cart = getCart();
   const lines = [];
+  const method = getSelectedPayMethod();
+  const methodText = method === "mpesa" ? "M-Pesa" : "Cash";
+
   lines.push(`Hi ${CONFIG.businessName}, I would like to order:`);
+  lines.push(`Payment method: ${methodText}`);
   lines.push("");
 
   if (!cart.length) {
@@ -833,6 +869,7 @@ function openModal(productId) {
       }
       const msg = [
         `Hi ${CONFIG.businessName}, I would like to order:`,
+        `Payment method: ${getSelectedPayMethod() === "mpesa" ? "M-Pesa" : "Cash"}`,
         ``,
         `- 1 × ${p.name} (Size ${selected.size}) (${formatMoney(selected.price)})`,
         ``,
@@ -859,6 +896,7 @@ function openModal(productId) {
     els.modalOrderNow.onclick = () => {
       const msg = [
         `Hi ${CONFIG.businessName}, I would like to order:`,
+        `Payment method: ${getSelectedPayMethod() === "mpesa" ? "M-Pesa" : "Cash"}`,
         ``,
         `- 1 × ${p.name}${p.price != null ? ` (${formatMoney(p.price)})` : ""}`,
         ``,
@@ -944,6 +982,7 @@ function initKeyboard() {
   updateWhatsAppLinks();
   bindCart();
   bindModal();
+  bindPayments();
   initKeyboard();
 
   try {

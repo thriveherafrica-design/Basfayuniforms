@@ -125,8 +125,6 @@
   <body>
     <a class="skip" href="#main">Skip to content</a>
 
-    <!-- (REMOVED) Topbar completely -->
-
     <!-- Header (clean) -->
     <header class="header">
       <div class="container header-inner">
@@ -138,14 +136,12 @@
           </span>
         </a>
 
-        <!-- hide top nav -->
         <nav class="nav is-hidden" aria-label="Primary navigation" aria-hidden="true">
           <a class="nav-link" href="#shop">Shop</a>
           <a class="nav-link" href="#delivery">Delivery</a>
           <a class="nav-link" href="#contact">Contact</a>
         </nav>
 
-        <!-- keep structure but no cart button here -->
         <div class="header-actions">
           <a
             class="btn primary is-hidden"
@@ -179,7 +175,6 @@
               <span class="brand-pill"><strong>Fast ordering</strong></span>
             </div>
 
-            <!-- Trolley on the RIGHT -->
             <button class="cart-btn" id="openCart" aria-label="Open order list" type="button">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path
@@ -365,7 +360,6 @@
         </div>
       </section>
 
-      <!-- Delivery (kept but hidden) -->
       <section class="section alt is-hidden" id="delivery" aria-hidden="true">
         <div class="container">
           <div class="section-head">
@@ -375,7 +369,6 @@
         </div>
       </section>
 
-      <!-- Contact (kept but hidden) -->
       <section class="section is-hidden" id="contact" aria-hidden="true">
         <div class="container">
           <div class="section-head">
@@ -396,7 +389,6 @@
       </section>
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
       <div class="container footer-inner">
         <div class="footer-left">
@@ -441,15 +433,15 @@
         </div>
 
         <div class="drawer-foot">
-          <div class="cart-note muted">Add sizes in the message before sending if needed.</div>
+          <div class="cart-note muted">Choose payment option, then send your order on WhatsApp.</div>
 
-          <!-- PAYMENT OPTIONS (Cash + M-Pesa) -->
+          <!-- PAYMENT OPTIONS (Selectable) -->
           <div class="card soft" id="paymentOptions" style="margin: 12px 0; padding: 12px;">
             <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
               <div>
-                <strong style="display:block; margin-bottom:4px;">Payment options</strong>
+                <strong style="display:block; margin-bottom:4px;">Payment method</strong>
                 <div class="muted" style="font-size: 13px;">
-                  After you send your order on WhatsApp, we’ll confirm total + delivery fee (if any).
+                  Pick one. We’ll confirm total + delivery fee (if any) on WhatsApp.
                 </div>
               </div>
               <span class="chip" aria-hidden="true">KES</span>
@@ -457,57 +449,56 @@
 
             <hr class="sep" style="margin:12px 0;" />
 
-            <!-- CASH -->
-            <div style="display:flex; gap:10px; align-items:flex-start; margin-bottom: 10px;">
-              <span class="chip">Cash</span>
-              <div style="min-width:0;">
-                <div style="font-weight:700;">Cash on pickup / delivery</div>
-                <div class="muted" style="font-size:13px;">
-                  Pay when collecting in <strong>Kangemi</strong> or on delivery (where applicable).
+            <div role="radiogroup" aria-label="Payment method" style="display:flex; gap:10px; flex-wrap:wrap;">
+              <label class="chip" style="cursor:pointer; display:inline-flex; gap:8px; align-items:center;">
+                <input type="radio" name="payMethod" value="cash" id="payCash" checked />
+                Cash
+              </label>
+
+              <label class="chip" style="cursor:pointer; display:inline-flex; gap:8px; align-items:center;">
+                <input type="radio" name="payMethod" value="mpesa" id="payMpesa" />
+                M-Pesa
+              </label>
+            </div>
+
+            <div id="cashBlock" style="margin-top:12px;">
+              <div style="display:flex; gap:10px; align-items:flex-start;">
+                <span class="chip">Cash</span>
+                <div style="min-width:0;">
+                  <div style="font-weight:700;">Cash on pickup / delivery</div>
+                  <div class="muted" style="font-size:13px;">
+                    Pay when collecting in <strong>Kangemi</strong> or on delivery (where applicable).
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- M-PESA -->
-            <div style="display:flex; gap:10px; align-items:flex-start;">
-              <span class="chip">M-Pesa</span>
-              <div style="min-width:0;">
-                <div style="font-weight:700;">Pay via M-Pesa</div>
+            <div id="mpesaBlock" class="is-hidden" style="margin-top:12px;">
+              <div style="display:flex; gap:10px; align-items:flex-start;">
+                <span class="chip">M-Pesa</span>
+                <div style="min-width:0;">
+                  <div style="font-weight:700;">Pay via M-Pesa</div>
 
-                <!-- EDIT THESE DETAILS -->
-                <div class="muted" style="font-size:13px; margin-top:4px;">
-                  <div><strong>Paybill:</strong> <span id="mpesaPaybill">XXXXXXXX</span> <span class="muted">(edit)</span></div>
-                  <div><strong>Account:</strong> <span id="mpesaAccount">BASFAY</span></div>
-                  <div><strong>Till (optional):</strong> <span id="mpesaTill">XXXXXXXX</span></div>
-                </div>
+                  <!-- EDIT THESE DETAILS -->
+                  <div class="muted" style="font-size:13px; margin-top:6px;">
+                    <div><strong>Paybill:</strong> <span id="mpesaPaybill">XXXXXXXX</span></div>
+                    <div><strong>Account:</strong> <span id="mpesaAccount">BASFAY</span></div>
 
-                <div class="muted" style="font-size:13px; margin-top:8px;">
-                  <strong>Reference:</strong> Use your <strong>Name</strong> + <strong>School</strong> (e.g. “Amina Kihumbuini”).
-                </div>
+                    <div class="muted" style="margin-top:6px;">
+                      Reference: Use your <strong>Name</strong> + <strong>School</strong> (e.g. “Amina Kihumbuini”).
+                    </div>
+                    <div class="muted" style="margin-top:6px;">
+                      After paying, send the <strong>M-Pesa message / transaction code</strong> on WhatsApp.
+                    </div>
+                  </div>
 
-                <div class="muted" style="font-size:13px; margin-top:6px;">
-                  After paying, please send the <strong>M-Pesa message</strong> / transaction code on WhatsApp.
-                </div>
+                  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+                    <button class="btn small ghost" type="button" id="copyPaybillBtn">Copy Paybill</button>
+                  </div>
 
-                <!-- OPTIONAL: Pay now button (we’ll enable later if using Flutterwave/Paystack link) -->
-                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-                  <a class="btn small primary is-hidden"
-                     id="payNowLink"
-                     href="#"
-                     target="_blank"
-                     rel="noopener"
-                     aria-hidden="true">
-                    Pay now (M-Pesa)
-                  </a>
-
-                  <button class="btn small ghost" type="button"
-                          onclick="navigator.clipboard && navigator.clipboard.writeText(document.getElementById('mpesaPaybill')?.textContent || '')">
-                    Copy Paybill
-                  </button>
-                </div>
-
-                <div class="muted" style="font-size:12px; margin-top:8px;">
-                  Note: Delivery fee depends on area and will be confirmed on WhatsApp.
+                  <div class="muted" style="font-size:12px; margin-top:8px;">
+                    Note: Delivery fee depends on area and will be confirmed on WhatsApp.
+                  </div>
                 </div>
               </div>
             </div>

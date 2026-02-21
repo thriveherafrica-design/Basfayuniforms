@@ -1,5 +1,5 @@
 :root {
-  /* Base theme */
+  /* Light-blue theme (clean, premium) */
   --bg: #F4FAFF;
   --bg2: #E8F4FF;
   --card: rgba(255, 255, 255, 0.88);
@@ -18,17 +18,6 @@
 
   --max: 1120px;
   --gap: 16px;
-
-  /* BASFAY look */
-  --basfay-brown: #6B3F2A;
-  --basfay-brown-deep: #4E2A1E;
-
-  --basfay-lilac: #F1ECFF;
-  --basfay-lilac-2: #E7DEFF;
-
-  /* Size chips (lively purple) */
-  --size-bg: rgba(124, 58, 237, 0.18);
-  --size-border: rgba(124, 58, 237, 0.42);
 }
 
 * { box-sizing: border-box; }
@@ -64,13 +53,42 @@ a:hover { opacity: 0.9; }
 }
 .skip:focus { left: 12px; z-index: 9999; }
 
-/* ===== Header (BROWN) ===== */
+/* Top bar */
+.topbar {
+  background: rgba(255,255,255,0.65);
+  border-bottom: 1px solid rgba(15,28,43,0.08);
+  backdrop-filter: blur(10px);
+}
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+}
+.topbar-left { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.topbar-right { display: flex; gap: 12px; align-items: center; }
+.topbar-link { color: var(--muted); font-weight: 800; text-decoration: none; }
+.topbar-link:hover { color: var(--ink); }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(30, 136, 229, 0.10);
+  border: 1px solid rgba(30, 136, 229, 0.18);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* Header */
 .header {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: linear-gradient(180deg, var(--basfay-brown), var(--basfay-brown-deep));
-  border-bottom: none;
+  background: rgba(255,255,255,0.78);
+  border-bottom: 1px solid rgba(15,28,43,0.08);
   backdrop-filter: blur(12px);
 }
 .header-inner {
@@ -87,23 +105,33 @@ a:hover { opacity: 0.9; }
   gap: 12px;
   text-decoration: none;
 }
-
 .brand-mark {
   width: 44px;
   height: 44px;
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: #000;            /* black square */
-  color: #fff;                 /* white B */
+  background: linear-gradient(135deg, var(--brand), var(--brand2));
+  color: #fff;
   font-weight: 950;
   letter-spacing: 0.4px;
-  box-shadow: 0 4px 14px rgba(0,0,0,.15);
+  box-shadow: 0 12px 26px rgba(21, 101, 192, 0.22);
 }
-
 .brand-text { display: grid; line-height: 1.12; }
-.brand-name { font-weight: 950; letter-spacing: 0.3px; color: #fff; }
-.brand-sub { font-size: 12px; color: rgba(255,255,255,0.82); font-weight: 800; }
+.brand-name { font-weight: 950; letter-spacing: 0.3px; }
+.brand-sub { font-size: 12px; color: var(--muted); font-weight: 800; }
+
+.brand.tiny .brand-mark { width: 38px; height: 38px; border-radius: 12px; }
+
+.nav { display: none; gap: 12px; }
+.nav-link {
+  padding: 8px 10px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-weight: 900;
+  text-decoration: none;
+}
+.nav-link:hover { background: rgba(30,136,229,0.10); color: var(--ink); }
 
 .header-actions { display: flex; align-items: center; gap: 10px; }
 
@@ -133,7 +161,10 @@ a:hover { opacity: 0.9; }
 }
 .btn.primary:hover { filter: brightness(1.05); }
 
-.btn.ghost { background: rgba(255,255,255,0.70); }
+.btn.ghost {
+  background: rgba(255,255,255,0.70);
+}
+
 .btn.small { padding: 10px 12px; border-radius: 12px; font-weight: 900; }
 .btn.full { width: 100%; }
 
@@ -144,13 +175,57 @@ a:hover { opacity: 0.9; }
   border-radius: 14px;
   padding: 10px 12px;
   cursor: pointer;
+  position: relative;
   box-shadow: 0 10px 24px rgba(15,28,43,0.08);
 }
 .icon-btn:hover { transform: translateY(-1px); }
 
+.badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: var(--brand);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 950;
+  border: 2px solid rgba(255,255,255,0.9);
+}
+
+/* Hero */
+.hero { padding: 34px 0 10px; }
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  align-items: start;
+}
+.hero-copy h1 {
+  font-size: clamp(32px, 4.4vw, 52px);
+  line-height: 1.05;
+  margin: 0 0 12px;
+  letter-spacing: -0.6px;
+}
+.lead {
+  font-size: 16px;
+  color: var(--muted);
+  margin: 0 0 18px;
+  max-width: 56ch;
+}
+.hero-cta { display: flex; gap: 10px; flex-wrap: wrap; }
+.hero-card .card { position: sticky; top: 92px; }
+
 /* Sections + Cards */
 .section { padding: 38px 0; }
-
+.section.alt {
+  background: rgba(255,255,255,0.55);
+  border-top: 1px solid rgba(15,28,43,0.06);
+  border-bottom: 1px solid rgba(15,28,43,0.06);
+}
 .section-head h2 { margin: 0 0 6px; letter-spacing: -0.2px; }
 .section-head p { margin: 0; }
 
@@ -162,11 +237,15 @@ a:hover { opacity: 0.9; }
   padding: 16px;
 }
 .card.soft { background: rgba(255,255,255,0.80); }
+.card-head h2 { margin: 0 0 6px; }
+.card-head p { margin: 0; }
 
 .muted { color: var(--muted); }
 
 /* Forms */
+.filters { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 12px; }
 .field { display: grid; gap: 6px; }
+
 label { font-size: 13px; font-weight: 900; color: var(--muted); }
 
 input, select {
@@ -184,12 +263,24 @@ input:focus, select:focus {
   border-color: rgba(21,101,192,0.25);
 }
 
+.mini-actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+
+.note {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(30,136,229,0.10);
+  border: 1px solid rgba(30,136,229,0.18);
+  font-size: 14px;
+}
+
 /* Shop layout */
 .shop-layout { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 14px; }
+.sidebar { position: static; }
 
-/* Hide sidebar fully (you requested this earlier) */
-.sidebar { display: none !important; }
-.catalog { width: 100% !important; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sep { border: none; border-top: 1px solid rgba(15,28,43,0.10); margin: 14px 0; }
+.sidebar-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 
 .grid {
   display: grid;
@@ -197,14 +288,14 @@ input:focus, select:focus {
   gap: 14px;
 }
 
-/* ===== Product cards (LILAC) ===== */
+/* Product cards (your app.js likely injects these) */
 .product {
   display: grid;
   gap: 12px;
   padding: 14px;
   border-radius: calc(var(--radius) + 2px);
-  background: linear-gradient(180deg, var(--basfay-lilac), var(--basfay-lilac-2));
-  border: 1px solid rgba(80,70,120,0.16);
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(15,28,43,0.08);
   box-shadow: 0 16px 40px rgba(15,28,43,0.08);
 }
 .product:hover { transform: translateY(-2px); transition: 0.12s ease; }
@@ -214,7 +305,7 @@ input:focus, select:focus {
   overflow: hidden;
   border: 1px solid rgba(15,28,43,0.08);
   background: rgba(15,28,43,0.03);
-  height: 190px;
+  height: 180px;
   display: grid;
   place-items: center;
   position: relative;
@@ -244,40 +335,23 @@ input:focus, select:focus {
   font-weight: 950;
 }
 
-.product h3 { margin: 0; font-size: 16px; letter-spacing: -0.2px; color: rgba(15,28,43,0.96); }
+.product h3 { margin: 0; font-size: 16px; letter-spacing: -0.2px; }
 
 .meta {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
-  color: rgba(15,28,43,0.72);
+  color: var(--muted);
   font-size: 13px;
   font-weight: 900;
 }
-
 .chip {
   padding: 6px 10px;
   border-radius: 999px;
   background: rgba(30,136,229,0.10);
   border: 1px solid rgba(30,136,229,0.18);
 }
-
-/* Size chips = lively purple (ONLY the size row) */
-.product .meta + .meta .chip{
-  background: var(--size-bg) !important;
-  border: 1px solid var(--size-border) !important;
-  color: rgba(15,28,43,0.92) !important;
-}
-.product .meta + .meta .chip:hover{
-  transform: translateY(-1px);
-  box-shadow: 0 10px 22px rgba(124, 58, 237, 0.18);
-}
-.product .meta + .meta .chip[style*="outline"]{
-  background: rgba(124, 58, 237, 0.26) !important;
-  border-color: rgba(124, 58, 237, 0.70) !important;
-}
-
 .price { font-weight: 1000; font-size: 16px; color: var(--brand2); }
 
 .product-actions {
@@ -289,6 +363,9 @@ input:focus, select:focus {
 /* Empty */
 .empty { padding: 40px 14px; text-align: center; }
 .empty h3 { margin: 0 0 6px; }
+
+/* Two column sections */
+.two-col { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 16px; }
 
 /* Footer */
 .footer {
@@ -319,7 +396,6 @@ input:focus, select:focus {
   z-index: 1000;
 }
 .drawer[aria-hidden="false"], .modal[aria-hidden="false"] { display: block; }
-
 .drawer-backdrop, .modal-backdrop {
   position: absolute;
   inset: 0;
@@ -412,33 +488,465 @@ input:focus, select:focus {
 
 /* Responsive */
 @media (min-width: 880px) {
+  .nav { display: flex; }
+  .hero-grid { grid-template-columns: 1.25fr 0.75fr; }
+  .filters { grid-template-columns: 1fr 1fr; }
+  .shop-layout { grid-template-columns: 360px 1fr; }
+  .sidebar { position: sticky; top: 92px; height: fit-content; }
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .two-col { grid-template-columns: 1fr 1fr; }
   .modal-body { grid-template-columns: 1fr 1fr; }
 }
+/* ============================
+   REMOVE SIDEBAR COMPLETELY
+   ============================ */
 
-/* Small screens grid */
+/* Hide sidebar + its space */
+.sidebar { display: none !important; }
+
+/* Make shop layout single column, full width */
+.shop-layout {
+  grid-template-columns: 1fr !important;
+}
+
+/* Catalog spans full width */
+.catalog {
+  width: 100% !important;
+}
+
+/* Optional: tighten the section so it looks intentional */
+.section#shop .section-head {
+  margin-bottom: 10px;
+}
+
+/* On large screens, still keep full-width grid */
+@media (min-width: 880px) {
+  .shop-layout { grid-template-columns: 1fr !important; }
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* On small screens, keep 1–2 columns for readability */
 @media (max-width: 879px) {
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
 @media (max-width: 520px) {
   .grid { grid-template-columns: 1fr; }
 }
 
-/* Phone-friendly images */
+/* ===== CLEAN HEADER: basfayuniforms left, nav right ===== */
+.brand.simple {
+  font-weight: 1000;
+  letter-spacing: 0.2px;
+  text-transform: lowercase;
+  font-size: 18px;
+  padding: 10px 0;
+}
+
+.nav.always {
+  display: flex !important;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Remove the old brand block spacing */
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ===== HERO: single column, no empty right area ===== */
+.simple-hero {
+  padding: 38px 0 6px;
+}
+
+.simple-hero .hero-copy {
+  max-width: 720px;
+}
+
+/* Optional: tighten overall look */
+.hero { padding-bottom: 0; }
+
+
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+/* ===== TOP FILTER BAR (clean horizontal layout) ===== */
+
+.catalog-controls {
+  margin: 24px 0 18px;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(15,28,43,0.08);
+  box-shadow: 0 14px 40px rgba(15,28,43,0.08);
+}
+
+.catalog-controls h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.category-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.category-chip {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(30,136,229,0.20);
+  background: rgba(30,136,229,0.10);
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.category-chip.active {
+  background: linear-gradient(135deg, var(--brand), var(--brand2));
+  color: white;
+  border-color: transparent;
+}
+
+.category-chip:hover {
+  transform: translateY(-1px);
+}
+
+/* search + filters row */
+.filter-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.filter-row input,
+.filter-row select {
+  height: 46px;
+}
+
+/* responsive */
+@media (max-width: 880px) {
+  .filter-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === BASFAY: make the very top header sage green === */
+:root{
+  --sage: #C9D7C2;        /* soft sage green */
+  --sage-deeper:#B7C8AE;  /* slightly deeper */
+}
+
+.header{
+  background: var(--sage) !important;
+  border-bottom: 1px solid rgba(17,24,39,.08) !important;
+}
+
+.header .brand-mark{
+  background: rgba(255,255,255,.55) !important;
+  border: 1px solid rgba(17,24,39,.10) !important;
+}
+
+/* Make text readable on sage */
+.header .brand-name,
+.header .brand-sub{
+  color: rgba(17,24,39,.92) !important;
+}
+
+/* Optional: tighten padding so it looks cleaner */
+.header .header-inner{
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+/* === BASFAY: Lavender Top Header === */
+:root{
+  --lavender: #E6E0F8;        /* soft elegant lavender */
+  --lavender-deep: #D6CCF2;   /* slightly deeper */
+}
+
+.header{
+  background: linear-gradient(180deg, var(--lavender), var(--lavender-deep)) !important;
+  border-bottom: 1px solid rgba(17,24,39,.08) !important;
+}
+
+.header .brand-mark{
+  background: rgba(255,255,255,.6) !important;
+  border: 1px solid rgba(17,24,39,.10) !important;
+}
+
+.header .brand-name,
+.header .brand-sub{
+  color: rgba(17,24,39,.92) !important;
+}
+
+.header .header-inner{
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+/* ===== BASFAY Mustard Luxury Header ===== */
+
+:root{
+  --mustard: #C89B2D;          /* rich mustard */
+  --mustard-deep: #B48822;     /* deeper shade */
+}
+
+/* Apply new fonts */
+body{
+  font-family: 'Manrope', sans-serif;
+}
+
+.brand-name{
+  font-family: 'Fraunces', serif !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.3px;
+}
+
+.section-head h2,
+.brand-lines h1{
+  font-family: 'Fraunces', serif !important;
+  font-weight: 600 !important;
+}
+
+/* Mustard top header */
+.header{
+  background: linear-gradient(180deg, var(--mustard), var(--mustard-deep)) !important;
+  border-bottom: none !important;
+}
+
+/* White brand icon box for contrast */
+.header .brand-mark{
+  background: rgba(255,255,255,.85) !important;
+  border: none !important;
+}
+
+/* Text color on mustard */
+.header .brand-name,
+.header .brand-sub{
+  color: #1F2937 !important;
+}
+
+/* Tighten header padding */
+.header .header-inner{
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+/* ===== Black square with white B ===== */
+
+.header .brand-mark{
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,.15);
+}
+
+/* Make sure the B is actually white */
+.header .brand-mark{
+  font-weight: 700;
+}
+
+/* Optional: slightly round but modern */
+.header .brand-mark{
+  border-radius: 14px !important;
+}
+
+.header .brand-mark,
+.header .brand-mark *{
+  color: #ffffff !important;
+}
+
+/* ===== Fix Product Images on Mobile ===== */
+
+.grid .card img,
+.catalog .card img,
+.product-card img {
+  width: 100%;
+  height: 220px;              /* controlled height for phone */
+  object-fit: cover;          /* crop properly */
+  object-position: center;    /* center crop */
+  border-radius: 18px 18px 0 0;
+}
+
+/* Slightly smaller on very small phones */
+@media (max-width: 480px) {
+  .grid .card img,
+  .catalog .card img,
+  .product-card img {
+    height: 190px;
+  }
+}
+
+/* Optional: tighten card spacing */
+.grid .card {
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+/* ===== MOBILE: make product images smaller + consistent ===== */
+
+/* Hit images inside the actual product grid no matter the card class */
 #productGrid img{
   width: 100% !important;
-  height: 190px !important;
-  object-fit: cover !important;
+  height: 190px !important;      /* phone-friendly */
+  object-fit: cover !important;  /* clean crop */
   object-position: center !important;
   display: block !important;
   border-radius: 16px !important;
 }
-#productGrid .media{
+
+/* If your image sits inside a “media” wrapper, force its height too */
+#productGrid .media,
+#productGrid .product-media,
+#productGrid .card-media,
+#productGrid .img-wrap,
+#productGrid .image-wrap{
   height: 190px !important;
   overflow: hidden !important;
   border-radius: 16px !important;
 }
+
+/* Slightly shorter on very small phones */
 @media (max-width: 380px){
-  #productGrid img{ height: 165px !important; }
-  #productGrid .media{ height: 165px !important; }
+  #productGrid img{
+    height: 165px !important;
+  }
+  #productGrid .media,
+  #productGrid .product-media,
+  #productGrid .card-media,
+  #productGrid .img-wrap,
+  #productGrid .image-wrap{
+
+    /* ===========================
+   BASFAY PATCH (paste at end)
+   Brown header + dark product cards + lively size chips
+   =========================== */
+
+/* --- Brown top header --- */
+:root{
+  --basfay-brown: #6B3F2A;
+  --basfay-brown-deep: #4E2A1E;
+}
+
+.header{
+  background: linear-gradient(180deg, var(--basfay-brown), var(--basfay-brown-deep)) !important;
+  border-bottom: none !important;
+}
+
+/* Keep your black square B */
+.header .brand-mark{
+  background: #000 !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,.15) !important;
+}
+
+/* Make header text readable on brown */
+.header .brand-name{ color: #fff !important; }
+.header .brand-sub{ color: rgba(255,255,255,0.82) !important; }
+
+/* --- Dark product card area (clothes + sizes section) --- */
+.product{
+  background: #111827 !important; /* charcoal black */
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  color: rgba(255,255,255,0.92) !important;
+  box-shadow: 0 16px 40px rgba(15,28,43,0.12) !important;
+}
+
+.product h3{ color: #fff !important; }
+
+.product .meta{
+  color: rgba(255,255,255,0.75) !important;
+}
+
+/* Keep normal chips readable on dark */
+.product .chip{
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.16) !important;
+  color: rgba(255,255,255,0.88) !important;
+}
+
+/* Price pop on dark */
+.product .price{
+  color: #4ADE80 !important;
+}
+
+/* --- Lively size chips only (the 2nd meta row where sizes are) --- */
+.product .meta + .meta .chip{
+  background: rgba(0, 200, 170, 0.26) !important;
+  border: 1px solid rgba(0, 200, 170, 0.50) !important;
+  color: #fff !important;
+}
+.product .meta + .meta .chip:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0, 200, 170, 0.18);
+}
+/* When JS sets outline on selected size, make it look selected */
+.product .meta + .meta .chip[style*="outline"]{
+  background: rgba(0, 200, 170, 0.34) !important;
+  border-color: rgba(0, 200, 170, 0.70) !important;
+}
+
+    /* ===========================
+   BASFAY PATCH (SAFE, NO OMISSIONS)
+   Brown header + lilac product cards + lively size chips
+   =========================== */
+
+:root{
+  --basfay-brown: #6B3F2A;
+  --basfay-brown-deep: #4E2A1E;
+
+  --basfay-lilac: #F1ECFF;
+  --basfay-lilac-2: #E7DEFF;
+
+  --basfay-size-bg: rgba(0, 200, 170, 0.22);
+  --basfay-size-border: rgba(0, 200, 170, 0.48);
+}
+
+/* Brown header */
+.header{
+  background: linear-gradient(180deg, var(--basfay-brown), var(--basfay-brown-deep)) !important;
+  border-bottom: none !important;
+}
+
+/* Keep black square with white B */
+.header .brand-mark{
+  background: #000 !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,.15) !important;
+}
+
+/* Header text readable */
+.header .brand-name{ color: #fff !important; }
+.header .brand-sub{ color: rgba(255,255,255,0.82) !important; }
+
+/* Lilac product cards */
+.product{
+  background: linear-gradient(180deg, var(--basfay-lilac), var(--basfay-lilac-2)) !important;
+  border: 1px solid rgba(80,70,120,0.16) !important;
+}
+
+/* Lively size chips only (second .meta row) */
+.product .meta + .meta .chip{
+  background: var(--basfay-size-bg) !important;
+  border: 1px solid var(--basfay-size-border) !important;
+  color: rgba(15,28,43,0.92) !important;
+}
+.product .meta + .meta .chip:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0, 200, 170, 0.18);
+}
+.product .meta + .meta .chip[style*="outline"]{
+  background: rgba(0, 200, 170, 0.30) !important;
+  border-color: rgba(0, 200, 170, 0.70) !important;
 }

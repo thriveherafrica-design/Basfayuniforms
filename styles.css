@@ -18,6 +18,14 @@
 
   --max: 1120px;
   --gap: 16px;
+
+  /* BASFAY header brown */
+  --brown: #6B3F2A;
+  --brown-deep: #4E2A1E;
+
+  /* Size-chip accent (lively) */
+  --size-accent: rgba(0, 200, 170, 0.16);
+  --size-accent-border: rgba(0, 200, 170, 0.32);
 }
 
 * { box-sizing: border-box; }
@@ -82,13 +90,13 @@ a:hover { opacity: 0.9; }
   font-weight: 900;
 }
 
-/* Header */
+/* Header (BROWN) */
 .header {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(255,255,255,0.78);
-  border-bottom: 1px solid rgba(15,28,43,0.08);
+  background: linear-gradient(180deg, var(--brown), var(--brown-deep)) !important;
+  border-bottom: none !important;
   backdrop-filter: blur(12px);
 }
 .header-inner {
@@ -111,15 +119,18 @@ a:hover { opacity: 0.9; }
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, var(--brand), var(--brand2));
-  color: #fff;
+
+  /* black box + white B */
+  background: #000 !important;
+  color: #fff !important;
+
   font-weight: 950;
   letter-spacing: 0.4px;
-  box-shadow: 0 12px 26px rgba(21, 101, 192, 0.22);
+  box-shadow: 0 4px 14px rgba(0,0,0,.15);
 }
 .brand-text { display: grid; line-height: 1.12; }
-.brand-name { font-weight: 950; letter-spacing: 0.3px; }
-.brand-sub { font-size: 12px; color: var(--muted); font-weight: 800; }
+.brand-name { font-weight: 950; letter-spacing: 0.3px; color: #fff !important; }
+.brand-sub { font-size: 12px; color: rgba(255,255,255,0.82) !important; font-weight: 800; }
 
 .brand.tiny .brand-mark { width: 38px; height: 38px; border-radius: 12px; }
 
@@ -127,11 +138,11 @@ a:hover { opacity: 0.9; }
 .nav-link {
   padding: 8px 10px;
   border-radius: 999px;
-  color: var(--muted);
+  color: rgba(255,255,255,0.85);
   font-weight: 900;
   text-decoration: none;
 }
-.nav-link:hover { background: rgba(30,136,229,0.10); color: var(--ink); }
+.nav-link:hover { background: rgba(255,255,255,0.14); color: #fff; }
 
 .header-actions { display: flex; align-items: center; gap: 10px; }
 
@@ -288,7 +299,7 @@ input:focus, select:focus {
   gap: 14px;
 }
 
-/* Product cards (your app.js likely injects these) */
+/* Product cards */
 .product {
   display: grid;
   gap: 12px;
@@ -346,12 +357,30 @@ input:focus, select:focus {
   font-size: 13px;
   font-weight: 900;
 }
+
 .chip {
   padding: 6px 10px;
   border-radius: 999px;
   background: rgba(30,136,229,0.10);
   border: 1px solid rgba(30,136,229,0.18);
 }
+
+/* ✅ Lively SIZE chips only (2nd meta row in product card) */
+.product .meta + .meta .chip {
+  background: var(--size-accent) !important;
+  border: 1px solid var(--size-accent-border) !important;
+  color: rgba(15, 28, 43, 0.92) !important;
+}
+.product .meta + .meta .chip:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0, 200, 170, 0.18);
+}
+/* When JS sets outline on selected size, give it a nicer fill */
+.product .meta + .meta .chip[style*="outline"]{
+  background: rgba(0, 200, 170, 0.24) !important;
+  border-color: rgba(0, 200, 170, 0.48) !important;
+}
+
 .price { font-weight: 1000; font-size: 16px; color: var(--brand2); }
 
 .product-actions {
@@ -497,314 +526,38 @@ input:focus, select:focus {
   .two-col { grid-template-columns: 1fr 1fr; }
   .modal-body { grid-template-columns: 1fr 1fr; }
 }
+
 /* ============================
    REMOVE SIDEBAR COMPLETELY
    ============================ */
-
-/* Hide sidebar + its space */
 .sidebar { display: none !important; }
 
-/* Make shop layout single column, full width */
-.shop-layout {
-  grid-template-columns: 1fr !important;
-}
+.shop-layout { grid-template-columns: 1fr !important; }
+.catalog { width: 100% !important; }
 
-/* Catalog spans full width */
-.catalog {
-  width: 100% !important;
-}
+.section#shop .section-head { margin-bottom: 10px; }
 
-/* Optional: tighten the section so it looks intentional */
-.section#shop .section-head {
-  margin-bottom: 10px;
-}
-
-/* On large screens, still keep full-width grid */
 @media (min-width: 880px) {
   .shop-layout { grid-template-columns: 1fr !important; }
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
-
-/* On small screens, keep 1–2 columns for readability */
 @media (max-width: 879px) {
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-
 @media (max-width: 520px) {
   .grid { grid-template-columns: 1fr; }
 }
 
-/* ===== CLEAN HEADER: basfayuniforms left, nav right ===== */
-.brand.simple {
-  font-weight: 1000;
-  letter-spacing: 0.2px;
-  text-transform: lowercase;
-  font-size: 18px;
-  padding: 10px 0;
-}
-
-.nav.always {
-  display: flex !important;
-  gap: 12px;
-  justify-content: flex-end;
-}
-
-/* Remove the old brand block spacing */
-.header-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* ===== HERO: single column, no empty right area ===== */
-.simple-hero {
-  padding: 38px 0 6px;
-}
-
-.simple-hero .hero-copy {
-  max-width: 720px;
-}
-
-/* Optional: tighten overall look */
-.hero { padding-bottom: 0; }
-
-
-.header-right{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
-/* ===== TOP FILTER BAR (clean horizontal layout) ===== */
-
-.catalog-controls {
-  margin: 24px 0 18px;
-  padding: 18px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(15,28,43,0.08);
-  box-shadow: 0 14px 40px rgba(15,28,43,0.08);
-}
-
-.catalog-controls h3 {
-  margin: 0 0 12px;
-  font-size: 16px;
-  font-weight: 900;
-}
-
-.category-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.category-chip {
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(30,136,229,0.20);
-  background: rgba(30,136,229,0.10);
-  font-weight: 900;
-  cursor: pointer;
-  transition: 0.15s ease;
-}
-
-.category-chip.active {
-  background: linear-gradient(135deg, var(--brand), var(--brand2));
-  color: white;
-  border-color: transparent;
-}
-
-.category-chip:hover {
-  transform: translateY(-1px);
-}
-
-/* search + filters row */
-.filter-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto;
-  gap: 12px;
-  align-items: center;
-}
-
-.filter-row input,
-.filter-row select {
-  height: 46px;
-}
-
-/* responsive */
-@media (max-width: 880px) {
-  .filter-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* === BASFAY: make the very top header sage green === */
-:root{
-  --sage: #C9D7C2;        /* soft sage green */
-  --sage-deeper:#B7C8AE;  /* slightly deeper */
-}
-
-.header{
-  background: var(--sage) !important;
-  border-bottom: 1px solid rgba(17,24,39,.08) !important;
-}
-
-.header .brand-mark{
-  background: rgba(255,255,255,.55) !important;
-  border: 1px solid rgba(17,24,39,.10) !important;
-}
-
-/* Make text readable on sage */
-.header .brand-name,
-.header .brand-sub{
-  color: rgba(17,24,39,.92) !important;
-}
-
-/* Optional: tighten padding so it looks cleaner */
-.header .header-inner{
-  padding-top: 12px !important;
-  padding-bottom: 12px !important;
-}
-
-/* === BASFAY: Lavender Top Header === */
-:root{
-  --lavender: #E6E0F8;        /* soft elegant lavender */
-  --lavender-deep: #D6CCF2;   /* slightly deeper */
-}
-
-.header{
-  background: linear-gradient(180deg, var(--lavender), var(--lavender-deep)) !important;
-  border-bottom: 1px solid rgba(17,24,39,.08) !important;
-}
-
-.header .brand-mark{
-  background: rgba(255,255,255,.6) !important;
-  border: 1px solid rgba(17,24,39,.10) !important;
-}
-
-.header .brand-name,
-.header .brand-sub{
-  color: rgba(17,24,39,.92) !important;
-}
-
-.header .header-inner{
-  padding-top: 12px !important;
-  padding-bottom: 12px !important;
-}
-
-/* ===== BASFAY Mustard Luxury Header ===== */
-
-:root{
-  --mustard: #C89B2D;          /* rich mustard */
-  --mustard-deep: #B48822;     /* deeper shade */
-}
-
-/* Apply new fonts */
-body{
-  font-family: 'Manrope', sans-serif;
-}
-
-.brand-name{
-  font-family: 'Fraunces', serif !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.3px;
-}
-
-.section-head h2,
-.brand-lines h1{
-  font-family: 'Fraunces', serif !important;
-  font-weight: 600 !important;
-}
-
-/* Mustard top header */
-.header{
-  background: linear-gradient(180deg, var(--mustard), var(--mustard-deep)) !important;
-  border-bottom: none !important;
-}
-
-/* White brand icon box for contrast */
-.header .brand-mark{
-  background: rgba(255,255,255,.85) !important;
-  border: none !important;
-}
-
-/* Text color on mustard */
-.header .brand-name,
-.header .brand-sub{
-  color: #1F2937 !important;
-}
-
-/* Tighten header padding */
-.header .header-inner{
-  padding-top: 14px !important;
-  padding-bottom: 14px !important;
-}
-
-/* ===== Black square with white B ===== */
-
-.header .brand-mark{
-  background: #000000 !important;
-  color: #ffffff !important;
-  border: none !important;
-  box-shadow: 0 4px 14px rgba(0,0,0,.15);
-}
-
-/* Make sure the B is actually white */
-.header .brand-mark{
-  font-weight: 700;
-}
-
-/* Optional: slightly round but modern */
-.header .brand-mark{
-  border-radius: 14px !important;
-}
-
-.header .brand-mark,
-.header .brand-mark *{
-  color: #ffffff !important;
-}
-
-/* ===== Fix Product Images on Mobile ===== */
-
-.grid .card img,
-.catalog .card img,
-.product-card img {
-  width: 100%;
-  height: 220px;              /* controlled height for phone */
-  object-fit: cover;          /* crop properly */
-  object-position: center;    /* center crop */
-  border-radius: 18px 18px 0 0;
-}
-
-/* Slightly smaller on very small phones */
-@media (max-width: 480px) {
-  .grid .card img,
-  .catalog .card img,
-  .product-card img {
-    height: 190px;
-  }
-}
-
-/* Optional: tighten card spacing */
-.grid .card {
-  overflow: hidden;
-  border-radius: 20px;
-}
-
-/* ===== MOBILE: make product images smaller + consistent ===== */
-
-/* Hit images inside the actual product grid no matter the card class */
+/* ===== Fix Product Images on Mobile (actual product grid) ===== */
 #productGrid img{
   width: 100% !important;
-  height: 190px !important;      /* phone-friendly */
-  object-fit: cover !important;  /* clean crop */
+  height: 190px !important;
+  object-fit: cover !important;
   object-position: center !important;
   display: block !important;
   border-radius: 16px !important;
 }
 
-/* If your image sits inside a “media” wrapper, force its height too */
 #productGrid .media,
 #productGrid .product-media,
 #productGrid .card-media,
@@ -817,9 +570,7 @@ body{
 
 /* Slightly shorter on very small phones */
 @media (max-width: 380px){
-  #productGrid img{
-    height: 165px !important;
-  }
+  #productGrid img{ height: 165px !important; }
   #productGrid .media,
   #productGrid .product-media,
   #productGrid .card-media,
@@ -828,119 +579,3 @@ body{
     height: 165px !important;
   }
 }
-
-/* ===== FORCE product image size on mobile (img + background-image) ===== */
-@media (max-width: 768px) {
-
-  /* If cards use <img> */
-  #productGrid img {
-    width: 100% !important;
-    height: 170px !important;
-    object-fit: cover !important;
-    object-position: center !important;
-    display: block !important;
-  }
-
-  /* If cards use a div with background-image */
-  #productGrid .media,
-  #productGrid .product-media,
-  #productGrid .card-media,
-  #productGrid .img,
-  #productGrid .img-wrap,
-  #productGrid .image,
-  #productGrid .image-wrap,
-  #productGrid [style*="background-image"] {
-    height: 170px !important;
-    background-size: cover !important;
-    background-position: center !important;
-    border-radius: 16px !important;
-    overflow: hidden !important;
-  }
-}
-
-@media (max-width: 380px) {
-  #productGrid img { height: 155px !important; }
-  #productGrid .media,
-  #productGrid .product-media,
-  #productGrid .card-media,
-  #productGrid .img,
-  #productGrid .img-wrap,
-  #productGrid .image,
-  #productGrid .image-wrap,
-  #productGrid [style*="background-image"] { height: 155px !important; }
-}
-
-/* ===== FORCE product card image block smaller on mobile ===== */
-@media (max-width: 768px) {
-
-  /* 1) Any image inside product cards */
-  #productGrid img {
-    width: 100% !important;
-    height: 160px !important;
-    max-height: 160px !important;
-    object-fit: cover !important;
-    object-position: center !important;
-    display: block !important;
-  }
-
-  /* 2) Any element that LOOKS like the image container (often first child) */
-  #productGrid > * > *:first-child {
-    height: 160px !important;
-    max-height: 160px !important;
-    overflow: hidden !important;
-  }
-
-  /* 3) If images are background-image divs */
-  #productGrid [style*="background-image"] {
-    height: 160px !important;
-    max-height: 160px !important;
-    background-size: cover !important;
-    background-position: center !important;
-    overflow: hidden !important;
-  }
-
-  /* 4) Kill padding-top aspect ratio tricks (common culprit) */
-  #productGrid * {
-    padding-top: 0 !important;
-  }
-}
-
-@media (max-width: 380px) {
-  #productGrid img { height: 145px !important; max-height: 145px !important; }
-  #productGrid > * > *:first-child { height: 145px !important; max-height: 145px !important; }
-  #productGrid [style*="background-image"] { height: 145px !important; max-height: 145px !important; }
-}
-
-@media (max-width: 768px){
-  /* target the actual product image container */
-  #productGrid .card img,
-  #productGrid img{
-    height: 160px !important;
-    width: 100% !important;
-    object-fit: cover !important;
-    object-position: center !important;
-    display: block !important;
-  }
-
-  /* if it’s a div with background-image */
-  #productGrid [style*="background-image"]{
-    height: 160px !important;
-    background-size: cover !important;
-    background-position: center !important;
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

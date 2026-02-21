@@ -238,35 +238,39 @@ function buildTypeTabs() {
 
   all.forEach(label => {
     const typeValue = label === "All" ? "" : label;
-    const enabled = label === "All" ? true : existing.has(label);
+    const hasProducts = label === "All" ? true : existing.has(label);
 
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "chip";
     btn.textContent = label;
 
-    // disabled look for future categories with no products yet
-    if (!enabled) {
-      btn.disabled = true;
-      btn.style.opacity = "0.45";
-      btn.style.cursor = "not-allowed";
+    // ✅ Make ALL categories clickable (no disabled)
+    btn.disabled = false;
+    btn.dataset.type = typeValue;
+    btn.dataset.empty = hasProducts ? "0" : "1";
+
+    // “Coming soon” look (still clickable)
+    if (!hasProducts) {
+      btn.style.opacity = "0.55";
       btn.title = "Coming soon";
     } else {
-      btn.style.cursor = "pointer";
-      btn.addEventListener("click", () => {
-        state.type = typeValue;
-
-        // sync dropdowns
-        if (els.typeFilter) els.typeFilter.value = typeValue;
-        if (els.typeFilter2) els.typeFilter2.value = typeValue;
-
-        updateActiveTypeTab();
-        renderProducts();
-        document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
+      btn.style.opacity = "1";
     }
+    btn.style.cursor = "pointer";
 
-    btn.dataset.type = typeValue;
+    btn.addEventListener("click", () => {
+      state.type = typeValue;
+
+      // sync dropdowns
+      if (els.typeFilter) els.typeFilter.value = typeValue;
+      if (els.typeFilter2) els.typeFilter2.value = typeValue;
+
+      updateActiveTypeTab();
+      renderProducts();
+      document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
     els.typeTabs.appendChild(btn);
   });
 
@@ -351,6 +355,25 @@ function renderProducts() {
 
   els.productGrid.innerHTML = "";
   els.emptyState.hidden = sorted.length !== 0;
+
+  // ✅ Better empty message for "coming soon" categories
+  if (sorted.length === 0 && els.emptyState) {
+    const h3 = els.emptyState.querySelector("h3");
+    const p = els.emptyState.querySelector("p");
+
+    const typeSelected = safeText(state.type);
+    const categoryHasAny = typeSelected
+      ? PRODUCTS.some(x => safeText(x.type) === typeSelected)
+      : true;
+
+    if (typeSelected && !categoryHasAny) {
+      if (h3) h3.textContent = `${typeSelected} coming soon`;
+      if (p) p.textContent = "We’ll add items here shortly. Check other categories for now.";
+    } else {
+      if (h3) h3.textContent = "No matches";
+      if (p) p.textContent = "Clear filters or try a broader search.";
+    }
+  }
 
   sorted.forEach(p => {
     els.productGrid.appendChild(productCard(p));

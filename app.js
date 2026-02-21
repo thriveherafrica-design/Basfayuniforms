@@ -4,7 +4,8 @@
    - Filter/search/sort
    - Order list stored in localStorage
    - WhatsApp order message generator
-   - Category tabs (Type)
+   - Category tabs (Type) — future categories clickable
+   - ✅ Add to order opens WhatsApp immediately
    ============================ */
 
 const CONFIG = {
@@ -101,6 +102,34 @@ function normalize(s) {
 }
 
 /* ======================
+   WhatsApp helpers
+   ====================== */
+function buildWhatsAppLink(message) {
+  const base = "https://wa.me/";
+  const num = CONFIG.whatsappNumber;
+  const text = encodeURIComponent(message);
+  return `${base}${num}?text=${text}`;
+}
+
+function buildGenericWhatsAppMessage() {
+  return `Hi ${CONFIG.businessName}, I would like to place an order. Pickup: ${CONFIG.pickup}.`;
+}
+
+function updateWhatsAppLinks() {
+  const link = buildWhatsAppLink(buildGenericWhatsAppMessage());
+  for (const el of [els.topbarWhatsApp, els.headerWhatsApp, els.contactWhatsApp, els.footerWhatsApp]) {
+    if (el) el.href = link;
+  }
+}
+
+// ✅ Open WhatsApp with the current cart message
+function openWhatsAppOrder() {
+  const url = buildWhatsAppLink(buildOrderMessage());
+  // try opening a new tab/window (works best when triggered by a click)
+  window.open(url, "_blank", "noopener");
+}
+
+/* ======================
    CART (size-aware)
    ====================== */
 function getCart() {
@@ -135,6 +164,9 @@ function addToCart(productId, size, price, qty = 1) {
 
   setCart(cart);
   openDrawer();
+
+  // ✅ Immediately open WhatsApp after adding
+  openWhatsAppOrder();
 }
 
 function removeFromCart(key) {
@@ -148,27 +180,6 @@ function setQty(key, qty) {
   if (!item) return;
   item.qty = Math.max(1, qty);
   setCart(cart);
-}
-
-/* ======================
-   WhatsApp helpers
-   ====================== */
-function buildWhatsAppLink(message) {
-  const base = "https://wa.me/";
-  const num = CONFIG.whatsappNumber;
-  const text = encodeURIComponent(message);
-  return `${base}${num}?text=${text}`;
-}
-
-function buildGenericWhatsAppMessage() {
-  return `Hi ${CONFIG.businessName}, I would like to place an order. Pickup: ${CONFIG.pickup}.`;
-}
-
-function updateWhatsAppLinks() {
-  const link = buildWhatsAppLink(buildGenericWhatsAppMessage());
-  for (const el of [els.topbarWhatsApp, els.headerWhatsApp, els.contactWhatsApp, els.footerWhatsApp]) {
-    if (el) el.href = link;
-  }
 }
 
 /* ======================
@@ -245,12 +256,11 @@ function buildTypeTabs() {
     btn.className = "chip";
     btn.textContent = label;
 
-    // ✅ Make ALL categories clickable (no disabled)
+    // ✅ all clickable
     btn.disabled = false;
     btn.dataset.type = typeValue;
     btn.dataset.empty = hasProducts ? "0" : "1";
 
-    // “Coming soon” look (still clickable)
     if (!hasProducts) {
       btn.style.opacity = "0.55";
       btn.title = "Coming soon";
@@ -356,7 +366,7 @@ function renderProducts() {
   els.productGrid.innerHTML = "";
   els.emptyState.hidden = sorted.length !== 0;
 
-  // ✅ Better empty message for "coming soon" categories
+  // ✅ Better empty message for “coming soon” categories
   if (sorted.length === 0 && els.emptyState) {
     const h3 = els.emptyState.querySelector("h3");
     const p = els.emptyState.querySelector("p");
@@ -512,23 +522,19 @@ function bindFilters() {
   const side = { q: els.q2, color: els.colorFilter2, type: els.typeFilter2, sort: els.sortBy2 };
 
   const syncAll = (from) => {
-    // search
     if (els.q && from.q) els.q.value = from.q.value;
     if (els.q2 && from.q) els.q2.value = from.q.value;
     if (els.qTop && from.q) els.qTop.value = from.q.value;
 
-    // color
     if (els.colorFilter && from.color) els.colorFilter.value = from.color.value;
     if (els.colorFilter2 && from.color) els.colorFilter2.value = from.color.value;
     if (els.colorFilterTop && from.color) els.colorFilterTop.value = from.color.value;
 
-    // type (dropdowns only)
     if (from.type) {
       if (els.typeFilter) els.typeFilter.value = from.type.value;
       if (els.typeFilter2) els.typeFilter2.value = from.type.value;
     }
 
-    // sort
     if (els.sortBy && from.sort) els.sortBy.value = from.sort.value;
     if (els.sortBy2 && from.sort) els.sortBy2.value = from.sort.value;
     if (els.sortByTop && from.sort) els.sortByTop.value = from.sort.value;
@@ -592,7 +598,6 @@ function bindFilters() {
     document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
-  // initial apply
   applyFrom(hero);
 }
 
@@ -610,9 +615,23 @@ function updateCartUI() {
 
   if (!cart.length) {
     els.cartEmpty.hidden = false;
+
+    // Hide WhatsApp button when cart is empty (your HTML hides it by default)
+    if (els.sendWhatsApp) {
+      els.sendWhatsApp.classList.add("is-hidden");
+      els.sendWhatsApp.setAttribute("aria-hidden", "true");
+      els.sendWhatsApp.href = buildWhatsAppLink(buildGenericWhatsAppMessage());
+    }
     return;
   }
+
   els.cartEmpty.hidden = true;
+
+  // Show WhatsApp button when cart has items
+  if (els.sendWhatsApp) {
+    els.sendWhatsApp.classList.remove("is-hidden");
+    els.sendWhatsApp.setAttribute("aria-hidden", "false");
+  }
 
   cart.forEach(item => {
     const p = PRODUCTS.find(x => x.id === item.id);
@@ -673,7 +692,9 @@ function updateCartUI() {
     els.cartItems.appendChild(row);
   });
 
-  els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+  if (els.sendWhatsApp) {
+    els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+  }
 }
 
 function buildOrderMessage() {
@@ -711,16 +732,20 @@ function bindCart() {
     setCart([]);
   });
 
-  els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+  if (els.sendWhatsApp) {
+    els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+  }
 }
 
 function openDrawer() {
   if (!els.drawer) return;
+  els.drawer.classList.add("open");
   els.drawer.setAttribute("aria-hidden", "false");
 }
 
 function closeDrawer() {
   if (!els.drawer) return;
+  els.drawer.classList.remove("open");
   els.drawer.setAttribute("aria-hidden", "true");
 }
 

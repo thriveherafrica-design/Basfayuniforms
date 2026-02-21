@@ -8,8 +8,17 @@
       name="description"
       content="BASFAY Uniforms — Quality & Affordable. Browse items, add to order."
     />
-    <meta name="theme-color" content="#1E88E5" />
-    <link rel="stylesheet" href="./styles.css?v=20260215-1" />
+    <meta name="theme-color" content="#6B3F2A" />
+
+    <!-- Fonts (you referenced these before, so now we actually load them) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500,600,700&family=Manrope:wght@400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="./styles.css?v=20260221-1" />
 
     <style>
       .is-hidden { display: none !important; }
@@ -18,8 +27,8 @@
       .brand-hero {
         padding: 18px 0 14px;
         background:
-          radial-gradient(900px 420px at 15% 10%, rgba(30,136,229,.18), transparent 60%),
-          radial-gradient(700px 380px at 85% 30%, rgba(30,136,229,.12), transparent 60%);
+          radial-gradient(900px 420px at 15% 10%, rgba(107,63,42,.22), transparent 60%),
+          radial-gradient(700px 380px at 85% 30%, rgba(231,222,255,.35), transparent 60%);
       }
       .brand-hero-inner{
         display:flex;
@@ -43,16 +52,18 @@
         place-items:center;
         font-weight:800;
         font-size:22px;
-        background: rgba(30,136,229,.14);
-        border: 1px solid rgba(30,136,229,.20);
+        background: rgba(255,255,255,.10);
+        border: 1px solid rgba(255,255,255,.18);
+        color: #fff;
       }
       .brand-lines h1{
         margin:0;
         line-height:1.1;
         font-size: clamp(22px, 3vw, 34px);
         letter-spacing:-0.4px;
+        color: #fff;
       }
-      .brand-lines p{ margin:6px 0 0; }
+      .brand-lines p{ margin:6px 0 0; color: rgba(255,255,255,0.86); }
 
       .brand-right{
         display:flex;
@@ -76,12 +87,13 @@
         align-items:center;
         padding:8px 12px;
         border-radius:999px;
-        background: rgba(255,255,255,.60);
-        border: 1px solid rgba(17,24,39,.08);
+        background: rgba(255,255,255,.12);
+        border: 1px solid rgba(255,255,255,.16);
         font-size: 13px;
         white-space: nowrap;
+        color: rgba(255,255,255,.92);
       }
-      .brand-pill strong{ font-weight:700; }
+      .brand-pill strong{ font-weight:800; }
 
       /* Cart button (trolley) on RIGHT */
       .cart-btn {
@@ -91,14 +103,15 @@
         width:52px;
         height:52px;
         border-radius:16px;
-        background: rgba(255,255,255,.72);
-        border: 1px solid rgba(17,24,39,.10);
-        box-shadow: 0 10px 30px rgba(17,24,39,.08);
+        background: rgba(255,255,255,.14);
+        border: 1px solid rgba(255,255,255,.18);
+        box-shadow: 0 10px 30px rgba(17,24,39,.10);
         position: relative;
         cursor: pointer;
         flex: 0 0 auto;
+        color: #fff;
       }
-      .cart-btn svg { width:22px; height:22px; opacity:.92; }
+      .cart-btn svg { width:22px; height:22px; opacity:.95; }
       .cart-badge {
         position:absolute;
         top:-8px;
@@ -107,10 +120,10 @@
         height: 22px;
         padding: 0 6px;
         border-radius: 999px;
-        background: #1E88E5;
+        background: #111827;
         color: white;
         font-size: 12px;
-        font-weight: 700;
+        font-weight: 800;
         display:flex;
         align-items:center;
         justify-content:center;
@@ -175,6 +188,7 @@
               <span class="brand-pill"><strong>Fast ordering</strong></span>
             </div>
 
+            <!-- Trolley on the RIGHT -->
             <button class="cart-btn" id="openCart" aria-label="Open order list" type="button">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path
@@ -359,36 +373,9 @@
           </div>
         </div>
       </section>
-
-      <section class="section alt is-hidden" id="delivery" aria-hidden="true">
-        <div class="container">
-          <div class="section-head">
-            <h2>Pickup & Delivery</h2>
-            <p class="muted">Hidden</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="section is-hidden" id="contact" aria-hidden="true">
-        <div class="container">
-          <div class="section-head">
-            <h2>Contact</h2>
-            <p class="muted">Hidden</p>
-          </div>
-
-          <a
-            class="btn primary"
-            id="contactWhatsApp"
-            href="https://wa.me/254119667836"
-            rel="noopener"
-            target="_blank"
-            style="display:none;"
-            >Message on WhatsApp</a
-          >
-        </div>
-      </section>
     </main>
 
+    <!-- Footer -->
     <footer class="footer">
       <div class="container footer-inner">
         <div class="footer-left">
@@ -404,8 +391,7 @@
 
         <div class="footer-right">
           <a class="footer-link" href="#shop">Shop</a>
-          <a class="footer-link" href="#delivery">Delivery</a>
-          <a class="footer-link" href="#contact">Contact</a>
+          <a class="footer-link" href="#catalog">Catalog</a>
         </div>
       </div>
 
@@ -433,85 +419,14 @@
         </div>
 
         <div class="drawer-foot">
-          <div class="cart-note muted">Choose payment option, then send your order on WhatsApp.</div>
-
-          <!-- PAYMENT OPTIONS (Selectable) -->
-          <div class="card soft" id="paymentOptions" style="margin: 12px 0; padding: 12px;">
-            <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
-              <div>
-                <strong style="display:block; margin-bottom:4px;">Payment method</strong>
-                <div class="muted" style="font-size: 13px;">
-                  Pick one. We’ll confirm total + delivery fee (if any) on WhatsApp.
-                </div>
-              </div>
-              <span class="chip" aria-hidden="true">KES</span>
-            </div>
-
-            <hr class="sep" style="margin:12px 0;" />
-
-            <div role="radiogroup" aria-label="Payment method" style="display:flex; gap:10px; flex-wrap:wrap;">
-              <label class="chip" style="cursor:pointer; display:inline-flex; gap:8px; align-items:center;">
-                <input type="radio" name="payMethod" value="cash" id="payCash" checked />
-                Cash
-              </label>
-
-              <label class="chip" style="cursor:pointer; display:inline-flex; gap:8px; align-items:center;">
-                <input type="radio" name="payMethod" value="mpesa" id="payMpesa" />
-                M-Pesa
-              </label>
-            </div>
-
-            <div id="cashBlock" style="margin-top:12px;">
-              <div style="display:flex; gap:10px; align-items:flex-start;">
-                <span class="chip">Cash</span>
-                <div style="min-width:0;">
-                  <div style="font-weight:700;">Cash on pickup / delivery</div>
-                  <div class="muted" style="font-size:13px;">
-                    Pay when collecting in <strong>Kangemi</strong> or on delivery (where applicable).
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div id="mpesaBlock" class="is-hidden" style="margin-top:12px;">
-              <div style="display:flex; gap:10px; align-items:flex-start;">
-                <span class="chip">M-Pesa</span>
-                <div style="min-width:0;">
-                  <div style="font-weight:700;">Pay via M-Pesa</div>
-
-                  <!-- EDIT THESE DETAILS -->
-                  <div class="muted" style="font-size:13px; margin-top:6px;">
-                    <div><strong>Paybill:</strong> <span id="mpesaPaybill">XXXXXXXX</span></div>
-                    <div><strong>Account:</strong> <span id="mpesaAccount">BASFAY</span></div>
-
-                    <div class="muted" style="margin-top:6px;">
-                      Reference: Use your <strong>Name</strong> + <strong>School</strong> (e.g. “Amina Kihumbuini”).
-                    </div>
-                    <div class="muted" style="margin-top:6px;">
-                      After paying, send the <strong>M-Pesa message / transaction code</strong> on WhatsApp.
-                    </div>
-                  </div>
-
-                  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-                    <button class="btn small ghost" type="button" id="copyPaybillBtn">Copy Paybill</button>
-                  </div>
-
-                  <div class="muted" style="font-size:12px; margin-top:8px;">
-                    Note: Delivery fee depends on area and will be confirmed on WhatsApp.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- /PAYMENT OPTIONS -->
+          <div class="cart-note muted">Sizes are included automatically if selected.</div>
 
           <a
-            class="btn primary full is-hidden"
+            class="btn primary full"
             id="sendWhatsApp"
             href="https://wa.me/254119667836"
             rel="noopener"
             target="_blank"
-            aria-hidden="true"
             >Send order on WhatsApp</a
           >
 
@@ -538,7 +453,7 @@
 
             <div class="modal-actions">
               <button class="btn primary" id="modalAdd" type="button">Add to order</button>
-              <button class="btn ghost is-hidden" id="modalOrderNow" type="button" aria-hidden="true">
+              <button class="btn ghost" id="modalOrderNow" type="button">
                 Order now (WhatsApp)
               </button>
             </div>

@@ -785,3 +785,27 @@ input:focus, select:focus {
 .product.type-socks .media{
   background: #ffffff !important;
 }
+
+/* =========================
+   BASFAY: Special card themes
+   - Only Tracksuit = lime
+   - Only Socks = emerald
+   ========================= */
+
+.product-tracksuit{
+  background: linear-gradient(180deg, rgba(190,242,100,0.55), rgba(132,204,22,0.40)) !important;
+  border: 1px solid rgba(77,124,15,0.18) !important;
+}
+
+.product-tracksuit .tag{
+  background: rgba(20,83,45,0.85) !important;
+}
+
+.product-socks{
+  background: linear-gradient(180deg, rgba(16,185,129,0.22), rgba(5,150,105,0.14)) !important;
+  border: 1px solid rgba(5,150,105,0.20) !important;
+}
+
+.product-socks .tag{
+  background: rgba(6,95,70,0.90) !important;
+}

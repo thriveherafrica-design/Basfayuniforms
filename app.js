@@ -8,7 +8,7 @@
    - ✅ Clean product cards (no Sweater/Plain chips, no duplicate Select size)
    - ✅ Size dropdown per product card
    - ✅ Payment method selector (Cash / M-Pesa)
-   - ✅ Category dropdown order follows FUTURE_CATEGORIES
+   - ✅ Category dropdown ALWAYS shows all categories in FUTURE_CATEGORIES order
    ============================ */
 
 const CONFIG = {
@@ -18,7 +18,7 @@ const CONFIG = {
   businessName: "BASFAY School Uniforms",
 };
 
-/* Your preferred category order */
+/* Your preferred category order (ALWAYS visible in dropdown) */
 const FUTURE_CATEGORIES = [
   "Sweater",
   "Shirt",
@@ -84,16 +84,16 @@ const els = {
   modalAdd: document.getElementById("modalAdd"),
   modalOrderNow: document.getElementById("modalOrderNow"),
 
-  // optional modal size UI (only if your HTML includes them)
+  // optional modal size UI
   modalSizeField: document.getElementById("modalSizeField"),
   modalSize: document.getElementById("modalSize"),
 };
 
 let PRODUCTS = [];
 let state = {
-  q: "",          // sidebar search
+  q: "",
   color: "",
-  type: "",       // category/type
+  type: "",
   sort: "featured",
 };
 
@@ -194,7 +194,8 @@ function setQty(key, qty) {
 }
 
 /* ======================
-   Filters options (Category order)
+   Filters options
+   - Category dropdown ALWAYS shows full FUTURE_CATEGORIES
    ====================== */
 function hydrateFiltersOptions() {
   const colors = new Set();
@@ -208,13 +209,11 @@ function hydrateFiltersOptions() {
   // Colors sorted normally
   const colorList = ["", ...Array.from(colors).sort()];
 
-  // Categories in your preferred order, then extras at the end
+  // Categories: ALWAYS show full list, then append extras found in products.json
   const existing = Array.from(types).filter(Boolean);
-
-  const ordered = FUTURE_CATEGORIES.filter(c => existing.includes(c));
   const extras = existing.filter(c => !FUTURE_CATEGORIES.includes(c)).sort();
 
-  const typeList = ["", ...ordered, ...extras];
+  const typeList = ["", ...FUTURE_CATEGORIES, ...extras];
 
   const fillSelect = (selectEl, options, allLabel = "All") => {
     if (!selectEl) return;
@@ -308,9 +307,6 @@ function renderProducts() {
 
 /* ======================
    Clean product card
-   - No type/pattern chips
-   - Size dropdown
-   - No duplicate "Select size" price text
    ====================== */
 function productCard(p) {
   const wrap = document.createElement("article");
@@ -424,10 +420,9 @@ function productCard(p) {
 }
 
 /* ======================
-   Bind filters (top + sidebar)
+   Bind filters
    ====================== */
 function bindFilters() {
-  // Top toolbar
   if (els.categoryDropdown) {
     els.categoryDropdown.addEventListener("change", () => {
       state.type = els.categoryDropdown.value || "";
@@ -451,7 +446,6 @@ function bindFilters() {
     });
   }
 
-  // Sidebar
   if (els.q2) {
     els.q2.addEventListener("input", () => {
       state.q = els.q2.value || "";
@@ -680,7 +674,6 @@ function openModal(productId) {
   const variants = Array.isArray(p.variants) ? p.variants : [];
   let selected = null;
 
-  // Modal size dropdown if you have it in HTML
   if (els.modalSizeField && els.modalSize) {
     els.modalSize.innerHTML = `<option value="" selected disabled>Select size</option>`;
 
@@ -710,7 +703,6 @@ function openModal(productId) {
       els.modalPrice.textContent = p.price != null ? formatMoney(p.price) : "";
     }
   } else {
-    // fallback
     els.modalPrice.textContent = variants.length ? "" : (p.price != null ? formatMoney(p.price) : "");
   }
 

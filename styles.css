@@ -548,3 +548,99 @@ input:focus, select:focus {
     font-size: 14px !important;
   }
 }
+
+/* =========================
+   BASFAY HERO FIX (logo + trolley)
+   Paste at END of styles.css
+   ========================= */
+
+.brand-hero{
+  padding: 14px 0 12px;
+  background:
+    radial-gradient(900px 420px at 15% 10%, rgba(30,136,229,.18), transparent 60%),
+    radial-gradient(700px 380px at 85% 30%, rgba(30,136,229,.12), transparent 60%);
+}
+
+.brand-hero-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+.brand-badge{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width: 260px;
+}
+
+.brand-logo{
+  width:54px;
+  height:54px;
+  border-radius:16px;
+  display:grid;
+  place-items:center;
+  font-weight:900;
+  font-size:22px;
+  background: rgba(0,0,0,.12);
+  border: 1px solid rgba(0,0,0,.12);
+}
+
+.brand-lines h1{
+  margin:0;
+  line-height:1.1;
+  font-size: clamp(22px, 3vw, 34px);
+  letter-spacing:-0.4px;
+}
+
+.brand-lines p{
+  margin:6px 0 0;
+}
+
+/* ✅ trolley button (nice) */
+.brand-hero .cart-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:54px;
+  height:54px;
+  border-radius:16px;
+  background:#fff;
+  border:1px solid rgba(0,0,0,.14);
+  box-shadow: 0 10px 30px rgba(0,0,0,.10);
+  cursor:pointer;
+  position:relative;
+  padding:0;
+}
+
+.brand-hero .cart-btn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 14px 36px rgba(0,0,0,.12);
+}
+
+.brand-hero .cart-btn svg{
+  width:22px;
+  height:22px;
+  opacity:.92;
+}
+
+/* ✅ badge (clean) */
+.brand-hero .cart-badge{
+  position:absolute;
+  top:-8px;
+  right:-8px;
+  min-width:22px;
+  height:22px;
+  padding: 0 6px;
+  border-radius:999px;
+  background:#111827;
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:2px solid #fff;
+}

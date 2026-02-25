@@ -733,3 +733,31 @@ input:focus, select:focus {
 .product-tracksuit .price{
   color: #3F6212 !important; /* deep lime green */
 }
+
+/* =========================
+   SOCKS – Emerald Card
+   ========================= */
+
+.product.socks-card {
+  background: linear-gradient(
+    180deg,
+    #064E3B,
+    #065F46
+  ) !important;
+  border: 1px solid rgba(6, 95, 70, 0.6) !important;
+  color: #ffffff !important;
+  box-shadow: 0 18px 45px rgba(6, 78, 59, 0.35) !important;
+}
+
+.product.socks-card h3,
+.product.socks-card .price,
+.product.socks-card .meta {
+  color: #ffffff !important;
+}
+
+.product.socks-card .btn {
+  background: #ffffff !important;
+  color: #065F46 !important;
+  border: none !important;
+  font-weight: 900;
+}

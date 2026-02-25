@@ -761,3 +761,27 @@ input:focus, select:focus {
   border: none !important;
   font-weight: 900;
 }
+
+/* =========================
+   TYPE-SPECIFIC CARDS
+   Tracksuit = Lime
+   Socks = Emerald
+   ========================= */
+
+/* Only Tracksuit cards */
+.product.type-tracksuit{
+  background: linear-gradient(180deg, rgba(217, 249, 157, 0.85), rgba(190, 242, 100, 0.70)) !important; /* lime */
+  border: 1px solid rgba(54, 83, 20, 0.18) !important;
+}
+
+/* Only Socks cards */
+.product.type-socks{
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.22), rgba(5, 150, 105, 0.16)) !important; /* emerald */
+  border: 1px solid rgba(6, 95, 70, 0.22) !important;
+}
+
+/* Make product image area look cleaner (especially for white-background PNGs) */
+.product.type-tracksuit .media,
+.product.type-socks .media{
+  background: #ffffff !important;
+}

@@ -4,7 +4,7 @@
    - Filter/search/sort
    - Order list stored in localStorage
    - WhatsApp order message generator
-   - Category tabs (Type) — future categories clickable
+   - Category tabs (Type) + Category dropdown (synced)
    - ✅ Payment method selector (Cash / M-Pesa)
    - ✅ Add to order opens drawer (does NOT auto-open WhatsApp)
    - ✅ Size dropdown (Option A) in cards + modal
@@ -29,6 +29,7 @@ const els = {
 
   // NEW top shop toolbar
   typeTabs: document.getElementById("typeTabs"),
+  categoryDropdown: document.getElementById("categoryDropdown"),
   qTop: document.getElementById("qTop"),
   colorFilterTop: document.getElementById("colorFilterTop"),
   sortByTop: document.getElementById("sortByTop"),
@@ -263,6 +264,9 @@ function hydrateFiltersOptions() {
 
   fillSelect(els.typeFilter, typeList);
   fillSelect(els.typeFilter2, typeList);
+
+  // ✅ Category dropdown uses same list as type filters
+  fillSelect(els.categoryDropdown, typeList);
 }
 
 /* ======================
@@ -316,6 +320,7 @@ function buildTypeTabs() {
 
       if (els.typeFilter) els.typeFilter.value = typeValue;
       if (els.typeFilter2) els.typeFilter2.value = typeValue;
+      if (els.categoryDropdown) els.categoryDropdown.value = typeValue;
 
       updateActiveTypeTab();
       renderProducts();
@@ -448,7 +453,6 @@ function createSizeDropdown(variants) {
     block = els.sizeSelectTemplate.content.cloneNode(true);
     select = block.querySelector(".size-select");
   } else {
-    // fallback if template missing
     block = document.createDocumentFragment();
     const lbl = document.createElement("label");
     lbl.className = "size-label";
@@ -460,7 +464,6 @@ function createSizeDropdown(variants) {
     block.appendChild(select);
   }
 
-  // ensure placeholder exists
   if (select) {
     select.innerHTML = "";
     const ph = document.createElement("option");
@@ -521,7 +524,6 @@ function productCard(p) {
   const price = document.createElement("div");
   price.className = "price";
 
-  // size dropdown block (only if variants exist)
   let sizeBlock = null;
   let sizeSelectEl = null;
 
@@ -614,6 +616,7 @@ function bindFilters() {
     if (from.type) {
       if (els.typeFilter) els.typeFilter.value = from.type.value;
       if (els.typeFilter2) els.typeFilter2.value = from.type.value;
+      if (els.categoryDropdown) els.categoryDropdown.value = from.type.value;
     }
 
     if (els.sortBy && from.sort) els.sortBy.value = from.sort.value;
@@ -626,6 +629,10 @@ function bindFilters() {
     state.color = source.color?.value ?? state.color;
     state.type = source.type?.value ?? state.type;
     state.sort = source.sort?.value ?? state.sort;
+
+    // keep dropdown synced even when tabs/filters change
+    if (els.categoryDropdown) els.categoryDropdown.value = state.type || "";
+
     renderProducts();
   };
 
@@ -647,6 +654,18 @@ function bindFilters() {
   bindSet(top);
   bindSet(side);
 
+  // ✅ Category dropdown controls the same "type" filter
+  els.categoryDropdown?.addEventListener("change", () => {
+    state.type = els.categoryDropdown.value || "";
+
+    if (els.typeFilter) els.typeFilter.value = state.type;
+    if (els.typeFilter2) els.typeFilter2.value = state.type;
+
+    updateActiveTypeTab();
+    renderProducts();
+    document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
   const clearAll = () => {
     state.q = "";
     state.color = "";
@@ -663,11 +682,13 @@ function bindFilters() {
 
     if (els.typeFilter) els.typeFilter.value = "";
     if (els.typeFilter2) els.typeFilter2.value = "";
+    if (els.categoryDropdown) els.categoryDropdown.value = "";
 
     if (els.sortBy) els.sortBy.value = "featured";
     if (els.sortBy2) els.sortBy2.value = "featured";
     if (els.sortByTop) els.sortByTop.value = "featured";
 
+    updateActiveTypeTab();
     renderProducts();
   };
 
@@ -772,7 +793,6 @@ function updateCartUI() {
     els.cartItems.appendChild(row);
   });
 
-  // update link again (includes payment method)
   if (els.sendWhatsApp) {
     els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
   }
@@ -871,7 +891,7 @@ function openModal(productId) {
     els.modalMedia.appendChild(ph);
   }
 
-  // Always reset modal size UI to avoid leftover state
+  // reset modal size UI
   if (els.modalSize) {
     els.modalSize.innerHTML = `<option value="" selected disabled>Select size</option>`;
     els.modalSize.onchange = null;
@@ -886,7 +906,6 @@ function openModal(productId) {
 
     const sorted = [...variants].sort((a, b) => (Number(a.size) || 0) - (Number(b.size) || 0));
 
-    // show + populate dropdown
     if (els.modalSizeField) {
       els.modalSizeField.classList.remove("is-hidden");
       els.modalSizeField.setAttribute("aria-hidden", "false");
@@ -902,7 +921,6 @@ function openModal(productId) {
       });
     }
 
-    // Don't list sizes in meta (that’s what you hate)
     els.modalMeta.textContent = bits.join(" • ");
 
     const updateSelectedFromModal = () => {
@@ -917,9 +935,7 @@ function openModal(productId) {
       els.modalPrice.textContent = formatMoney(selected.price);
     };
 
-    if (els.modalSize) {
-      els.modalSize.onchange = updateSelectedFromModal;
-    }
+    if (els.modalSize) els.modalSize.onchange = updateSelectedFromModal;
 
     els.modalAdd.onclick = () => {
       updateSelectedFromModal();
@@ -988,7 +1004,6 @@ function openModal(productId) {
 function closeModal() {
   if (!els.modal) return;
 
-  // reset size UI to avoid leftovers
   if (els.modalSizeField) {
     els.modalSizeField.classList.add("is-hidden");
     els.modalSizeField.setAttribute("aria-hidden", "true");

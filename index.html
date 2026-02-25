@@ -117,9 +117,6 @@
         border: 2px solid rgba(255,255,255,.95);
       }
 
-      /* Ensure no weird top spacing */
-      .hero { padding-top: 0 !important; }
-
       /* Payment section in drawer */
       .pay-card{
         margin-top: 10px;
@@ -147,10 +144,7 @@
         font-size: 13px;
       }
 
-      /* ===========================
-         Size dropdown (Option A)
-         Safe: only affects elements if/when they exist
-         =========================== */
+      /* Size dropdown */
       .size-label{
         display:block;
         font-size: 0.85rem;
@@ -166,9 +160,7 @@
         font-size: 0.95rem;
       }
 
-      /* ===========================
-         Compact mode (reduce page height)
-         =========================== */
+      /* Compact */
       .section-head { margin-bottom: 10px !important; }
       .section-head p.muted { margin-top: 4px !important; }
       .brand-hero { padding: 12px 0 10px !important; }
@@ -232,7 +224,6 @@
               <span class="brand-pill"><strong>Quick order</strong></span>
             </div>
 
-            <!-- Trolley on the RIGHT -->
             <button class="cart-btn" id="openCart" aria-label="Open order list" type="button">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path
@@ -255,35 +246,30 @@
           </div>
 
           <div class="card soft" style="margin-bottom: 16px;">
-            <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
-              <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
-                <strong style="margin-right:6px;">Categories:</strong>
-                <div id="typeTabs" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
-              </div>
-
+            <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:end; justify-content:space-between;">
               <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:end;">
 
-                <!-- ✅ CATEGORY DROPDOWN (NEW) -->
-                <div class="field" style="min-width:180px;">
+                <!-- ✅ CATEGORY DROPDOWN (ONLY CATEGORY CONTROL) -->
+                <div class="field" style="min-width:220px;">
                   <label for="categoryDropdown">Category</label>
                   <select id="categoryDropdown">
                     <option value="">All</option>
                   </select>
                 </div>
 
-                <div class="field" style="min-width:240px;">
+                <div class="field" style="min-width:260px;">
                   <label for="qTop">Find</label>
-                  <input id="qTop" type="search" placeholder="Search in selected category..." autocomplete="off" />
+                  <input id="qTop" type="search" placeholder="Search..." autocomplete="off" />
                 </div>
 
-                <div class="field" style="min-width:180px;">
+                <div class="field" style="min-width:170px;">
                   <label for="colorFilterTop">Color</label>
                   <select id="colorFilterTop">
                     <option value="">All</option>
                   </select>
                 </div>
 
-                <div class="field" style="min-width:180px;">
+                <div class="field" style="min-width:170px;">
                   <label for="sortByTop">Sort</label>
                   <select id="sortByTop">
                     <option value="featured">Featured</option>
@@ -296,11 +282,11 @@
 
                 <button class="btn small" id="clearFiltersTop" type="button" style="height:42px;">Reset</button>
               </div>
-            </div>
 
-            <div class="sidebar-meta" style="margin-top:12px; display:flex; justify-content:space-between;">
-              <div><strong id="resultsCount">0</strong> items</div>
-              <div class="muted">KES</div>
+              <div class="sidebar-meta" style="display:flex; gap:14px; align-items:center; justify-content:flex-end;">
+                <div><strong id="resultsCount">0</strong> items</div>
+                <div class="muted">KES</div>
+              </div>
             </div>
           </div>
 
@@ -311,7 +297,7 @@
 
                 <div class="field">
                   <label for="q2">Find</label>
-                  <input id="q2" type="search" placeholder="Search products..." autocomplete="off" />
+                  <input id="q2" type="search" placeholder="Search..." autocomplete="off" />
                 </div>
 
                 <div class="grid-2">
@@ -321,13 +307,7 @@
                       <option value="">All</option>
                     </select>
                   </div>
-
-                  <div class="field">
-                    <label for="typeFilter2">Type</label>
-                    <select id="typeFilter2">
-                      <option value="">All</option>
-                    </select>
-                  </div>
+                  <!-- ✅ Type removed -->
                 </div>
 
                 <div class="field">
@@ -360,7 +340,7 @@
 
               <div class="empty" id="emptyState" hidden>
                 <h3>No matches</h3>
-                <p class="muted">Clear filters or try a broader search.</p>
+                <p class="muted">Reset filters or try a broader search.</p>
               </div>
             </div>
           </div>
@@ -488,7 +468,7 @@
       </select>
     </template>
 
-    <script src="./app.js" defer></script>
+    <script src="./app.js?v=20260225-2" defer></script>
     <script>
       document.getElementById("year").textContent = new Date().getFullYear();
     </script>

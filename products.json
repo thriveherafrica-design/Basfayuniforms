@@ -271,6 +271,22 @@
     { "size": "42", "price": 1500 }
   ]
 }, 
+  {
+  "id": "socks-grey-001",
+  "name": "Socks",
+  "color": "Grey",
+  "type": "Socks",
+  "pattern": "",
+  "price": 100,
+  "image": "./images/socks-grey.png",
+  "featured": true,
+  "description": "Grey school socks.",
+  "variants": [
+    { "size": "S", "price": 100 },
+    { "size": "M", "price": 100 },
+    { "size": "L", "price": 100 }
+  ]
+},
   
   {
     "id": "red-checked-dress",

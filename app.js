@@ -4,10 +4,11 @@
    - Filter/search/sort
    - Order list stored in localStorage
    - WhatsApp order message generator
-   - Category tabs (Type) + Category dropdown (synced)
+   - ✅ Category dropdown ONLY (tabs removed)
+   - ✅ Category order follows products.json order + FUTURE_CATEGORIES order
    - ✅ Payment method selector (Cash / M-Pesa)
    - ✅ Add to order opens drawer (does NOT auto-open WhatsApp)
-   - ✅ Size dropdown (Option A) in cards + modal
+   - ✅ Size dropdown in cards + modal
    ============================ */
 
 const CONFIG = {
@@ -17,18 +18,28 @@ const CONFIG = {
   businessName: "BASFAY School Uniforms",
 };
 
+const FUTURE_CATEGORIES = [
+  "Sweater",
+  "Shirt",
+  "Dress",
+  "Socks",
+  "Marvins",
+  "Tracksuit",
+  "Gameskit",
+  "PE Shirt",
+  "Trousers",
+  "School Bag",
+  "Shoes",
+  "Blazer",
+  "Materials",
+  "Cardigan",
+  "Accessory",
+];
+
 const els = {
   year: document.getElementById("year"),
 
-  // hero filters
-  q: document.getElementById("q"),
-  colorFilter: document.getElementById("colorFilter"),
-  typeFilter: document.getElementById("typeFilter"),
-  sortBy: document.getElementById("sortBy"),
-  clearFilters: document.getElementById("clearFilters"),
-
-  // NEW top shop toolbar
-  typeTabs: document.getElementById("typeTabs"),
+  // top filters
   categoryDropdown: document.getElementById("categoryDropdown"),
   qTop: document.getElementById("qTop"),
   colorFilterTop: document.getElementById("colorFilterTop"),
@@ -38,7 +49,6 @@ const els = {
   // sidebar filters
   q2: document.getElementById("q2"),
   colorFilter2: document.getElementById("colorFilter2"),
-  typeFilter2: document.getElementById("typeFilter2"),
   sortBy2: document.getElementById("sortBy2"),
   clearFilters2: document.getElementById("clearFilters2"),
   scrollToCatalog: document.getElementById("scrollToCatalog"),
@@ -65,15 +75,7 @@ const els = {
   sendWhatsApp: document.getElementById("sendWhatsApp"),
   clearCart: document.getElementById("clearCart"),
 
-  // payment UI (optional in current HTML, safe with ?.)
-  payCash: document.getElementById("payCash"),
-  payMpesa: document.getElementById("payMpesa"),
-  cashBlock: document.getElementById("cashBlock"),
-  mpesaBlock: document.getElementById("mpesaBlock"),
-  copyPaybillBtn: document.getElementById("copyPaybillBtn"),
-  mpesaPaybill: document.getElementById("mpesaPaybill"),
-
-  // size template + modal size selector (Option A)
+  // size template + modal size selector
   sizeSelectTemplate: document.getElementById("sizeSelectTemplate"),
   modalSizeField: document.getElementById("modalSizeField"),
   modalSize: document.getElementById("modalSize"),
@@ -95,7 +97,7 @@ let PRODUCTS = [];
 let state = {
   q: "",
   color: "",
-  type: "",
+  type: "", // category
   sort: "featured",
 };
 
@@ -118,48 +120,6 @@ function normalize(s) {
 }
 
 /* ======================
-   Payment selection
-   ====================== */
-function getSelectedPayMethod() {
-  // If you’re using radio inputs without IDs (as in your HTML),
-  // this will default to cash unless you wire IDs. Still works.
-  if (els.payMpesa?.checked) return "mpesa";
-  return "cash";
-}
-
-function updatePaymentUI() {
-  const method = getSelectedPayMethod();
-  if (els.cashBlock) els.cashBlock.classList.toggle("is-hidden", method !== "cash");
-  if (els.mpesaBlock) els.mpesaBlock.classList.toggle("is-hidden", method !== "mpesa");
-
-  // Keep WhatsApp link current
-  if (els.sendWhatsApp) {
-    els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
-  }
-}
-
-function bindPayments() {
-  els.payCash?.addEventListener("change", updatePaymentUI);
-  els.payMpesa?.addEventListener("change", updatePaymentUI);
-
-  els.copyPaybillBtn?.addEventListener("click", async () => {
-    const paybill = els.mpesaPaybill?.textContent?.trim() || "";
-    if (!paybill || paybill === "XXXXXXXX") {
-      alert("Please update the Paybill number in the HTML first.");
-      return;
-    }
-    try {
-      await navigator.clipboard?.writeText(paybill);
-      alert("Paybill copied.");
-    } catch {
-      alert("Could not copy. Please copy manually.");
-    }
-  });
-
-  updatePaymentUI();
-}
-
-/* ======================
    WhatsApp helpers
    ====================== */
 function buildWhatsAppLink(message) {
@@ -178,6 +138,16 @@ function updateWhatsAppLinks() {
   for (const el of [els.topbarWhatsApp, els.headerWhatsApp, els.contactWhatsApp, els.footerWhatsApp]) {
     if (el) el.href = link;
   }
+}
+
+/* ======================
+   Payment selection
+   (Your HTML uses radio name="payMethod" without IDs, so we read by name)
+   ====================== */
+function getSelectedPayMethod() {
+  const checked = document.querySelector('input[name="payMethod"]:checked');
+  const val = safeText(checked?.value);
+  return /m-?pesa/i.test(val) ? "mpesa" : "cash";
 }
 
 /* ======================
@@ -214,7 +184,7 @@ function addToCart(productId, size, price, qty = 1) {
   else cart.push({ key, id: productId, size: String(size), price: Number(price), qty });
 
   setCart(cart);
-  openDrawer(); // ✅ no auto WhatsApp opening
+  openDrawer();
 }
 
 function removeFromCart(key) {
@@ -232,114 +202,51 @@ function setQty(key, qty) {
 
 /* ======================
    Filters options
+   - Category order: products.json order, then FUTURE_CATEGORIES order
    ====================== */
 function hydrateFiltersOptions() {
   const colors = new Set();
-  const types = new Set();
+  const typesInOrder = [];
+  const seenTypes = new Set();
 
   PRODUCTS.forEach(p => {
     if (p.color) colors.add(p.color);
-    if (p.type) types.add(p.type);
+
+    const t = safeText(p.type);
+    if (t && !seenTypes.has(t)) {
+      seenTypes.add(t);
+      typesInOrder.push(t);
+    }
+  });
+
+  FUTURE_CATEGORIES.forEach(t => {
+    const tt = safeText(t);
+    if (tt && !seenTypes.has(tt)) {
+      seenTypes.add(tt);
+      typesInOrder.push(tt);
+    }
   });
 
   const colorList = ["", ...Array.from(colors).sort()];
-  const typeList = ["", ...Array.from(types).sort()];
+  const typeList = ["", ...typesInOrder];
 
-  const fillSelect = (selectEl, options) => {
+  const fillSelect = (selectEl, options, allLabel = "All") => {
     if (!selectEl) return;
     const current = selectEl.value;
     selectEl.innerHTML = "";
     options.forEach(v => {
       const opt = document.createElement("option");
       opt.value = v;
-      opt.textContent = v === "" ? "All" : v;
+      opt.textContent = v === "" ? allLabel : v;
       selectEl.appendChild(opt);
     });
     if (options.includes(current)) selectEl.value = current;
   };
 
-  fillSelect(els.colorFilter, colorList);
-  fillSelect(els.colorFilter2, colorList);
-  fillSelect(els.colorFilterTop, colorList);
+  fillSelect(els.colorFilterTop, colorList, "All");
+  fillSelect(els.colorFilter2, colorList, "All");
 
-  fillSelect(els.typeFilter, typeList);
-  fillSelect(els.typeFilter2, typeList);
-
-  // ✅ Category dropdown uses same list as type filters
-  fillSelect(els.categoryDropdown, typeList);
-}
-
-/* ======================
-   Category tabs (Type)
-   ====================== */
-const FUTURE_CATEGORIES = [
-  "Sweater",
-  "Shirt",
-  "Dress",
-  "Socks",
-  "Marvins",
-  "Tracksuit",
-  "Gameskit",
-  "PE Shirt",
-  "Trousers",
-  "School Bag",
-  "Shoes",
-  "Blazer",
-  "Materials",
-  "Cardigan",
-  "Accessory",
-];
-
-function buildTypeTabs() {
-  if (!els.typeTabs) return;
-
-  const existing = new Set(PRODUCTS.map(p => safeText(p.type)).filter(Boolean));
-  const all = ["All", ...Array.from(new Set([...existing, ...FUTURE_CATEGORIES]))];
-
-  els.typeTabs.innerHTML = "";
-
-  all.forEach(label => {
-    const typeValue = label === "All" ? "" : label;
-    const hasProducts = label === "All" ? true : existing.has(label);
-
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "chip";
-    btn.textContent = label;
-
-    btn.disabled = false;
-    btn.dataset.type = typeValue;
-    btn.dataset.empty = hasProducts ? "0" : "1";
-
-    btn.style.opacity = hasProducts ? "1" : "0.55";
-    btn.title = hasProducts ? "" : "Coming soon";
-    btn.style.cursor = "pointer";
-
-    btn.addEventListener("click", () => {
-      state.type = typeValue;
-
-      if (els.typeFilter) els.typeFilter.value = typeValue;
-      if (els.typeFilter2) els.typeFilter2.value = typeValue;
-      if (els.categoryDropdown) els.categoryDropdown.value = typeValue;
-
-      updateActiveTypeTab();
-      renderProducts();
-      document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-
-    els.typeTabs.appendChild(btn);
-  });
-
-  updateActiveTypeTab();
-}
-
-function updateActiveTypeTab() {
-  if (!els.typeTabs) return;
-  const current = state.type || "";
-  [...els.typeTabs.querySelectorAll("button")].forEach(b => {
-    const isActive = (b.dataset.type || "") === current;
-    b.style.outline = isActive ? "2px solid rgba(30,136,229,0.55)" : "none";
-  });
+  fillSelect(els.categoryDropdown, typeList, "All");
 }
 
 /* ======================
@@ -426,15 +333,11 @@ function renderProducts() {
       if (p) p.textContent = "We’ll add items here shortly. Check other categories for now.";
     } else {
       if (h3) h3.textContent = "No matches";
-      if (p) p.textContent = "Clear filters or try a broader search.";
+      if (p) p.textContent = "Reset filters or try a broader search.";
     }
   }
 
-  sorted.forEach(p => {
-    els.productGrid.appendChild(productCard(p));
-  });
-
-  updateActiveTypeTab();
+  sorted.forEach(p => els.productGrid.appendChild(productCard(p)));
 }
 
 function chip(text) {
@@ -445,7 +348,6 @@ function chip(text) {
 }
 
 function createSizeDropdown(variants) {
-  // returns { block: Node, select: HTMLSelectElement }
   let block;
   let select;
 
@@ -600,44 +502,29 @@ function productCard(p) {
    Filters binding
    ====================== */
 function bindFilters() {
-  const hero = { q: els.q, color: els.colorFilter, type: els.typeFilter, sort: els.sortBy };
-  const top = { q: els.qTop, color: els.colorFilterTop, type: null, sort: els.sortByTop };
-  const side = { q: els.q2, color: els.colorFilter2, type: els.typeFilter2, sort: els.sortBy2 };
+  const top = { q: els.qTop, color: els.colorFilterTop, sort: els.sortByTop };
+  const side = { q: els.q2, color: els.colorFilter2, sort: els.sortBy2 };
 
   const syncAll = (from) => {
-    if (els.q && from.q) els.q.value = from.q.value;
-    if (els.q2 && from.q) els.q2.value = from.q.value;
     if (els.qTop && from.q) els.qTop.value = from.q.value;
+    if (els.q2 && from.q) els.q2.value = from.q.value;
 
-    if (els.colorFilter && from.color) els.colorFilter.value = from.color.value;
-    if (els.colorFilter2 && from.color) els.colorFilter2.value = from.color.value;
     if (els.colorFilterTop && from.color) els.colorFilterTop.value = from.color.value;
+    if (els.colorFilter2 && from.color) els.colorFilter2.value = from.color.value;
 
-    if (from.type) {
-      if (els.typeFilter) els.typeFilter.value = from.type.value;
-      if (els.typeFilter2) els.typeFilter2.value = from.type.value;
-      if (els.categoryDropdown) els.categoryDropdown.value = from.type.value;
-    }
-
-    if (els.sortBy && from.sort) els.sortBy.value = from.sort.value;
-    if (els.sortBy2 && from.sort) els.sortBy2.value = from.sort.value;
     if (els.sortByTop && from.sort) els.sortByTop.value = from.sort.value;
+    if (els.sortBy2 && from.sort) els.sortBy2.value = from.sort.value;
   };
 
   const applyFrom = (source) => {
     state.q = source.q?.value ?? state.q;
     state.color = source.color?.value ?? state.color;
-    state.type = source.type?.value ?? state.type;
     state.sort = source.sort?.value ?? state.sort;
-
-    // keep dropdown synced even when tabs/filters change
-    if (els.categoryDropdown) els.categoryDropdown.value = state.type || "";
-
     renderProducts();
   };
 
   const bindSet = (source) => {
-    [source.q, source.color, source.type, source.sort].forEach(el => {
+    [source.q, source.color, source.sort].forEach(el => {
       if (!el) return;
       el.addEventListener("input", () => {
         syncAll(source);
@@ -650,18 +537,12 @@ function bindFilters() {
     });
   };
 
-  bindSet(hero);
   bindSet(top);
   bindSet(side);
 
-  // ✅ Category dropdown controls the same "type" filter
+  // ✅ Category dropdown drives category filtering
   els.categoryDropdown?.addEventListener("change", () => {
     state.type = els.categoryDropdown.value || "";
-
-    if (els.typeFilter) els.typeFilter.value = state.type;
-    if (els.typeFilter2) els.typeFilter2.value = state.type;
-
-    updateActiveTypeTab();
     renderProducts();
     document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
@@ -672,35 +553,28 @@ function bindFilters() {
     state.type = "";
     state.sort = "featured";
 
-    if (els.q) els.q.value = "";
-    if (els.q2) els.q2.value = "";
     if (els.qTop) els.qTop.value = "";
+    if (els.q2) els.q2.value = "";
 
-    if (els.colorFilter) els.colorFilter.value = "";
-    if (els.colorFilter2) els.colorFilter2.value = "";
     if (els.colorFilterTop) els.colorFilterTop.value = "";
+    if (els.colorFilter2) els.colorFilter2.value = "";
 
-    if (els.typeFilter) els.typeFilter.value = "";
-    if (els.typeFilter2) els.typeFilter2.value = "";
+    if (els.sortByTop) els.sortByTop.value = "featured";
+    if (els.sortBy2) els.sortBy2.value = "featured";
+
     if (els.categoryDropdown) els.categoryDropdown.value = "";
 
-    if (els.sortBy) els.sortBy.value = "featured";
-    if (els.sortBy2) els.sortBy2.value = "featured";
-    if (els.sortByTop) els.sortByTop.value = "featured";
-
-    updateActiveTypeTab();
     renderProducts();
   };
 
-  els.clearFilters?.addEventListener("click", clearAll);
-  els.clearFilters2?.addEventListener("click", clearAll);
   els.clearFiltersTop?.addEventListener("click", clearAll);
+  els.clearFilters2?.addEventListener("click", clearAll);
 
   els.scrollToCatalog?.addEventListener("click", () => {
     document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
-  applyFrom(hero);
+  applyFrom(top);
 }
 
 /* ======================
@@ -801,8 +675,7 @@ function updateCartUI() {
 function buildOrderMessage() {
   const cart = getCart();
   const lines = [];
-  const method = getSelectedPayMethod();
-  const methodText = method === "mpesa" ? "M-Pesa" : "Cash";
+  const methodText = getSelectedPayMethod() === "mpesa" ? "M-Pesa" : "Cash";
 
   lines.push(`Hi ${CONFIG.businessName}, I would like to order:`);
   lines.push(`Payment method: ${methodText}`);
@@ -833,13 +706,9 @@ function bindCart() {
   els.closeDrawer?.addEventListener("click", closeDrawer);
   els.drawerBackdrop?.addEventListener("click", closeDrawer);
 
-  els.clearCart?.addEventListener("click", () => {
-    setCart([]);
-  });
+  els.clearCart?.addEventListener("click", () => setCart([]));
 
-  if (els.sendWhatsApp) {
-    els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
-  }
+  if (els.sendWhatsApp) els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
 }
 
 function openDrawer() {
@@ -891,7 +760,6 @@ function openModal(productId) {
     els.modalMedia.appendChild(ph);
   }
 
-  // reset modal size UI
   if (els.modalSize) {
     els.modalSize.innerHTML = `<option value="" selected disabled>Select size</option>`;
     els.modalSize.onchange = null;
@@ -923,7 +791,7 @@ function openModal(productId) {
 
     els.modalMeta.textContent = bits.join(" • ");
 
-    const updateSelectedFromModal = () => {
+    const updateSelected = () => {
       const chosen = els.modalSize?.value || "";
       const v = sorted.find(x => String(x.size) === String(chosen));
       if (!v) {
@@ -935,10 +803,10 @@ function openModal(productId) {
       els.modalPrice.textContent = formatMoney(selected.price);
     };
 
-    if (els.modalSize) els.modalSize.onchange = updateSelectedFromModal;
+    if (els.modalSize) els.modalSize.onchange = updateSelected;
 
     els.modalAdd.onclick = () => {
-      updateSelectedFromModal();
+      updateSelected();
       if (!selected) {
         alert("Please select a size first.");
         els.modalSize?.focus();
@@ -948,7 +816,7 @@ function openModal(productId) {
     };
 
     els.modalOrderNow.onclick = () => {
-      updateSelectedFromModal();
+      updateSelected();
       if (!selected) {
         alert("Please select a size first.");
         els.modalSize?.focus();
@@ -1038,7 +906,6 @@ async function loadProducts() {
       color: safeText(p.color),
       type: safeText(p.type),
       pattern: safeText(p.pattern),
-      sizes: Array.isArray(p.sizes) ? p.sizes.map(safeText).filter(Boolean) : [],
       price: p.price == null ? null : Number(p.price),
       variants,
       image: safeText(p.image),
@@ -1049,7 +916,6 @@ async function loadProducts() {
   });
 
   hydrateFiltersOptions();
-  buildTypeTabs();
 }
 
 /* ======================
@@ -1076,7 +942,6 @@ function initKeyboard() {
   updateWhatsAppLinks();
   bindCart();
   bindModal();
-  bindPayments();
   initKeyboard();
 
   try {
@@ -1087,7 +952,8 @@ function initKeyboard() {
   } catch (err) {
     console.error(err);
     if (els.productGrid) {
-      els.productGrid.innerHTML = `<div class="card"><strong>Catalog failed to load.</strong><div class="muted">Check that <code>products.json</code> exists beside <code>index.html</code>.</div></div>`;
+      els.productGrid.innerHTML =
+        `<div class="card"><strong>Catalog failed to load.</strong><div class="muted">Check that <code>products.json</code> exists beside <code>index.html</code>.</div></div>`;
     }
   }
 })();

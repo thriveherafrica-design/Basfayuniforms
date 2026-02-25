@@ -692,3 +692,19 @@ input:focus, select:focus {
     height: 165px !important;
   }
 }
+
+/* =========================
+   Tracksuit Card – Premium Transparent Style
+   ========================= */
+
+.product-tracksuit{
+  background: rgba(255, 255, 255, 0.45) !important;
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(15,28,43,0.10) !important;
+  box-shadow: 0 20px 50px rgba(15,28,43,0.12) !important;
+}
+
+/* Make image frame cleaner for tracksuit */
+.product-tracksuit .media{
+  background: #ffffff !important;
+}

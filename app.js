@@ -7,6 +7,7 @@
    - Category tabs (Type) — future categories clickable
    - ✅ Payment method selector (Cash / M-Pesa)
    - ✅ Add to order opens drawer (does NOT auto-open WhatsApp)
+   - ✅ Size dropdown (Option A) in cards + modal
    ============================ */
 
 const CONFIG = {
@@ -63,13 +64,18 @@ const els = {
   sendWhatsApp: document.getElementById("sendWhatsApp"),
   clearCart: document.getElementById("clearCart"),
 
-  // payment UI
+  // payment UI (optional in current HTML, safe with ?.)
   payCash: document.getElementById("payCash"),
   payMpesa: document.getElementById("payMpesa"),
   cashBlock: document.getElementById("cashBlock"),
   mpesaBlock: document.getElementById("mpesaBlock"),
   copyPaybillBtn: document.getElementById("copyPaybillBtn"),
   mpesaPaybill: document.getElementById("mpesaPaybill"),
+
+  // size template + modal size selector (Option A)
+  sizeSelectTemplate: document.getElementById("sizeSelectTemplate"),
+  modalSizeField: document.getElementById("modalSizeField"),
+  modalSize: document.getElementById("modalSize"),
 
   // modal
   modal: document.getElementById("modal"),
@@ -114,6 +120,8 @@ function normalize(s) {
    Payment selection
    ====================== */
 function getSelectedPayMethod() {
+  // If you’re using radio inputs without IDs (as in your HTML),
+  // this will default to cash unless you wire IDs. Still works.
   if (els.payMpesa?.checked) return "mpesa";
   return "cash";
 }
@@ -431,6 +439,49 @@ function chip(text) {
   return el;
 }
 
+function createSizeDropdown(variants) {
+  // returns { block: Node, select: HTMLSelectElement }
+  let block;
+  let select;
+
+  if (els.sizeSelectTemplate?.content) {
+    block = els.sizeSelectTemplate.content.cloneNode(true);
+    select = block.querySelector(".size-select");
+  } else {
+    // fallback if template missing
+    block = document.createDocumentFragment();
+    const lbl = document.createElement("label");
+    lbl.className = "size-label";
+    lbl.textContent = "Size";
+    select = document.createElement("select");
+    select.className = "size-select";
+    select.required = true;
+    block.appendChild(lbl);
+    block.appendChild(select);
+  }
+
+  // ensure placeholder exists
+  if (select) {
+    select.innerHTML = "";
+    const ph = document.createElement("option");
+    ph.value = "";
+    ph.disabled = true;
+    ph.selected = true;
+    ph.textContent = "Select size";
+    select.appendChild(ph);
+
+    variants.forEach(v => {
+      const opt = document.createElement("option");
+      opt.value = String(v.size);
+      opt.textContent = String(v.size);
+      opt.dataset.price = String(Number(v.price));
+      select.appendChild(opt);
+    });
+  }
+
+  return { block, select };
+}
+
 function productCard(p) {
   const wrap = document.createElement("article");
   wrap.className = "product";
@@ -467,34 +518,31 @@ function productCard(p) {
   const variants = Array.isArray(p.variants) ? p.variants : [];
   let selected = null;
 
-  const sizeWrap = document.createElement("div");
-  sizeWrap.className = "meta";
-  sizeWrap.style.marginTop = "8px";
-  sizeWrap.style.flexWrap = "wrap";
-
   const price = document.createElement("div");
   price.className = "price";
 
+  // size dropdown block (only if variants exist)
+  let sizeBlock = null;
+  let sizeSelectEl = null;
+
   if (variants.length) {
+    const sortedVariants = [...variants].sort((a, b) => (Number(a.size) || 0) - (Number(b.size) || 0));
     price.textContent = "Select size";
 
-    const sorted = [...variants].sort((a, b) => (Number(a.size) || 0) - (Number(b.size) || 0));
-    sorted.forEach(v => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "chip";
-      b.style.cursor = "pointer";
-      b.textContent = String(v.size);
+    const dd = createSizeDropdown(sortedVariants);
+    sizeBlock = dd.block;
+    sizeSelectEl = dd.select;
 
-      b.addEventListener("click", () => {
-        [...sizeWrap.querySelectorAll(".chip")].forEach(x => (x.style.outline = "none"));
-        b.style.outline = "2px solid rgba(17,24,39,0.35)";
-
-        selected = { size: String(v.size), price: Number(v.price) };
-        price.textContent = formatMoney(selected.price);
-      });
-
-      sizeWrap.appendChild(b);
+    sizeSelectEl?.addEventListener("change", () => {
+      const chosen = sizeSelectEl.value;
+      const v = sortedVariants.find(x => String(x.size) === String(chosen));
+      if (!v) {
+        selected = null;
+        price.textContent = "Select size";
+        return;
+      }
+      selected = { size: String(v.size), price: Number(v.price) };
+      price.textContent = formatMoney(selected.price);
     });
   } else {
     price.textContent = p.price != null ? formatMoney(p.price) : "Price on request";
@@ -517,6 +565,7 @@ function productCard(p) {
     if (variants.length) {
       if (!selected) {
         alert("Please select a size first.");
+        sizeSelectEl?.focus();
         return;
       }
       addToCart(p.id, selected.size, selected.price, 1);
@@ -535,7 +584,7 @@ function productCard(p) {
   wrap.appendChild(media);
   wrap.appendChild(title);
   wrap.appendChild(meta);
-  if (variants.length) wrap.appendChild(sizeWrap);
+  if (variants.length && sizeBlock) wrap.appendChild(sizeBlock);
   wrap.appendChild(price);
   wrap.appendChild(actions);
 
@@ -786,7 +835,7 @@ function closeDrawer() {
 }
 
 /* ======================
-   Modal (size-aware)
+   Modal (size dropdown)
    ====================== */
 function bindModal() {
   els.closeModal?.addEventListener("click", closeModal);
@@ -822,51 +871,74 @@ function openModal(productId) {
     els.modalMedia.appendChild(ph);
   }
 
+  // Always reset modal size UI to avoid leftover state
+  if (els.modalSize) {
+    els.modalSize.innerHTML = `<option value="" selected disabled>Select size</option>`;
+    els.modalSize.onchange = null;
+  }
+  if (els.modalSizeField) {
+    els.modalSizeField.classList.add("is-hidden");
+    els.modalSizeField.setAttribute("aria-hidden", "true");
+  }
+
   if (variants.length) {
     els.modalPrice.textContent = "Select size";
 
-    const sizeLine = document.createElement("div");
-    sizeLine.className = "meta";
-    sizeLine.style.marginTop = "10px";
-    sizeLine.style.flexWrap = "wrap";
-
     const sorted = [...variants].sort((a, b) => (Number(a.size) || 0) - (Number(b.size) || 0));
-    sorted.forEach(v => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "chip";
-      b.style.cursor = "pointer";
-      b.textContent = String(v.size);
 
-      b.addEventListener("click", () => {
-        [...sizeLine.querySelectorAll(".chip")].forEach(x => (x.style.outline = "none"));
-        b.style.outline = "2px solid rgba(17,24,39,0.35)";
-        selected = { size: String(v.size), price: Number(v.price) };
-        els.modalPrice.textContent = formatMoney(selected.price);
+    // show + populate dropdown
+    if (els.modalSizeField) {
+      els.modalSizeField.classList.remove("is-hidden");
+      els.modalSizeField.setAttribute("aria-hidden", "false");
+    }
+
+    if (els.modalSize) {
+      sorted.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = String(v.size);
+        opt.textContent = String(v.size);
+        opt.dataset.price = String(Number(v.price));
+        els.modalSize.appendChild(opt);
       });
+    }
 
-      sizeLine.appendChild(b);
-    });
-
-    bits.push(`Sizes: ${sorted.map(x => x.size).join(", ")}`);
+    // Don't list sizes in meta (that’s what you hate)
     els.modalMeta.textContent = bits.join(" • ");
 
-    els.modalDesc.parentElement?.insertBefore(sizeLine, els.modalDesc);
-    els.modal._sizeLine = sizeLine;
+    const updateSelectedFromModal = () => {
+      const chosen = els.modalSize?.value || "";
+      const v = sorted.find(x => String(x.size) === String(chosen));
+      if (!v) {
+        selected = null;
+        els.modalPrice.textContent = "Select size";
+        return;
+      }
+      selected = { size: String(v.size), price: Number(v.price) };
+      els.modalPrice.textContent = formatMoney(selected.price);
+    };
+
+    if (els.modalSize) {
+      els.modalSize.onchange = updateSelectedFromModal;
+    }
 
     els.modalAdd.onclick = () => {
+      updateSelectedFromModal();
       if (!selected) {
         alert("Please select a size first.");
+        els.modalSize?.focus();
         return;
       }
       addToCart(p.id, selected.size, selected.price, 1);
     };
 
     els.modalOrderNow.onclick = () => {
+      updateSelectedFromModal();
       if (!selected) {
         alert("Please select a size first.");
+        els.modalSize?.focus();
         return;
       }
+
       const msg = [
         `Hi ${CONFIG.businessName}, I would like to order:`,
         `Payment method: ${getSelectedPayMethod() === "mpesa" ? "M-Pesa" : "Cash"}`,
@@ -915,10 +987,17 @@ function openModal(productId) {
 
 function closeModal() {
   if (!els.modal) return;
-  if (els.modal._sizeLine && els.modal._sizeLine.parentElement) {
-    els.modal._sizeLine.parentElement.removeChild(els.modal._sizeLine);
-    els.modal._sizeLine = null;
+
+  // reset size UI to avoid leftovers
+  if (els.modalSizeField) {
+    els.modalSizeField.classList.add("is-hidden");
+    els.modalSizeField.setAttribute("aria-hidden", "true");
   }
+  if (els.modalSize) {
+    els.modalSize.innerHTML = `<option value="" selected disabled>Select size</option>`;
+    els.modalSize.onchange = null;
+  }
+
   els.modal.setAttribute("aria-hidden", "true");
 }
 

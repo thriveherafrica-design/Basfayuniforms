@@ -146,6 +146,25 @@
         margin-top: 8px;
         font-size: 13px;
       }
+
+      /* ===========================
+         Size dropdown (Option A)
+         Safe: only affects elements if/when they exist
+         =========================== */
+      .size-label{
+        display:block;
+        font-size: 0.85rem;
+        margin: 10px 0 6px;
+        opacity: 0.8;
+      }
+      .size-select{
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,0.18);
+        background: #fff;
+        font-size: 0.95rem;
+      }
     </style>
   </head>
 
@@ -521,6 +540,14 @@
             <div class="meta" id="modalMeta"></div>
             <p class="muted" id="modalDesc"></p>
 
+            <!-- Size selector (hidden until app.js populates it) -->
+            <div id="modalSizeField" class="is-hidden" aria-hidden="true">
+              <label class="size-label" for="modalSize">Size</label>
+              <select class="size-select" id="modalSize" required>
+                <option value="" selected disabled>Select size</option>
+              </select>
+            </div>
+
             <div class="modal-actions">
               <button class="btn primary" id="modalAdd" type="button">Add to order</button>
               <button class="btn ghost is-hidden" id="modalOrderNow" type="button" aria-hidden="true">
@@ -531,6 +558,14 @@
         </div>
       </div>
     </div>
+
+    <!-- Size selector template (used by app.js when rendering products) -->
+    <template id="sizeSelectTemplate">
+      <label class="size-label">Size</label>
+      <select class="size-select" required>
+        <option value="" selected disabled>Select size</option>
+      </select>
+    </template>
 
     <script src="./app.js" defer></script>
     <script>

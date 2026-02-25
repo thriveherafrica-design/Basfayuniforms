@@ -7,92 +7,11 @@
   <meta name="description" content="BASFAY Uniforms — Quality & Affordable." />
   <meta name="theme-color" content="#1E88E5" />
 
-  <link rel="stylesheet" href="./styles.css?v=20260215-3" />
-
-  <style>
-    .brand-hero {
-      padding: 10px 0;
-      background:
-        radial-gradient(900px 420px at 15% 10%, rgba(30,136,229,.18), transparent 60%),
-        radial-gradient(700px 380px at 85% 30%, rgba(30,136,229,.12), transparent 60%);
-    }
-
-    .brand-hero-inner {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-      flex-wrap:wrap;
-    }
-
-    .brand-badge {
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
-
-    .brand-logo {
-      width:54px;
-      height:54px;
-      border-radius:16px;
-      display:grid;
-      place-items:center;
-      font-weight:800;
-      font-size:22px;
-      background: rgba(30,136,229,.14);
-      border: 1px solid rgba(30,136,229,.20);
-    }
-
-    .brand-lines h1 {
-      margin:0;
-      font-size: clamp(22px, 3vw, 32px);
-    }
-
-    .brand-lines p {
-      margin:4px 0 0;
-    }
-
-    .cart-btn {
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      width:52px;
-      height:52px;
-      border-radius:16px;
-      background: rgba(255,255,255,.72);
-      border: 1px solid rgba(17,24,39,.10);
-      box-shadow: 0 10px 30px rgba(17,24,39,.08);
-      position: relative;
-      cursor: pointer;
-    }
-
-    .cart-btn svg {
-      width:22px;
-      height:22px;
-      opacity:.92;
-    }
-
-    .cart-badge {
-      position:absolute;
-      top:-8px;
-      right:-8px;
-      min-width:22px;
-      height:22px;
-      padding:0 6px;
-      border-radius:999px;
-      background:#1E88E5;
-      color:white;
-      font-size:12px;
-      font-weight:700;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border:2px solid rgba(255,255,255,.95);
-    }
-  </style>
+  <link rel="stylesheet" href="./styles.css?v=20260226-1" />
 </head>
 
 <body>
+<a class="skip" href="#main">Skip to content</a>
 
 <header class="header">
   <div class="container header-inner">
@@ -108,8 +27,8 @@
 
 <main id="main">
 
-  <!-- CLEAN HERO -->
-  <section class="brand-hero">
+  <!-- CLEAN HERO (PILLS REMOVED) -->
+  <section class="brand-hero" aria-label="BASFAY brand banner">
     <div class="container brand-hero-inner">
 
       <div class="brand-badge">
@@ -120,20 +39,127 @@
         </div>
       </div>
 
-      <button class="cart-btn" id="openCart" type="button">
-        <svg viewBox="0 0 24 24">
-          <path fill="currentColor"
-            d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2Zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2ZM6.2 6h14.6c.55 0 1 .45 1 1 0 .09-.01.18-.04.27l-2.1 7.35c-.24.83-1 1.38-1.86 1.38H8.1c-.86 0-1.62-.55-1.86-1.38L3.8 3H2c-.55 0-1-.45-1-1s.45-1 1-1h2.6c.46 0 .86.31.97.75L6.2 6Zm1.1 2 1.62 5.67c.06.2.25.33.46.33h9.7c.21 0 .4-.13.46-.33L21 8H7.3Z" />
-        </svg>
-        <span class="cart-badge" id="cartCount">0</span>
-      </button>
+      <div class="brand-right">
+        <button class="cart-btn" id="openCart" type="button">
+          <svg viewBox="0 0 24 24">
+            <path fill="currentColor"
+              d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2Zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2ZM6.2 6h14.6c.55 0 1 .45 1 1 0 .09-.01.18-.04.27l-2.1 7.35c-.24.83-1 1.38-1.86 1.38H8.1c-.86 0-1.62-.55-1.86-1.38L3.8 3H2c-.55 0-1-.45-1-1s.45-1 1-1h2.6c.46 0 .86.31.97.75L6.2 6Zm1.1 2 1.62 5.67c.06.2.25.33.46.33h9.7c.21 0 .4-.13.46-.33L21 8H7.3Z" />
+          </svg>
+          <span class="cart-badge" id="cartCount">0</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SHOP SECTION -->
+  <section class="section" id="shop">
+    <div class="container">
+
+      <div class="section-head">
+        <h2>Catalog</h2>
+        <p class="muted">Select size, add to order.</p>
+      </div>
+
+      <!-- FILTER BAR -->
+      <div class="card soft" style="margin-bottom:16px;">
+        <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:end;">
+
+          <div class="field">
+            <label for="categoryDropdown">Category</label>
+            <select id="categoryDropdown">
+              <option value="">All</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="qTop">Find</label>
+            <input id="qTop" type="search" placeholder="Search..." />
+          </div>
+
+          <div class="field">
+            <label for="colorFilterTop">Color</label>
+            <select id="colorFilterTop">
+              <option value="">All</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="sortByTop">Sort</label>
+            <select id="sortByTop">
+              <option value="featured">Featured</option>
+              <option value="name_asc">Name (A–Z)</option>
+              <option value="name_desc">Name (Z–A)</option>
+              <option value="price_asc">Price (Low–High)</option>
+              <option value="price_desc">Price (High–Low)</option>
+            </select>
+          </div>
+
+          <button class="btn small" id="clearFiltersTop" type="button">Reset</button>
+        </div>
+      </div>
+
+      <!-- PRODUCT GRID -->
+      <div class="catalog">
+        <div class="grid" id="productGrid"></div>
+
+        <div class="empty" id="emptyState" hidden>
+          <h3>No matches</h3>
+          <p class="muted">Reset filters or try broader search.</p>
+        </div>
+      </div>
 
     </div>
   </section>
 
 </main>
 
-<script src="./app.js?v=20260225-3" defer></script>
+<!-- DRAWER -->
+<div class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <div class="drawer-panel">
+
+    <div class="drawer-head">
+      <h3>Your order</h3>
+      <button class="icon-btn" id="closeDrawer">✕</button>
+    </div>
+
+    <div class="drawer-body">
+      <div id="cartItems"></div>
+      <div class="cart-empty" id="cartEmpty" hidden>
+        <p><strong>No items yet.</strong></p>
+      </div>
+    </div>
+
+    <div class="drawer-foot">
+      <div class="cart-note muted">Size included.</div>
+
+      <div class="card soft pay-card">
+        <div class="pay-title">Payment</div>
+        <div class="pay-options">
+          <label class="pay-opt">
+            <input type="radio" name="payMethod" value="M-Pesa" checked />
+            <span><strong>M-Pesa</strong> (After confirm)</span>
+          </label>
+
+          <label class="pay-opt">
+            <input type="radio" name="payMethod" value="Cash" />
+            <span><strong>Cash</strong> (On pickup)</span>
+          </label>
+        </div>
+      </div>
+
+      <a class="btn primary full" id="sendWhatsApp"
+         href="https://wa.me/254119667836"
+         target="_blank">Send on WhatsApp</a>
+
+      <button class="btn ghost full" id="clearCart" type="button">Clear</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="./app.js?v=20260226-1" defer></script>
 
 </body>
 </html>

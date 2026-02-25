@@ -316,6 +316,10 @@ function productCard(p) {
   wrap.classList.add("product-tracksuit");
 }
 
+   if (product.type === "Socks") {
+  card.classList.add("socks-card");
+}
+
   const media = document.createElement("div");
   media.className = "media";
 

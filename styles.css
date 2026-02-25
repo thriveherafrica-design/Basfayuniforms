@@ -644,3 +644,51 @@ input:focus, select:focus {
   justify-content:center;
   border:2px solid #fff;
 }
+
+/* =========================================
+   BASFAY FIX: Product image cropping + nicer card appearance
+   Paste at END of styles.css
+   ========================================= */
+
+/* Product card media: clean frame */
+#productGrid .media{
+  background: #ffffff !important;
+  border: 1px solid rgba(15,28,43,0.10) !important;
+  padding: 10px !important;
+  height: 220px !important;         /* gives tall items room */
+  display: grid !important;
+  place-items: center !important;
+}
+
+/* Show full image (no cropping) */
+#productGrid .media img{
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;    /* THE fix */
+  object-position: center !important;
+  border-radius: 14px !important;
+  background: transparent !important;
+}
+
+/* Slightly tighter layout so card doesn’t feel empty */
+.product{
+  gap: 10px !important;
+}
+
+.product-actions{
+  margin-top: 6px !important;
+}
+
+/* Mobile: still two per row, but keep images readable */
+@media (max-width: 768px){
+  #productGrid .media{
+    height: 180px !important;
+    padding: 8px !important;
+  }
+}
+
+@media (max-width: 380px){
+  #productGrid .media{
+    height: 165px !important;
+  }
+}

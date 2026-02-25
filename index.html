@@ -1,476 +1,139 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>BASFAY Uniforms — Shop</title>
-    <meta
-      name="description"
-      content="BASFAY Uniforms — Quality & Affordable. Browse items, add to order."
-    />
-    <meta name="theme-color" content="#1E88E5" />
-    <link rel="stylesheet" href="./styles.css?v=20260215-1" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BASFAY Uniforms — Shop</title>
+  <meta name="description" content="BASFAY Uniforms — Quality & Affordable." />
+  <meta name="theme-color" content="#1E88E5" />
 
-    <style>
-      .is-hidden { display: none !important; }
+  <link rel="stylesheet" href="./styles.css?v=20260215-3" />
 
-      /* Beautiful top hero */
-      .brand-hero {
-        padding: 18px 0 14px;
-        background:
-          radial-gradient(900px 420px at 15% 10%, rgba(30,136,229,.18), transparent 60%),
-          radial-gradient(700px 380px at 85% 30%, rgba(30,136,229,.12), transparent 60%);
-      }
-      .brand-hero-inner{
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap:16px;
-        flex-wrap:wrap;
-      }
+  <style>
+    .brand-hero {
+      padding: 10px 0;
+      background:
+        radial-gradient(900px 420px at 15% 10%, rgba(30,136,229,.18), transparent 60%),
+        radial-gradient(700px 380px at 85% 30%, rgba(30,136,229,.12), transparent 60%);
+    }
 
-      .brand-badge{
-        display:flex;
-        align-items:center;
-        gap:12px;
-        min-width: 260px;
-      }
-      .brand-logo{
-        width:54px;
-        height:54px;
-        border-radius:16px;
-        display:grid;
-        place-items:center;
-        font-weight:800;
-        font-size:22px;
-        background: rgba(30,136,229,.14);
-        border: 1px solid rgba(30,136,229,.20);
-      }
-      .brand-lines h1{
-        margin:0;
-        line-height:1.1;
-        font-size: clamp(22px, 3vw, 34px);
-        letter-spacing:-0.4px;
-      }
-      .brand-lines p{ margin:6px 0 0; }
+    .brand-hero-inner {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+    }
 
-      .brand-right{
-        display:flex;
-        align-items:center;
-        justify-content:flex-end;
-        gap:12px;
-        flex: 1;
-        min-width: 260px;
-      }
+    .brand-badge {
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
 
-      .brand-mini{
-        display:flex;
-        gap:8px;
-        flex-wrap:wrap;
-        align-items:center;
-        justify-content:flex-end;
-      }
-      .brand-pill{
-        display:inline-flex;
-        gap:8px;
-        align-items:center;
-        padding:8px 12px;
-        border-radius:999px;
-        background: rgba(255,255,255,.60);
-        border: 1px solid rgba(17,24,39,.08);
-        font-size: 13px;
-        white-space: nowrap;
-      }
-      .brand-pill strong{ font-weight:700; }
+    .brand-logo {
+      width:54px;
+      height:54px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      font-weight:800;
+      font-size:22px;
+      background: rgba(30,136,229,.14);
+      border: 1px solid rgba(30,136,229,.20);
+    }
 
-      /* Cart button (trolley) on RIGHT */
-      .cart-btn {
-        display:inline-flex;
-        align-items:center;
-        justify-content:center;
-        width:52px;
-        height:52px;
-        border-radius:16px;
-        background: rgba(255,255,255,.72);
-        border: 1px solid rgba(17,24,39,.10);
-        box-shadow: 0 10px 30px rgba(17,24,39,.08);
-        position: relative;
-        cursor: pointer;
-        flex: 0 0 auto;
-      }
-      .cart-btn svg { width:22px; height:22px; opacity:.92; }
-      .cart-badge {
-        position:absolute;
-        top:-8px;
-        right:-8px;
-        min-width: 22px;
-        height: 22px;
-        padding: 0 6px;
-        border-radius: 999px;
-        background: #1E88E5;
-        color: white;
-        font-size: 12px;
-        font-weight: 700;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        border: 2px solid rgba(255,255,255,.95);
-      }
+    .brand-lines h1 {
+      margin:0;
+      font-size: clamp(22px, 3vw, 32px);
+    }
 
-      /* Payment section in drawer */
-      .pay-card{
-        margin-top: 10px;
-        padding: 12px;
-      }
-      .pay-title{
-        font-weight: 950;
-        margin-bottom: 8px;
-      }
-      .pay-options{
-        display:flex;
-        flex-direction:column;
-        gap:8px;
-      }
-      .pay-opt{
-        display:flex;
-        gap:10px;
-        align-items:center;
-        cursor:pointer;
-        user-select:none;
-      }
-      .pay-opt input{ transform: translateY(1px); }
-      .pay-help{
-        margin-top: 8px;
-        font-size: 13px;
-      }
+    .brand-lines p {
+      margin:4px 0 0;
+    }
 
-      /* Size dropdown */
-      .size-label{
-        display:block;
-        font-size: 0.85rem;
-        margin: 10px 0 6px;
-        opacity: 0.8;
-      }
-      .size-select{
-        width: 100%;
-        padding: 10px 12px;
-        border-radius: 12px;
-        border: 1px solid rgba(0,0,0,0.18);
-        background: #fff;
-        font-size: 0.95rem;
-      }
+    .cart-btn {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:52px;
+      height:52px;
+      border-radius:16px;
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(17,24,39,.10);
+      box-shadow: 0 10px 30px rgba(17,24,39,.08);
+      position: relative;
+      cursor: pointer;
+    }
 
-      /* Compact */
-      .section-head { margin-bottom: 10px !important; }
-      .section-head p.muted { margin-top: 4px !important; }
-      .brand-hero { padding: 12px 0 10px !important; }
-      .brand-pill { padding: 6px 10px !important; font-size: 12px !important; }
-      .card.soft { padding: 12px !important; }
-      .field label { font-size: 12px !important; margin-bottom: 4px !important; }
-    </style>
-  </head>
+    .cart-btn svg {
+      width:22px;
+      height:22px;
+      opacity:.92;
+    }
 
-  <body>
-    <a class="skip" href="#main">Skip to content</a>
+    .cart-badge {
+      position:absolute;
+      top:-8px;
+      right:-8px;
+      min-width:22px;
+      height:22px;
+      padding:0 6px;
+      border-radius:999px;
+      background:#1E88E5;
+      color:white;
+      font-size:12px;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:2px solid rgba(255,255,255,.95);
+    }
+  </style>
+</head>
 
-    <!-- Header (clean) -->
-    <header class="header">
-      <div class="container header-inner">
-        <a class="brand" href="#main" aria-label="BASFAY home">
-          <span class="brand-mark" aria-hidden="true">B</span>
-          <span class="brand-text">
-            <span class="brand-name">BASFAY Uniforms</span>
-            <span class="brand-sub">Quality &amp; Affordable</span>
-          </span>
-        </a>
+<body>
 
-        <!-- hide top nav -->
-        <nav class="nav is-hidden" aria-label="Primary navigation" aria-hidden="true">
-          <a class="nav-link" href="#shop">Shop</a>
-          <a class="nav-link" href="#delivery">Delivery</a>
-          <a class="nav-link" href="#contact">Contact</a>
-        </nav>
+<header class="header">
+  <div class="container header-inner">
+    <a class="brand" href="#main">
+      <span class="brand-mark">B</span>
+      <span class="brand-text">
+        <span class="brand-name">BASFAY Uniforms</span>
+        <span class="brand-sub">Quality & Affordable</span>
+      </span>
+    </a>
+  </div>
+</header>
 
-        <div class="header-actions">
-          <a
-            class="btn primary is-hidden"
-            id="headerWhatsApp"
-            href="https://wa.me/254119667836"
-            rel="noopener"
-            target="_blank"
-            aria-hidden="true"
-            >Order on WhatsApp</a
-          >
-        </div>
-      </div>
-    </header>
+<main id="main">
 
-    <main id="main">
-      <!-- Brand hero (cart on RIGHT) -->
-      <section class="brand-hero" aria-label="BASFAY brand banner">
-        <div class="container brand-hero-inner">
-          <div class="brand-badge">
-            <div class="brand-logo" aria-hidden="true">B</div>
-            <div class="brand-lines">
-              <h1>BASFAY Uniforms</h1>
-              <p class="muted">Quality &amp; Affordable</p>
-            </div>
-          </div>
+  <!-- CLEAN HERO -->
+  <section class="brand-hero">
+    <div class="container brand-hero-inner">
 
-          <div class="brand-right">
-            <div class="brand-mini" aria-label="Highlights">
-              <span class="brand-pill"><strong>Quality</strong></span>
-              <span class="brand-pill"><strong>Affordable</strong></span>
-              <span class="brand-pill"><strong>Quick order</strong></span>
-            </div>
-
-            <button class="cart-btn" id="openCart" aria-label="Open order list" type="button">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  fill="currentColor"
-                  d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2Zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2ZM6.2 6h14.6c.55 0 1 .45 1 1 0 .09-.01.18-.04.27l-2.1 7.35c-.24.83-1 1.38-1.86 1.38H8.1c-.86 0-1.62-.55-1.86-1.38L3.8 3H2c-.55 0-1-.45-1-1s.45-1 1-1h2.6c.46 0 .86.31.97.75L6.2 6Zm1.1 2 1.62 5.67c.06.2.25.33.46.33h9.7c.21 0 .4-.13.46-.33L21 8H7.3Z"
-                />
-              </svg>
-              <span class="cart-badge" id="cartCount" aria-live="polite">0</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Shop -->
-      <section class="section" id="shop">
-        <div class="container">
-          <div class="section-head">
-            <h2>Catalog</h2>
-            <p class="muted">Select size, add to order.</p>
-          </div>
-
-          <div class="card soft" style="margin-bottom: 16px;">
-            <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:end; justify-content:space-between;">
-              <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:end;">
-
-                <!-- ✅ CATEGORY DROPDOWN (ONLY CATEGORY CONTROL) -->
-                <div class="field" style="min-width:220px;">
-                  <label for="categoryDropdown">Category</label>
-                  <select id="categoryDropdown">
-                    <option value="">All</option>
-                  </select>
-                </div>
-
-                <div class="field" style="min-width:260px;">
-                  <label for="qTop">Find</label>
-                  <input id="qTop" type="search" placeholder="Search..." autocomplete="off" />
-                </div>
-
-                <div class="field" style="min-width:170px;">
-                  <label for="colorFilterTop">Color</label>
-                  <select id="colorFilterTop">
-                    <option value="">All</option>
-                  </select>
-                </div>
-
-                <div class="field" style="min-width:170px;">
-                  <label for="sortByTop">Sort</label>
-                  <select id="sortByTop">
-                    <option value="featured">Featured</option>
-                    <option value="name_asc">Name (A–Z)</option>
-                    <option value="name_desc">Name (Z–A)</option>
-                    <option value="price_asc">Price (Low–High)</option>
-                    <option value="price_desc">Price (High–Low)</option>
-                  </select>
-                </div>
-
-                <button class="btn small" id="clearFiltersTop" type="button" style="height:42px;">Reset</button>
-              </div>
-
-              <div class="sidebar-meta" style="display:flex; gap:14px; align-items:center; justify-content:flex-end;">
-                <div><strong id="resultsCount">0</strong> items</div>
-                <div class="muted">KES</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="shop-layout">
-            <aside class="sidebar" aria-label="Catalog filters">
-              <div class="card soft">
-                <h3>Filters</h3>
-
-                <div class="field">
-                  <label for="q2">Find</label>
-                  <input id="q2" type="search" placeholder="Search..." autocomplete="off" />
-                </div>
-
-                <div class="grid-2">
-                  <div class="field">
-                    <label for="colorFilter2">Color</label>
-                    <select id="colorFilter2">
-                      <option value="">All</option>
-                    </select>
-                  </div>
-                  <!-- ✅ Type removed -->
-                </div>
-
-                <div class="field">
-                  <label for="sortBy2">Sort</label>
-                  <select id="sortBy2">
-                    <option value="featured">Featured</option>
-                    <option value="name_asc">Name (A–Z)</option>
-                    <option value="name_desc">Name (Z–A)</option>
-                    <option value="price_asc">Price (Low–High)</option>
-                    <option value="price_desc">Price (High–Low)</option>
-                  </select>
-                </div>
-
-                <div class="mini-actions">
-                  <button class="btn small" id="clearFilters2" type="button">Reset</button>
-                  <button class="btn small primary" id="scrollToCatalog" type="button">Products</button>
-                </div>
-
-                <hr class="sep" />
-
-                <div class="sidebar-meta">
-                  <div><strong id="resultsCountSidebar">0</strong> items</div>
-                  <div class="muted">KES</div>
-                </div>
-              </div>
-            </aside>
-
-            <div class="catalog" id="catalog" aria-label="Product catalog">
-              <div class="grid" id="productGrid" aria-live="polite"></div>
-
-              <div class="empty" id="emptyState" hidden>
-                <h3>No matches</h3>
-                <p class="muted">Reset filters or try a broader search.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="container footer-inner">
-        <div class="footer-left">
-          <div class="brand tiny">
-            <span class="brand-mark" aria-hidden="true">B</span>
-            <span class="brand-text">
-              <span class="brand-name">BASFAY Uniforms</span>
-              <span class="brand-sub">Quality &amp; Affordable</span>
-            </span>
-          </div>
-          <p class="muted">Quality &amp; Affordable</p>
-        </div>
-
-        <div class="footer-right">
-          <a class="footer-link" href="#shop">Shop</a>
+      <div class="brand-badge">
+        <div class="brand-logo">B</div>
+        <div class="brand-lines">
+          <h1>BASFAY Uniforms</h1>
+          <p class="muted">Quality & Affordable</p>
         </div>
       </div>
 
-      <div class="container footer-bottom">
-        <span class="muted">© <span id="year"></span> BASFAY Uniforms</span>
-      </div>
-    </footer>
+      <button class="cart-btn" id="openCart" type="button">
+        <svg viewBox="0 0 24 24">
+          <path fill="currentColor"
+            d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2Zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2ZM6.2 6h14.6c.55 0 1 .45 1 1 0 .09-.01.18-.04.27l-2.1 7.35c-.24.83-1 1.38-1.86 1.38H8.1c-.86 0-1.62-.55-1.86-1.38L3.8 3H2c-.55 0-1-.45-1-1s.45-1 1-1h2.6c.46 0 .86.31.97.75L6.2 6Zm1.1 2 1.62 5.67c.06.2.25.33.46.33h9.7c.21 0 .4-.13.46-.33L21 8H7.3Z" />
+        </svg>
+        <span class="cart-badge" id="cartCount">0</span>
+      </button>
 
-    <!-- Order Drawer -->
-    <div class="drawer" id="drawer" aria-hidden="true">
-      <div class="drawer-backdrop" id="drawerBackdrop"></div>
-      <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Order list">
-        <div class="drawer-head">
-          <h3>Your order</h3>
-          <button class="icon-btn" id="closeDrawer" aria-label="Close order list">✕</button>
-        </div>
-
-        <div class="drawer-body">
-          <div id="cartItems"></div>
-
-          <div class="cart-empty" id="cartEmpty" hidden>
-            <p><strong>No items yet.</strong></p>
-            <p class="muted">Add products from the catalog.</p>
-          </div>
-        </div>
-
-        <div class="drawer-foot">
-          <div class="cart-note muted">Size included.</div>
-
-          <div class="card soft pay-card">
-            <div class="pay-title">Payment</div>
-
-            <div class="pay-options">
-              <label class="pay-opt">
-                <input type="radio" name="payMethod" value="M-Pesa" checked />
-                <span><strong>M-Pesa</strong> (After confirm)</span>
-              </label>
-
-              <label class="pay-opt">
-                <input type="radio" name="payMethod" value="Cash" />
-                <span><strong>Cash</strong> (On pickup)</span>
-              </label>
-            </div>
-
-            <div class="muted pay-help">
-              We confirm total + delivery fee.
-            </div>
-          </div>
-
-          <a
-            class="btn primary full"
-            id="sendWhatsApp"
-            href="https://wa.me/254119667836"
-            rel="noopener"
-            target="_blank"
-            >Send on WhatsApp</a
-          >
-
-          <button class="btn ghost full" id="clearCart" type="button">Clear</button>
-        </div>
-      </div>
     </div>
+  </section>
 
-    <!-- Product Modal -->
-    <div class="modal" id="modal" aria-hidden="true">
-      <div class="modal-backdrop" id="modalBackdrop"></div>
-      <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Product details">
-        <div class="modal-head">
-          <h3 id="modalTitle">Product</h3>
-          <button class="icon-btn" id="closeModal" aria-label="Close product details">✕</button>
-        </div>
+</main>
 
-        <div class="modal-body">
-          <div class="modal-media" id="modalMedia"></div>
-          <div class="modal-info">
-            <div class="price" id="modalPrice"></div>
-            <div class="meta" id="modalMeta"></div>
-            <p class="muted" id="modalDesc"></p>
+<script src="./app.js?v=20260225-3" defer></script>
 
-            <div id="modalSizeField" class="is-hidden" aria-hidden="true">
-              <label class="size-label" for="modalSize">Size</label>
-              <select class="size-select" id="modalSize" required>
-                <option value="" selected disabled>Select size</option>
-              </select>
-            </div>
-
-            <div class="modal-actions">
-              <button class="btn primary" id="modalAdd" type="button">Add</button>
-              <button class="btn ghost is-hidden" id="modalOrderNow" type="button" aria-hidden="true">
-                WhatsApp
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <template id="sizeSelectTemplate">
-      <label class="size-label">Size</label>
-      <select class="size-select" required>
-        <option value="" selected disabled>Select size</option>
-      </select>
-    </template>
-
-    <script src="./app.js?v=20260225-2" defer></script>
-    <script>
-      document.getElementById("year").textContent = new Date().getFullYear();
-    </script>
-  </body>
+</body>
 </html>

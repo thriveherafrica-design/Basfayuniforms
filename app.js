@@ -1,14 +1,13 @@
 /* ============================
-   BASFAY Catalog Site
+   BASFAY Catalog Site (Clean UI)
    - Products loaded from products.json
-   - Filter/search/sort
+   - Filter by Category dropdown + Color + Sort
+   - Sidebar search still supported (q2)
    - Order list stored in localStorage
    - WhatsApp order message generator
-   - ✅ Category dropdown ONLY (tabs removed)
-   - ✅ Category order follows products.json order + FUTURE_CATEGORIES order
+   - ✅ Clean product cards (no Sweater/Plain chips, no duplicate Select size)
+   - ✅ Size dropdown per product card
    - ✅ Payment method selector (Cash / M-Pesa)
-   - ✅ Add to order opens drawer (does NOT auto-open WhatsApp)
-   - ✅ Size dropdown in cards + modal
    ============================ */
 
 const CONFIG = {
@@ -18,51 +17,25 @@ const CONFIG = {
   businessName: "BASFAY School Uniforms",
 };
 
-const FUTURE_CATEGORIES = [
-  "Sweater",
-  "Shirt",
-  "Dress",
-  "Socks",
-  "Marvins",
-  "Tracksuit",
-  "Gameskit",
-  "PE Shirt",
-  "Trousers",
-  "School Bag",
-  "Shoes",
-  "Blazer",
-  "Materials",
-  "Cardigan",
-  "Accessory",
-];
-
 const els = {
   year: document.getElementById("year"),
 
-  // top filters
+  // top toolbar
   categoryDropdown: document.getElementById("categoryDropdown"),
-  qTop: document.getElementById("qTop"),
   colorFilterTop: document.getElementById("colorFilterTop"),
   sortByTop: document.getElementById("sortByTop"),
-  clearFiltersTop: document.getElementById("clearFiltersTop"),
+  resultsCount: document.getElementById("resultsCount"),
 
-  // sidebar filters
+  // sidebar filters (kept)
   q2: document.getElementById("q2"),
   colorFilter2: document.getElementById("colorFilter2"),
   sortBy2: document.getElementById("sortBy2"),
   clearFilters2: document.getElementById("clearFilters2"),
   scrollToCatalog: document.getElementById("scrollToCatalog"),
+  resultsCountSidebar: document.getElementById("resultsCountSidebar"),
 
   productGrid: document.getElementById("productGrid"),
   emptyState: document.getElementById("emptyState"),
-  resultsCount: document.getElementById("resultsCount"),
-  resultsCountSidebar: document.getElementById("resultsCountSidebar"),
-
-  // WhatsApp links
-  topbarWhatsApp: document.getElementById("topbarWhatsApp"),
-  headerWhatsApp: document.getElementById("headerWhatsApp"),
-  contactWhatsApp: document.getElementById("contactWhatsApp"),
-  footerWhatsApp: document.getElementById("footerWhatsApp"),
 
   // drawer/cart
   openCart: document.getElementById("openCart"),
@@ -75,10 +48,8 @@ const els = {
   sendWhatsApp: document.getElementById("sendWhatsApp"),
   clearCart: document.getElementById("clearCart"),
 
-  // size template + modal size selector
-  sizeSelectTemplate: document.getElementById("sizeSelectTemplate"),
-  modalSizeField: document.getElementById("modalSizeField"),
-  modalSize: document.getElementById("modalSize"),
+  // payment UI (radios inside drawer)
+  payRadios: document.querySelectorAll('input[name="payMethod"]'),
 
   // modal
   modal: document.getElementById("modal"),
@@ -91,13 +62,17 @@ const els = {
   modalMedia: document.getElementById("modalMedia"),
   modalAdd: document.getElementById("modalAdd"),
   modalOrderNow: document.getElementById("modalOrderNow"),
+
+  // optional modal size field (if present in HTML)
+  modalSizeField: document.getElementById("modalSizeField"),
+  modalSize: document.getElementById("modalSize"),
 };
 
 let PRODUCTS = [];
 let state = {
-  q: "",
+  q: "",       // search text (sidebar)
   color: "",
-  type: "", // category
+  type: "",    // category
   sort: "featured",
 };
 
@@ -120,6 +95,22 @@ function normalize(s) {
 }
 
 /* ======================
+   Payment selection
+   ====================== */
+function getSelectedPayMethodLabel() {
+  const checked = [...(els.payRadios || [])].find(r => r.checked);
+  return checked?.value || "M-Pesa";
+}
+
+function bindPayments() {
+  (els.payRadios || []).forEach(r => {
+    r.addEventListener("change", () => {
+      if (els.sendWhatsApp) els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+    });
+  });
+}
+
+/* ======================
    WhatsApp helpers
    ====================== */
 function buildWhatsAppLink(message) {
@@ -133,23 +124,6 @@ function buildGenericWhatsAppMessage() {
   return `Hi ${CONFIG.businessName}, I would like to place an order. Pickup: ${CONFIG.pickup}.`;
 }
 
-function updateWhatsAppLinks() {
-  const link = buildWhatsAppLink(buildGenericWhatsAppMessage());
-  for (const el of [els.topbarWhatsApp, els.headerWhatsApp, els.contactWhatsApp, els.footerWhatsApp]) {
-    if (el) el.href = link;
-  }
-}
-
-/* ======================
-   Payment selection
-   (Your HTML uses radio name="payMethod" without IDs, so we read by name)
-   ====================== */
-function getSelectedPayMethod() {
-  const checked = document.querySelector('input[name="payMethod"]:checked');
-  const val = safeText(checked?.value);
-  return /m-?pesa/i.test(val) ? "mpesa" : "cash";
-}
-
 /* ======================
    CART (size-aware)
    ====================== */
@@ -158,8 +132,7 @@ function getCart() {
     const raw = localStorage.getItem(CART_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed;
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
@@ -188,8 +161,7 @@ function addToCart(productId, size, price, qty = 1) {
 }
 
 function removeFromCart(key) {
-  const cart = getCart().filter(i => i.key !== key);
-  setCart(cart);
+  setCart(getCart().filter(i => i.key !== key));
 }
 
 function setQty(key, qty) {
@@ -202,33 +174,18 @@ function setQty(key, qty) {
 
 /* ======================
    Filters options
-   - Category order: products.json order, then FUTURE_CATEGORIES order
    ====================== */
 function hydrateFiltersOptions() {
   const colors = new Set();
-  const typesInOrder = [];
-  const seenTypes = new Set();
+  const types = new Set();
 
   PRODUCTS.forEach(p => {
     if (p.color) colors.add(p.color);
-
-    const t = safeText(p.type);
-    if (t && !seenTypes.has(t)) {
-      seenTypes.add(t);
-      typesInOrder.push(t);
-    }
-  });
-
-  FUTURE_CATEGORIES.forEach(t => {
-    const tt = safeText(t);
-    if (tt && !seenTypes.has(tt)) {
-      seenTypes.add(tt);
-      typesInOrder.push(tt);
-    }
+    if (p.type) types.add(p.type);
   });
 
   const colorList = ["", ...Array.from(colors).sort()];
-  const typeList = ["", ...typesInOrder];
+  const typeList = ["", ...Array.from(types).sort()];
 
   const fillSelect = (selectEl, options, allLabel = "All") => {
     if (!selectEl) return;
@@ -245,7 +202,6 @@ function hydrateFiltersOptions() {
 
   fillSelect(els.colorFilterTop, colorList, "All");
   fillSelect(els.colorFilter2, colorList, "All");
-
   fillSelect(els.categoryDropdown, typeList, "All");
 }
 
@@ -278,7 +234,6 @@ function applySort(list) {
     let score = 0;
     if (p.featured) score += 10;
     if (p.hasPhoto) score += 2;
-    if (p.type && /sweater|dress|shirt|socks/i.test(p.type)) score += 1;
     return score;
   };
 
@@ -317,76 +272,14 @@ function renderProducts() {
   if (els.resultsCountSidebar) els.resultsCountSidebar.textContent = String(sorted.length);
 
   els.productGrid.innerHTML = "";
-  els.emptyState.hidden = sorted.length !== 0;
-
-  if (sorted.length === 0 && els.emptyState) {
-    const h3 = els.emptyState.querySelector("h3");
-    const p = els.emptyState.querySelector("p");
-
-    const typeSelected = safeText(state.type);
-    const categoryHasAny = typeSelected
-      ? PRODUCTS.some(x => safeText(x.type) === typeSelected)
-      : true;
-
-    if (typeSelected && !categoryHasAny) {
-      if (h3) h3.textContent = `${typeSelected} coming soon`;
-      if (p) p.textContent = "We’ll add items here shortly. Check other categories for now.";
-    } else {
-      if (h3) h3.textContent = "No matches";
-      if (p) p.textContent = "Reset filters or try a broader search.";
-    }
-  }
+  if (els.emptyState) els.emptyState.hidden = sorted.length !== 0;
 
   sorted.forEach(p => els.productGrid.appendChild(productCard(p)));
 }
 
-function chip(text) {
-  const el = document.createElement("span");
-  el.className = "chip";
-  el.textContent = text;
-  return el;
-}
-
-function createSizeDropdown(variants) {
-  let block;
-  let select;
-
-  if (els.sizeSelectTemplate?.content) {
-    block = els.sizeSelectTemplate.content.cloneNode(true);
-    select = block.querySelector(".size-select");
-  } else {
-    block = document.createDocumentFragment();
-    const lbl = document.createElement("label");
-    lbl.className = "size-label";
-    lbl.textContent = "Size";
-    select = document.createElement("select");
-    select.className = "size-select";
-    select.required = true;
-    block.appendChild(lbl);
-    block.appendChild(select);
-  }
-
-  if (select) {
-    select.innerHTML = "";
-    const ph = document.createElement("option");
-    ph.value = "";
-    ph.disabled = true;
-    ph.selected = true;
-    ph.textContent = "Select size";
-    select.appendChild(ph);
-
-    variants.forEach(v => {
-      const opt = document.createElement("option");
-      opt.value = String(v.size);
-      opt.textContent = String(v.size);
-      opt.dataset.price = String(Number(v.price));
-      select.appendChild(opt);
-    });
-  }
-
-  return { block, select };
-}
-
+/* ======================
+   CLEAN product card (no Sweater/Plain chips, no duplicate Select size)
+   ====================== */
 function productCard(p) {
   const wrap = document.createElement("article");
   wrap.className = "product";
@@ -415,42 +308,46 @@ function productCard(p) {
   const title = document.createElement("h3");
   title.textContent = p.name;
 
-  const meta = document.createElement("div");
-  meta.className = "meta";
-  meta.appendChild(chip(p.type || "Item"));
-  if (p.pattern) meta.appendChild(chip(p.pattern));
-
   const variants = Array.isArray(p.variants) ? p.variants : [];
   let selected = null;
 
-  const price = document.createElement("div");
-  price.className = "price";
-
-  let sizeBlock = null;
-  let sizeSelectEl = null;
+  // size dropdown (only when variants exist)
+  const sizeWrap = document.createElement("div");
 
   if (variants.length) {
-    const sortedVariants = [...variants].sort((a, b) => (Number(a.size) || 0) - (Number(b.size) || 0));
-    price.textContent = "Select size";
+    const select = document.createElement("select");
+    select.className = "size-select";
 
-    const dd = createSizeDropdown(sortedVariants);
-    sizeBlock = dd.block;
-    sizeSelectEl = dd.select;
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Select size";
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    select.appendChild(placeholder);
 
-    sizeSelectEl?.addEventListener("change", () => {
-      const chosen = sizeSelectEl.value;
-      const v = sortedVariants.find(x => String(x.size) === String(chosen));
-      if (!v) {
-        selected = null;
-        price.textContent = "Select size";
-        return;
-      }
-      selected = { size: String(v.size), price: Number(v.price) };
+    const sorted = [...variants].sort((a, b) => (Number(a.size) || 0) - (Number(b.size) || 0));
+    sorted.forEach(v => {
+      const opt = document.createElement("option");
+      opt.value = String(v.size);
+      opt.textContent = String(v.size);
+      select.appendChild(opt);
+    });
+
+    select.addEventListener("change", () => {
+      const found = sorted.find(v => String(v.size) === select.value);
+      if (!found) return;
+      selected = { size: String(found.size), price: Number(found.price) };
       price.textContent = formatMoney(selected.price);
     });
-  } else {
-    price.textContent = p.price != null ? formatMoney(p.price) : "Price on request";
+
+    sizeWrap.appendChild(select);
   }
+
+  // price only shows after selecting size
+  const price = document.createElement("div");
+  price.className = "price";
+  if (!variants.length && p.price != null) price.textContent = formatMoney(p.price);
+  if (!variants.length && p.price == null) price.textContent = "";
 
   const actions = document.createElement("div");
   actions.className = "product-actions";
@@ -469,13 +366,12 @@ function productCard(p) {
     if (variants.length) {
       if (!selected) {
         alert("Please select a size first.");
-        sizeSelectEl?.focus();
         return;
       }
       addToCart(p.id, selected.size, selected.price, 1);
     } else {
       if (p.price == null) {
-        alert("Price on request. Please message us on WhatsApp to confirm.");
+        alert("Price on request. Please message us on WhatsApp.");
         return;
       }
       addToCart(p.id, "-", p.price, 1);
@@ -487,8 +383,7 @@ function productCard(p) {
 
   wrap.appendChild(media);
   wrap.appendChild(title);
-  wrap.appendChild(meta);
-  if (variants.length && sizeBlock) wrap.appendChild(sizeBlock);
+  if (variants.length) wrap.appendChild(sizeWrap);
   wrap.appendChild(price);
   wrap.appendChild(actions);
 
@@ -499,82 +394,80 @@ function productCard(p) {
 }
 
 /* ======================
-   Filters binding
+   Bind filters (top + sidebar)
    ====================== */
 function bindFilters() {
-  const top = { q: els.qTop, color: els.colorFilterTop, sort: els.sortByTop };
-  const side = { q: els.q2, color: els.colorFilter2, sort: els.sortBy2 };
-
-  const syncAll = (from) => {
-    if (els.qTop && from.q) els.qTop.value = from.q.value;
-    if (els.q2 && from.q) els.q2.value = from.q.value;
-
-    if (els.colorFilterTop && from.color) els.colorFilterTop.value = from.color.value;
-    if (els.colorFilter2 && from.color) els.colorFilter2.value = from.color.value;
-
-    if (els.sortByTop && from.sort) els.sortByTop.value = from.sort.value;
-    if (els.sortBy2 && from.sort) els.sortBy2.value = from.sort.value;
-  };
-
-  const applyFrom = (source) => {
-    state.q = source.q?.value ?? state.q;
-    state.color = source.color?.value ?? state.color;
-    state.sort = source.sort?.value ?? state.sort;
-    renderProducts();
-  };
-
-  const bindSet = (source) => {
-    [source.q, source.color, source.sort].forEach(el => {
-      if (!el) return;
-      el.addEventListener("input", () => {
-        syncAll(source);
-        applyFrom(source);
-      });
-      el.addEventListener("change", () => {
-        syncAll(source);
-        applyFrom(source);
-      });
+  // Top toolbar (no Find / Reset)
+  if (els.categoryDropdown) {
+    els.categoryDropdown.addEventListener("change", () => {
+      state.type = els.categoryDropdown.value || "";
+      renderProducts();
     });
-  };
+  }
 
-  bindSet(top);
-  bindSet(side);
+  if (els.colorFilterTop) {
+    els.colorFilterTop.addEventListener("change", () => {
+      state.color = els.colorFilterTop.value || "";
+      if (els.colorFilter2) els.colorFilter2.value = state.color;
+      renderProducts();
+    });
+  }
 
-  // ✅ Category dropdown drives category filtering
-  els.categoryDropdown?.addEventListener("change", () => {
-    state.type = els.categoryDropdown.value || "";
-    renderProducts();
-    document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
+  if (els.sortByTop) {
+    els.sortByTop.addEventListener("change", () => {
+      state.sort = els.sortByTop.value || "featured";
+      if (els.sortBy2) els.sortBy2.value = state.sort;
+      renderProducts();
+    });
+  }
 
-  const clearAll = () => {
-    state.q = "";
-    state.color = "";
-    state.type = "";
-    state.sort = "featured";
+  // Sidebar search + controls
+  if (els.q2) {
+    els.q2.addEventListener("input", () => {
+      state.q = els.q2.value || "";
+      renderProducts();
+    });
+  }
 
-    if (els.qTop) els.qTop.value = "";
-    if (els.q2) els.q2.value = "";
+  if (els.colorFilter2) {
+    els.colorFilter2.addEventListener("change", () => {
+      state.color = els.colorFilter2.value || "";
+      if (els.colorFilterTop) els.colorFilterTop.value = state.color;
+      renderProducts();
+    });
+  }
 
-    if (els.colorFilterTop) els.colorFilterTop.value = "";
-    if (els.colorFilter2) els.colorFilter2.value = "";
+  if (els.sortBy2) {
+    els.sortBy2.addEventListener("change", () => {
+      state.sort = els.sortBy2.value || "featured";
+      if (els.sortByTop) els.sortByTop.value = state.sort;
+      renderProducts();
+    });
+  }
 
-    if (els.sortByTop) els.sortByTop.value = "featured";
-    if (els.sortBy2) els.sortBy2.value = "featured";
+  if (els.clearFilters2) {
+    els.clearFilters2.addEventListener("click", () => {
+      state.q = "";
+      state.color = "";
+      state.type = "";
+      state.sort = "featured";
 
-    if (els.categoryDropdown) els.categoryDropdown.value = "";
+      if (els.q2) els.q2.value = "";
+      if (els.colorFilter2) els.colorFilter2.value = "";
+      if (els.colorFilterTop) els.colorFilterTop.value = "";
+      if (els.categoryDropdown) els.categoryDropdown.value = "";
+      if (els.sortBy2) els.sortBy2.value = "featured";
+      if (els.sortByTop) els.sortByTop.value = "featured";
 
-    renderProducts();
-  };
+      renderProducts();
+    });
+  }
 
-  els.clearFiltersTop?.addEventListener("click", clearAll);
-  els.clearFilters2?.addEventListener("click", clearAll);
-
-  els.scrollToCatalog?.addEventListener("click", () => {
-    document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
-
-  applyFrom(top);
+  if (els.scrollToCatalog) {
+    els.scrollToCatalog.addEventListener("click", () => {
+      document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
 }
 
 /* ======================
@@ -586,22 +479,19 @@ function updateCartUI() {
   if (els.cartCount) els.cartCount.textContent = String(total);
 
   if (!els.cartItems) return;
-
   els.cartItems.innerHTML = "";
 
   if (!cart.length) {
-    els.cartEmpty.hidden = false;
-
+    if (els.cartEmpty) els.cartEmpty.hidden = false;
     if (els.sendWhatsApp) {
+      els.sendWhatsApp.href = buildWhatsAppLink(buildGenericWhatsAppMessage());
       els.sendWhatsApp.classList.add("is-hidden");
       els.sendWhatsApp.setAttribute("aria-hidden", "true");
-      els.sendWhatsApp.href = buildWhatsAppLink(buildGenericWhatsAppMessage());
     }
     return;
   }
 
-  els.cartEmpty.hidden = true;
-
+  if (els.cartEmpty) els.cartEmpty.hidden = true;
   if (els.sendWhatsApp) {
     els.sendWhatsApp.classList.remove("is-hidden");
     els.sendWhatsApp.setAttribute("aria-hidden", "false");
@@ -616,13 +506,19 @@ function updateCartUI() {
     row.className = "cart-item";
 
     const left = document.createElement("div");
+
     const title = document.createElement("h4");
     title.textContent = item.size && item.size !== "-" ? `${p.name} (Size ${item.size})` : p.name;
 
     const meta = document.createElement("div");
     meta.className = "meta";
+    const chip = (t) => {
+      const el = document.createElement("span");
+      el.className = "chip";
+      el.textContent = t;
+      return el;
+    };
     meta.appendChild(chip(p.color || "Color"));
-    meta.appendChild(chip(p.type || "Item"));
     meta.appendChild(chip(formatMoney(item.price)));
 
     left.appendChild(title);
@@ -667,30 +563,24 @@ function updateCartUI() {
     els.cartItems.appendChild(row);
   });
 
-  if (els.sendWhatsApp) {
-    els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
-  }
+  if (els.sendWhatsApp) els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
 }
 
 function buildOrderMessage() {
   const cart = getCart();
   const lines = [];
-  const methodText = getSelectedPayMethod() === "mpesa" ? "M-Pesa" : "Cash";
+  const methodText = getSelectedPayMethodLabel();
 
   lines.push(`Hi ${CONFIG.businessName}, I would like to order:`);
   lines.push(`Payment method: ${methodText}`);
   lines.push("");
 
-  if (!cart.length) {
-    lines.push("- (No items selected yet)");
-  } else {
-    cart.forEach(item => {
-      const p = PRODUCTS.find(x => x.id === item.id);
-      if (!p) return;
-      const sizeText = item.size && item.size !== "-" ? ` (Size ${item.size})` : "";
-      lines.push(`- ${item.qty} × ${p.name}${sizeText} (${formatMoney(item.price)})`);
-    });
-  }
+  cart.forEach(item => {
+    const p = PRODUCTS.find(x => x.id === item.id);
+    if (!p) return;
+    const sizeText = item.size && item.size !== "-" ? ` (Size ${item.size})` : "";
+    lines.push(`- ${item.qty} × ${p.name}${sizeText} (${formatMoney(item.price)})`);
+  });
 
   lines.push("");
   lines.push(`Pickup: ${CONFIG.pickup}`);
@@ -724,7 +614,7 @@ function closeDrawer() {
 }
 
 /* ======================
-   Modal (size dropdown)
+   Modal
    ====================== */
 function bindModal() {
   els.closeModal?.addEventListener("click", closeModal);
@@ -736,9 +626,6 @@ function openModal(productId) {
   if (!p || !els.modal) return;
 
   els.modalTitle.textContent = p.name;
-
-  const variants = Array.isArray(p.variants) ? p.variants : [];
-  let selected = null;
 
   const bits = [];
   if (p.color) bits.push(`Color: ${p.color}`);
@@ -760,127 +647,91 @@ function openModal(productId) {
     els.modalMedia.appendChild(ph);
   }
 
-  if (els.modalSize) {
+  const variants = Array.isArray(p.variants) ? p.variants : [];
+  let selected = null;
+
+  // optional size UI in modal (if your HTML has it)
+  if (els.modalSizeField && els.modalSize) {
     els.modalSize.innerHTML = `<option value="" selected disabled>Select size</option>`;
-    els.modalSize.onchange = null;
-  }
-  if (els.modalSizeField) {
-    els.modalSizeField.classList.add("is-hidden");
-    els.modalSizeField.setAttribute("aria-hidden", "true");
-  }
-
-  if (variants.length) {
-    els.modalPrice.textContent = "Select size";
-
-    const sorted = [...variants].sort((a, b) => (Number(a.size) || 0) - (Number(b.size) || 0));
-
-    if (els.modalSizeField) {
+    if (variants.length) {
       els.modalSizeField.classList.remove("is-hidden");
       els.modalSizeField.setAttribute("aria-hidden", "false");
-    }
 
-    if (els.modalSize) {
+      const sorted = [...variants].sort((a, b) => (Number(a.size) || 0) - (Number(b.size) || 0));
       sorted.forEach(v => {
         const opt = document.createElement("option");
         opt.value = String(v.size);
         opt.textContent = String(v.size);
-        opt.dataset.price = String(Number(v.price));
         els.modalSize.appendChild(opt);
       });
+
+      els.modalPrice.textContent = "";
+
+      els.modalSize.onchange = () => {
+        const found = sorted.find(v => String(v.size) === els.modalSize.value);
+        if (!found) return;
+        selected = { size: String(found.size), price: Number(found.price) };
+        els.modalPrice.textContent = formatMoney(selected.price);
+      };
+    } else {
+      els.modalSizeField.classList.add("is-hidden");
+      els.modalSizeField.setAttribute("aria-hidden", "true");
+      els.modalPrice.textContent = p.price != null ? formatMoney(p.price) : "";
     }
+  } else {
+    // fallback: show price text only
+    els.modalPrice.textContent = variants.length ? "" : (p.price != null ? formatMoney(p.price) : "");
+  }
 
-    els.modalMeta.textContent = bits.join(" • ");
+  els.modalMeta.textContent = bits.filter(Boolean).join(" • ");
 
-    const updateSelected = () => {
-      const chosen = els.modalSize?.value || "";
-      const v = sorted.find(x => String(x.size) === String(chosen));
-      if (!v) {
-        selected = null;
-        els.modalPrice.textContent = "Select size";
-        return;
-      }
-      selected = { size: String(v.size), price: Number(v.price) };
-      els.modalPrice.textContent = formatMoney(selected.price);
-    };
-
-    if (els.modalSize) els.modalSize.onchange = updateSelected;
-
-    els.modalAdd.onclick = () => {
-      updateSelected();
+  els.modalAdd.onclick = () => {
+    if (variants.length) {
       if (!selected) {
         alert("Please select a size first.");
-        els.modalSize?.focus();
         return;
       }
       addToCart(p.id, selected.size, selected.price, 1);
-    };
-
-    els.modalOrderNow.onclick = () => {
-      updateSelected();
-      if (!selected) {
-        alert("Please select a size first.");
-        els.modalSize?.focus();
-        return;
-      }
-
-      const msg = [
-        `Hi ${CONFIG.businessName}, I would like to order:`,
-        `Payment method: ${getSelectedPayMethod() === "mpesa" ? "M-Pesa" : "Cash"}`,
-        ``,
-        `- 1 × ${p.name} (Size ${selected.size}) (${formatMoney(selected.price)})`,
-        ``,
-        `Pickup: ${CONFIG.pickup}`,
-        `Delivery: (If needed, share your area and I’ll confirm delivery fee.)`,
-        ``,
-        `Thank you.`,
-      ].join("\n");
-
-      window.open(buildWhatsAppLink(msg), "_blank", "noopener");
-    };
-  } else {
-    els.modalMeta.textContent = bits.join(" • ");
-    els.modalPrice.textContent = p.price != null ? formatMoney(p.price) : "Price on request";
-
-    els.modalAdd.onclick = () => {
+    } else {
       if (p.price == null) {
-        alert("Price on request. Please message us on WhatsApp to confirm.");
+        alert("Price on request. Please message us on WhatsApp.");
         return;
       }
       addToCart(p.id, "-", p.price, 1);
-    };
+    }
+  };
 
-    els.modalOrderNow.onclick = () => {
-      const msg = [
-        `Hi ${CONFIG.businessName}, I would like to order:`,
-        `Payment method: ${getSelectedPayMethod() === "mpesa" ? "M-Pesa" : "Cash"}`,
-        ``,
-        `- 1 × ${p.name}${p.price != null ? ` (${formatMoney(p.price)})` : ""}`,
-        ``,
-        `Pickup: ${CONFIG.pickup}`,
-        `Delivery: (If needed, share your area and I’ll confirm delivery fee.)`,
-        ``,
-        `Thank you.`,
-      ].join("\n");
+  els.modalOrderNow.onclick = () => {
+    const methodText = getSelectedPayMethodLabel();
+    if (variants.length && !selected) {
+      alert("Please select a size first.");
+      return;
+    }
 
-      window.open(buildWhatsAppLink(msg), "_blank", "noopener");
-    };
-  }
+    const itemLine = variants.length
+      ? `- 1 × ${p.name} (Size ${selected.size}) (${formatMoney(selected.price)})`
+      : `- 1 × ${p.name}${p.price != null ? ` (${formatMoney(p.price)})` : ""}`;
+
+    const msg = [
+      `Hi ${CONFIG.businessName}, I would like to order:`,
+      `Payment method: ${methodText}`,
+      ``,
+      itemLine,
+      ``,
+      `Pickup: ${CONFIG.pickup}`,
+      `Delivery: (If needed, share your area and I’ll confirm delivery fee.)`,
+      ``,
+      `Thank you.`,
+    ].join("\n");
+
+    window.open(buildWhatsAppLink(msg), "_blank", "noopener");
+  };
 
   els.modal.setAttribute("aria-hidden", "false");
 }
 
 function closeModal() {
   if (!els.modal) return;
-
-  if (els.modalSizeField) {
-    els.modalSizeField.classList.add("is-hidden");
-    els.modalSizeField.setAttribute("aria-hidden", "true");
-  }
-  if (els.modalSize) {
-    els.modalSize.innerHTML = `<option value="" selected disabled>Select size</option>`;
-    els.modalSize.onchange = null;
-  }
-
   els.modal.setAttribute("aria-hidden", "true");
 }
 
@@ -939,9 +790,9 @@ function initKeyboard() {
    ====================== */
 (async function main() {
   initYear();
-  updateWhatsAppLinks();
   bindCart();
   bindModal();
+  bindPayments();
   initKeyboard();
 
   try {
@@ -952,8 +803,11 @@ function initKeyboard() {
   } catch (err) {
     console.error(err);
     if (els.productGrid) {
-      els.productGrid.innerHTML =
-        `<div class="card"><strong>Catalog failed to load.</strong><div class="muted">Check that <code>products.json</code> exists beside <code>index.html</code>.</div></div>`;
+      els.productGrid.innerHTML = `
+        <div class="card">
+          <strong>Catalog failed to load.</strong>
+          <div class="muted">Check that <code>products.json</code> exists beside <code>index.html</code>.</div>
+        </div>`;
     }
   }
 })();

@@ -167,12 +167,12 @@
       }
 
       /* ===========================
-         Compact spacing (reduces page height)
+         Compact mode (reduce page height)
          =========================== */
-      .brand-hero { padding: 12px 0 10px !important; }
-      .brand-pill { padding: 6px 10px !important; font-size: 12px !important; }
       .section-head { margin-bottom: 10px !important; }
       .section-head p.muted { margin-top: 4px !important; }
+      .brand-hero { padding: 12px 0 10px !important; }
+      .brand-pill { padding: 6px 10px !important; font-size: 12px !important; }
       .card.soft { padding: 12px !important; }
       .field label { font-size: 12px !important; margin-bottom: 4px !important; }
     </style>
@@ -180,8 +180,6 @@
 
   <body>
     <a class="skip" href="#main">Skip to content</a>
-
-    <!-- (REMOVED) Topbar completely -->
 
     <!-- Header (clean) -->
     <header class="header">
@@ -201,7 +199,6 @@
           <a class="nav-link" href="#contact">Contact</a>
         </nav>
 
-        <!-- keep structure but no cart button here -->
         <div class="header-actions">
           <a
             class="btn primary is-hidden"
@@ -230,7 +227,6 @@
 
           <div class="brand-right">
             <div class="brand-mini" aria-label="Highlights">
-              <!-- Shortened pills -->
               <span class="brand-pill"><strong>Quality</strong></span>
               <span class="brand-pill"><strong>Affordable</strong></span>
               <span class="brand-pill"><strong>Quick order</strong></span>
@@ -250,71 +246,10 @@
         </div>
       </section>
 
-      <!-- OLD HERO kept ONLY for Quick Shop IDs (hidden, JS safety) -->
-      <section class="hero is-hidden" aria-hidden="true">
-        <div class="container hero-grid">
-          <div class="hero-copy">
-            <h1>BASFAY Uniforms</h1>
-            <p class="lead">Quality &amp; Affordable</p>
-          </div>
-
-          <div class="hero-card" aria-label="Quick shop">
-            <div class="card">
-              <div class="card-head">
-                <h2>Quick Shop</h2>
-                <p class="muted">Search, filter, add to order.</p>
-              </div>
-
-              <div class="filters">
-                <div class="field">
-                  <label for="q">Search</label>
-                  <input id="q" type="search" placeholder="e.g. sweater, checked dress, socks" autocomplete="off" />
-                </div>
-
-                <div class="field">
-                  <label for="colorFilter">Color</label>
-                  <select id="colorFilter">
-                    <option value="">All colors</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label for="typeFilter">Item type</label>
-                  <select id="typeFilter">
-                    <option value="">All item types</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label for="sortBy">Sort</label>
-                  <select id="sortBy">
-                    <option value="featured">Featured</option>
-                    <option value="name_asc">Name (A–Z)</option>
-                    <option value="name_desc">Name (Z–A)</option>
-                    <option value="price_asc">Price (Low–High)</option>
-                    <option value="price_desc">Price (High–Low)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="mini-actions">
-                <button class="btn small" id="clearFilters" type="button">Clear</button>
-                <a class="btn small ghost" href="#catalog">View catalog</a>
-              </div>
-
-              <div class="note">
-                <strong>Photos:</strong> Some items may show “Image coming soon.”
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <!-- Shop -->
       <section class="section" id="shop">
         <div class="container">
           <div class="section-head">
-            <!-- Shortened -->
             <h2>Catalog</h2>
             <p class="muted">Select size, add to order.</p>
           </div>
@@ -327,10 +262,18 @@
               </div>
 
               <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:end;">
+
+                <!-- ✅ CATEGORY DROPDOWN (NEW) -->
+                <div class="field" style="min-width:180px;">
+                  <label for="categoryDropdown">Category</label>
+                  <select id="categoryDropdown">
+                    <option value="">All</option>
+                  </select>
+                </div>
+
                 <div class="field" style="min-width:240px;">
-                  <!-- Shortened label -->
                   <label for="qTop">Find</label>
-                  <input id="qTop" type="search" placeholder="Search..." autocomplete="off" />
+                  <input id="qTop" type="search" placeholder="Search in selected category..." autocomplete="off" />
                 </div>
 
                 <div class="field" style="min-width:180px;">
@@ -351,7 +294,6 @@
                   </select>
                 </div>
 
-                <!-- Shortened button -->
                 <button class="btn small" id="clearFiltersTop" type="button" style="height:42px;">Reset</button>
               </div>
             </div>
@@ -368,8 +310,8 @@
                 <h3>Filters</h3>
 
                 <div class="field">
-                  <label for="q2">Search</label>
-                  <input id="q2" type="search" placeholder="Search..." autocomplete="off" />
+                  <label for="q2">Find</label>
+                  <input id="q2" type="search" placeholder="Search products..." autocomplete="off" />
                 </div>
 
                 <div class="grid-2">
@@ -418,40 +360,10 @@
 
               <div class="empty" id="emptyState" hidden>
                 <h3>No matches</h3>
-                <p class="muted">Clear filters or search again.</p>
+                <p class="muted">Clear filters or try a broader search.</p>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <!-- Delivery (kept but hidden) -->
-      <section class="section alt is-hidden" id="delivery" aria-hidden="true">
-        <div class="container">
-          <div class="section-head">
-            <h2>Pickup & Delivery</h2>
-            <p class="muted">Hidden</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Contact (kept but hidden) -->
-      <section class="section is-hidden" id="contact" aria-hidden="true">
-        <div class="container">
-          <div class="section-head">
-            <h2>Contact</h2>
-            <p class="muted">Hidden</p>
-          </div>
-
-          <a
-            class="btn primary"
-            id="contactWhatsApp"
-            href="https://wa.me/254119667836"
-            rel="noopener"
-            target="_blank"
-            style="display:none;"
-            >Message on WhatsApp</a
-          >
         </div>
       </section>
     </main>
@@ -472,8 +384,6 @@
 
         <div class="footer-right">
           <a class="footer-link" href="#shop">Shop</a>
-          <a class="footer-link" href="#delivery">Delivery</a>
-          <a class="footer-link" href="#contact">Contact</a>
         </div>
       </div>
 
@@ -487,7 +397,6 @@
       <div class="drawer-backdrop" id="drawerBackdrop"></div>
       <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Order list">
         <div class="drawer-head">
-          <!-- Shortened -->
           <h3>Your order</h3>
           <button class="icon-btn" id="closeDrawer" aria-label="Close order list">✕</button>
         </div>
@@ -497,15 +406,13 @@
 
           <div class="cart-empty" id="cartEmpty" hidden>
             <p><strong>No items yet.</strong></p>
-            <p class="muted">Add from the catalog.</p>
+            <p class="muted">Add products from the catalog.</p>
           </div>
         </div>
 
         <div class="drawer-foot">
-          <!-- Shortened -->
           <div class="cart-note muted">Size included.</div>
 
-          <!-- PAYMENT METHOD (M-PESA + CASH) -->
           <div class="card soft pay-card">
             <div class="pay-title">Payment</div>
 
@@ -556,7 +463,6 @@
             <div class="meta" id="modalMeta"></div>
             <p class="muted" id="modalDesc"></p>
 
-            <!-- Size selector (hidden until app.js populates it) -->
             <div id="modalSizeField" class="is-hidden" aria-hidden="true">
               <label class="size-label" for="modalSize">Size</label>
               <select class="size-select" id="modalSize" required>
@@ -567,7 +473,7 @@
             <div class="modal-actions">
               <button class="btn primary" id="modalAdd" type="button">Add</button>
               <button class="btn ghost is-hidden" id="modalOrderNow" type="button" aria-hidden="true">
-                Order now (WhatsApp)
+                WhatsApp
               </button>
             </div>
           </div>
@@ -575,7 +481,6 @@
       </div>
     </div>
 
-    <!-- Size selector template (used by app.js when rendering products) -->
     <template id="sizeSelectTemplate">
       <label class="size-label">Size</label>
       <select class="size-select" required>

@@ -312,6 +312,10 @@ function productCard(p) {
   const wrap = document.createElement("article");
   wrap.className = "product";
 
+   if (p.type === "Tracksuit") {
+  wrap.classList.add("product-tracksuit");
+}
+
   const media = document.createElement("div");
   media.className = "media";
 

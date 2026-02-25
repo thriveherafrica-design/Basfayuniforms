@@ -221,6 +221,32 @@
   },
 
   {
+  "id": "tracksuit-maroon-001",
+  "name": "Tracksuit",
+  "color": "Maroon",
+  "type": "Tracksuit",
+  "pattern": "",
+  "price": null,
+  "image": "./images/tracksuit-maroon.png",
+  "featured": true,
+  "description": "Tracksuit",
+  "variants": [
+    { "size": "20", "price": 1000 },
+    { "size": "22", "price": 1000 },
+    { "size": "24", "price": 1100 },
+    { "size": "26", "price": 1100 },
+    { "size": "28", "price": 1200 },
+    { "size": "30", "price": 1200 },
+    { "size": "32", "price": 1300 },
+    { "size": "34", "price": 1300 },
+    { "size": "36", "price": 1400 },
+    { "size": "38", "price": 1400 },
+    { "size": "40", "price": 1500 },
+    { "size": "42", "price": 1500 }
+  ]
+},
+
+  {
     "id": "red-checked-dress",
     "name": "Red Checked Dress",
     "color": "Red",

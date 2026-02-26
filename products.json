@@ -473,6 +473,21 @@
   "description": "Plain red school marvin (beanie). Soft knit, warm and comfortable."
 },
   {
+  "id": "marvin-maroon",
+  "name": "Marvin – Maroon",
+  "color": "Maroon",
+  "type": "Marvin",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 150 },
+    { "size": "M", "price": 150 },
+    { "size": "L", "price": 150 }
+  ],
+  "image": "./images/marvin-maroon.png",
+  "featured": false,
+  "description": "Plain maroon school marvin (beanie). Soft knit, warm and comfortable."
+},
+  {
     "id": "red-checked-dress",
     "name": "Red Checked Dress",
     "color": "Red",

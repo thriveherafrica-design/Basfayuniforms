@@ -302,6 +302,22 @@
   ]
 },
   {
+  "id": "socks-grey-maroon-white-001",
+  "name": "Grey Socks - Maroon & White Stripes",
+  "color": "Grey",
+  "type": "Socks",
+  "pattern": "Striped (Maroon & White)",
+  "price": 100,
+  "image": "./images/socks-grey-maroon-white.png",
+  "featured": true,
+  "description": "Grey school socks with maroon and white stripes.",
+  "variants": [
+    { "size": "S", "price": 100 },
+    { "size": "M", "price": 100 },
+    { "size": "L", "price": 100 }
+  ]
+},
+  {
     "id": "red-checked-dress",
     "name": "Red Checked Dress",
     "color": "Red",

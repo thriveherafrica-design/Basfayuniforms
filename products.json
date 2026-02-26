@@ -326,6 +326,16 @@
     ]
   },
   {
+  "name": "Grey Socks - Plain",
+  "category": "Socks",
+  "image": "images/socks-grey-plain.png",
+  "sizes": [
+    { "size": "S", "price": 100 },
+    { "size": "M", "price": 100 },
+    { "size": "L", "price": 100 }
+  ]
+},
+  {
     "id": "red-cardigan",
     "name": "Red Cardigan",
     "color": "Red",

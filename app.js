@@ -105,6 +105,16 @@ function formatMoney(amount) {
   return `${CONFIG.currency} ${Number(amount).toLocaleString("en-KE")}`;
 }
 
+/* ✅ NEW: Make a safe CSS class from product type (e.g. "PE Shirt" -> "type-pe-shirt") */
+function toTypeClass(type) {
+  return (
+    "type-" +
+    normalize(type)
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "")
+  );
+}
+
 /* ======================
    Payment selection
    ====================== */
@@ -278,7 +288,10 @@ function productCard(p) {
   const wrap = document.createElement("article");
   wrap.className = "product";
 
-  // ✅ Special themes only for specific categories
+  /* ✅ NEW: add type class for ALL products so CSS can theme them */
+  wrap.classList.add(toTypeClass(p.type));
+
+  // ✅ Special themes only for specific categories (kept intact)
   if (p.type === "Tracksuit") wrap.classList.add("product-tracksuit");
   if (p.type === "Socks") wrap.classList.add("product-socks");
 

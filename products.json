@@ -488,6 +488,66 @@
   "description": "Plain maroon school marvin (beanie). Soft knit, warm and comfortable."
 },
   {
+  "id": "marvin-black",
+  "name": "Marvin – Black",
+  "color": "Black",
+  "type": "Marvin",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 150 },
+    { "size": "M", "price": 150 },
+    { "size": "L", "price": 150 }
+  ],
+  "image": "./images/marvin-black.png",
+  "featured": false,
+  "description": "Plain black school marvin (beanie). Soft knit, warm and comfortable."
+},
+  {
+  "id": "marvin-black",
+  "name": "Marvin – Black",
+  "color": "Black",
+  "type": "Marvin",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 150 },
+    { "size": "M", "price": 150 },
+    { "size": "L", "price": 150 }
+  ],
+  "image": "./images/marvin-black.png",
+  "featured": false,
+  "description": "Plain black school marvin (beanie). Soft knit, warm and comfortable."
+},
+  {
+  "id": "marvin-gray",
+  "name": "Marvin – Gray",
+  "color": "Gray",
+  "type": "Marvin",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 150 },
+    { "size": "M", "price": 150 },
+    { "size": "L", "price": 150 }
+  ],
+  "image": "./images/marvin-gray.png",
+  "featured": false,
+  "description": "Plain gray school marvin (beanie). Soft knit, warm and comfortable."
+},
+  {
+  "id": "marvin-green",
+  "name": "Marvin – Green",
+  "color": "Green",
+  "type": "Marvin",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 150 },
+    { "size": "M", "price": 150 },
+    { "size": "L", "price": 150 }
+  ],
+  "image": "./images/marvin-green.png",
+  "featured": false,
+  "description": "Plain green school marvin (beanie). Soft knit, warm and comfortable."
+},
+  {
     "id": "red-checked-dress",
     "name": "Red Checked Dress",
     "color": "Red",

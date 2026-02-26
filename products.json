@@ -325,14 +325,15 @@
       { "size": "L", "price": 100 }
     ]
   },
-  {
+{
   "name": "Grey Socks - Plain",
   "category": "Socks",
+  "color": "Emerald Green",
   "image": "images/socks-grey-plain.png",
-  "sizes": [
-    { "size": "S", "price": 100 },
-    { "size": "M", "price": 100 },
-    { "size": "L", "price": 100 }
+  "variants": [
+    { "label": "S", "price": 100 },
+    { "label": "M", "price": 100 },
+    { "label": "L", "price": 100 }
   ]
 },
   {

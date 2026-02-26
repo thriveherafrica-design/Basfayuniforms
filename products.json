@@ -444,7 +444,7 @@
 },
   {
   "id": "marvin-navy",
-  "name": "Marvin Navy",
+  "name": "Marvin – Navy",
   "color": "Navy",
   "type": "Marvin",
   "pattern": "Plain",
@@ -459,12 +459,14 @@
 },
   {
   "id": "marvin-red",
-  "name": "Marvin Red",
+  "name": "Marvin – Red",
   "color": "Red",
   "type": "Marvin",
   "pattern": "Plain",
   "variants": [
-    { "size": "One Size", "price": 150 }
+    { "size": "S", "price": 150 },
+    { "size": "M", "price": 150 },
+    { "size": "L", "price": 150 }
   ],
   "image": "./images/marvin-red.png",
   "featured": false,

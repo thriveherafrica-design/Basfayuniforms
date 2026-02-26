@@ -286,6 +286,22 @@
     ]
   },
   {
+  "id": "socks-grey-plain-001",
+  "name": "Grey Socks - Plain",
+  "color": "Grey",
+  "type": "Socks",
+  "pattern": "Plain",
+  "price": 100,
+  "image": "./images/socks-grey-plain.png",
+  "featured": true,
+  "description": "Grey plain school socks.",
+  "variants": [
+    { "size": "S", "price": 100 },
+    { "size": "M", "price": 100 },
+    { "size": "L", "price": 100 }
+  ]
+},
+  {
     "id": "red-checked-dress",
     "name": "Red Checked Dress",
     "color": "Red",
@@ -325,17 +341,6 @@
       { "size": "L", "price": 100 }
     ]
   },
-{
-  "name": "Grey Socks - Plain",
-  "category": "Socks",
-  "color": "Emerald Green",
-  "image": "images/socks-grey-plain.png",
-  "variants": [
-    { "label": "S", "price": 100 },
-    { "label": "M", "price": 100 },
-    { "label": "L", "price": 100 }
-  ]
-},
   {
     "id": "red-cardigan",
     "name": "Red Cardigan",

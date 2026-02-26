@@ -23,7 +23,7 @@
   },
   {
     "id": "sweater-navy-striped-light-blue",
-    "name": "Navy Sweater",
+    "name": "Navy Stripped Light Blue",
     "color": "Navy",
     "type": "Sweater",
     "pattern": "Striped Light Blue",
@@ -199,7 +199,7 @@
   },
   {
     "id": "sweater-navy-striped-white",
-    "name": "Navy Sweater",
+    "name": "Navy Stripped White",
     "color": "Navy",
     "type": "Sweater",
     "pattern": "Striped White",

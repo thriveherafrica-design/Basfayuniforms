@@ -270,15 +270,15 @@
     ]
   },
   {
-    "id": "socks-grey-001",
-    "name": "Socks",
+    "id": "socks-grey-blue-white-001",
+    "name": "Grey Socks - Blue & White Stripes",
     "color": "Grey",
     "type": "Socks",
-    "pattern": "",
+    "pattern": "Stripped (blue & white)",
     "price": 100,
-    "image": "./images/socks-grey.png",
+    "image": "./images/socks-grey-blue-white.png",
     "featured": true,
-    "description": "Grey school socks.",
+    "description": "Grey school socks with blue & white stripes.",
     "variants": [
       { "size": "S", "price": 100 },
       { "size": "M", "price": 100 },

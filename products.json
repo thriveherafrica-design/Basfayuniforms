@@ -443,6 +443,32 @@
   ]
 },
   {
+  "id": "marvin-navy",
+  "name": "Marvin Navy",
+  "color": "Navy",
+  "type": "Marvin",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "One Size", "price": 150 }
+  ],
+  "image": "./images/marvin-navy.png",
+  "featured": false,
+  "description": "Plain navy school marvin (beanie). Soft knit, warm and comfortable."
+},
+  {
+  "id": "marvin-red",
+  "name": "Marvin Red",
+  "color": "Red",
+  "type": "Marvin",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "One Size", "price": 150 }
+  ],
+  "image": "./images/marvin-red.png",
+  "featured": false,
+  "description": "Plain red school marvin (beanie). Soft knit, warm and comfortable."
+},
+  {
     "id": "red-checked-dress",
     "name": "Red Checked Dress",
     "color": "Red",

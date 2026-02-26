@@ -929,3 +929,9 @@ input:focus, select:focus {
 .product[class*="type-"] .media{
   background: #ffffff !important;
 }
+
+/* Hide cart item count */
+.cart-count,
+#cartCount {
+  display: none !important;
+}

@@ -452,7 +452,6 @@
     { "size": "S", "price": 150 },
     { "size": "M", "price": 150 },
     { "size": "L", "price": 150 }
-  ]
   ],
   "image": "./images/marvin-navy.png",
   "featured": false,

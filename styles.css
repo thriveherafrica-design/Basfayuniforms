@@ -968,7 +968,3 @@ input:focus, select:focus {
   display: none !important;
 }
 
-/* Hide the "36 items  KES" row under the filters (inside the soft card) */
-section#shop .card.soft > :last-child {
-  display: none !important;
-}

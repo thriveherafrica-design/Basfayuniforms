@@ -24,7 +24,7 @@ const FUTURE_CATEGORIES = [
   "Shirt",
   "Dress",
   "Socks",
-  "Marvins",
+  "Marvin",
   "Tracksuit",
   "Gameskit",
   "PE Shirt",

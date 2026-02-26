@@ -503,21 +503,6 @@
   "description": "Plain black school marvin (beanie). Soft knit, warm and comfortable."
 },
   {
-  "id": "marvin-black",
-  "name": "Marvin – Black",
-  "color": "Black",
-  "type": "Marvin",
-  "pattern": "Plain",
-  "variants": [
-    { "size": "S", "price": 150 },
-    { "size": "M", "price": 150 },
-    { "size": "L", "price": 150 }
-  ],
-  "image": "./images/marvin-black.png",
-  "featured": false,
-  "description": "Plain black school marvin (beanie). Soft knit, warm and comfortable."
-},
-  {
   "id": "marvin-gray",
   "name": "Marvin – Gray",
   "color": "Gray",

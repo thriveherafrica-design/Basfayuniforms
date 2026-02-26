@@ -809,3 +809,36 @@ input:focus, select:focus {
 .product-socks .tag{
   background: rgba(6,95,70,0.90) !important;
 }
+
+/* =========================
+   MARVINS – Orange Card
+   ========================= */
+
+/* If your JS adds type class like: .type-marvin */
+.product.type-marvin{
+  background: linear-gradient(
+    180deg,
+    rgba(249, 115, 22, 0.28),
+    rgba(234, 88, 12, 0.18)
+  ) !important; /* orange */
+  border: 1px solid rgba(234, 88, 12, 0.25) !important;
+  box-shadow: 0 18px 45px rgba(234, 88, 12, 0.18) !important;
+}
+
+/* Clean white media background for product PNGs */
+.product.type-marvin .media{
+  background: #ffffff !important;
+}
+
+/* Optional: tag style for marvin cards */
+.product.type-marvin .tag{
+  background: rgba(234, 88, 12, 0.90) !important;
+}
+
+/* Optional: buttons on marvin cards */
+.product.type-marvin .btn{
+  background: #ffffff !important;
+  color: #9A3412 !important;
+  border: 1px solid rgba(154, 52, 18, 0.18) !important;
+  font-weight: 900 !important;
+}

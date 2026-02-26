@@ -935,3 +935,35 @@ input:focus, select:focus {
 #cartCount {
   display: none !important;
 }
+
+/* ==============================
+   HIDE CART ITEM COUNT / BADGE
+   ============================== */
+
+/* Common cart counter names */
+.cart-count,
+#cartCount,
+.cart-badge,
+#cartBadge,
+.cart-items,
+#cartItems,
+.badge,
+.counter {
+  display: none !important;
+}
+
+/* If the number is inside the cart button */
+.cart-button span,
+.cart-btn span,
+.header-cart span,
+.topbar-cart span,
+.trolley span {
+  display: none !important;
+}
+
+/* If it is a small red circle badge */
+.cart-icon .badge,
+.cart-icon .cart-count,
+.cart-icon span:last-child {
+  display: none !important;
+}

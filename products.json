@@ -1429,19 +1429,7 @@
     "featured": false,
     "description": ""
   },
-  {
-    "id": "blue-sweater",
-    "name": "Blue Sweater",
-    "color": "Blue",
-    "type": "Sweater",
-    "pattern": "Plain",
-    "variants": [],
-    "price": null,
-    "image": "",
-    "featured": false,
-    "description": ""
-  },
-  {
+    {
     "id": "grey-trousers",
     "name": "Grey Trousers",
     "color": "Grey",

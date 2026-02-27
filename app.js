@@ -69,7 +69,7 @@ const els = {
   sendWhatsApp: document.getElementById("sendWhatsApp"),
   clearCart: document.getElementById("clearCart"),
 
-  // payment radios
+  // payment radios (legacy - kept)
   payRadios: document.querySelectorAll('input[name="payMethod"]'),
 
   // modal
@@ -92,6 +92,62 @@ let state = { q: "", color: "", type: "", sort: "featured" };
 const CART_KEY = "basfay_cart_v1";
 
 /* ======================
+   ✅ Phase 1 Checkout (drawer-based)
+   ====================== */
+const CHECKOUT_KEY = "basfay_checkout_v1";
+const ORDER_ID_KEY = "basfay_order_id_v1";
+let checkoutUI = { mounted: false };
+
+function getCheckout() {
+  try {
+    const raw = localStorage.getItem(CHECKOUT_KEY);
+    if (!raw) {
+      return { step: "cart", name: "", phone: "", area: "", notes: "", pay: "mpesa_manual" };
+    }
+    const p = JSON.parse(raw);
+    return {
+      step: p.step || "cart",
+      name: safeText(p.name),
+      phone: safeText(p.phone),
+      area: safeText(p.area),
+      notes: safeText(p.notes),
+      pay: p.pay || "mpesa_manual",
+    };
+  } catch {
+    return { step: "cart", name: "", phone: "", area: "", notes: "", pay: "mpesa_manual" };
+  }
+}
+function setCheckout(next) {
+  localStorage.setItem(CHECKOUT_KEY, JSON.stringify(next));
+  updateCartUI();
+}
+function clearCheckout() {
+  localStorage.removeItem(CHECKOUT_KEY);
+  localStorage.removeItem(ORDER_ID_KEY);
+}
+function getOrCreateOrderId() {
+  const existing = safeText(localStorage.getItem(ORDER_ID_KEY));
+  if (existing) return existing;
+  const stamp = Date.now().toString(36).toUpperCase();
+  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+  const id = `BASFAY-${stamp}-${rand}`;
+  localStorage.setItem(ORDER_ID_KEY, id);
+  return id;
+}
+function cartSubtotal() {
+  return getCart().reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.qty) || 0), 0);
+}
+function validPhoneKE(phone) {
+  const p = safeText(phone).replace(/\s+/g, "");
+  return /^(\+?254|0)(7|1)\d{8}$/.test(p);
+}
+function payLabel(pay) {
+  if (pay === "cash") return "Cash on pickup";
+  if (pay === "whatsapp") return "WhatsApp (assist me)";
+  return "M-Pesa (manual)";
+}
+
+/* ======================
    Helpers
    ====================== */
 function safeText(s) {
@@ -104,8 +160,6 @@ function formatMoney(amount) {
   if (amount == null || Number.isNaN(Number(amount))) return "";
   return `${CONFIG.currency} ${Number(amount).toLocaleString("en-KE")}`;
 }
-
-/* ✅ NEW: Make a safe CSS class from product type (e.g. "PE Shirt" -> "type-pe-shirt") */
 function toTypeClass(type) {
   return (
     "type-" +
@@ -115,7 +169,7 @@ function toTypeClass(type) {
   );
 }
 
-/* ✅ NEW: Small toast feedback so "Add to cart" doesn't feel dead */
+/* ✅ Toast feedback */
 function toast(msg) {
   const t = document.createElement("div");
   t.textContent = msg;
@@ -135,28 +189,20 @@ function toast(msg) {
   setTimeout(() => t.remove(), 1100);
 }
 
-/* ✅ NEW: Always update cart count even if element was null at load */
-function getCartCountEl() {
-  return els.cartCount || document.getElementById("cartCount");
-}
+/* ✅ Robust cart count update */
 function refreshCartCount() {
   const total = cartCountTotal();
-  const el = getCartCountEl();
-  if (el) el.textContent = String(total);
-}
 
-/* ======================
-   Payment selection
-   ====================== */
-function getSelectedPayMethodLabel() {
-  const checked = [...(els.payRadios || [])].find((r) => r.checked);
-  return checked?.value || "M-Pesa";
-}
-function bindPayments() {
-  (els.payRadios || []).forEach((r) => {
-    r.addEventListener("change", () => {
-      if (els.sendWhatsApp) els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
-    });
+  // Update cached id if it exists
+  if (els.cartCount) els.cartCount.textContent = String(total);
+
+  // Also update by querying DOM fresh (in case it didn't exist at load)
+  const idEl = document.getElementById("cartCount");
+  if (idEl) idEl.textContent = String(total);
+
+  // Also update any element you tag with data-cart-count="true"
+  document.querySelectorAll('[data-cart-count="true"]').forEach((el) => {
+    el.textContent = String(total);
   });
 }
 
@@ -191,7 +237,7 @@ function cartCountTotal() {
   return getCart().reduce((sum, item) => sum + (item.qty || 0), 0);
 }
 
-/* ✅ UPDATED: No auto-open drawer. Adds toast. Updates count reliably. */
+/* ✅ Add to cart without forcing checkout/drawer */
 function addToCart(productId, size, price, qty = 1) {
   const cart = getCart();
   const key = `${productId}__${size}`;
@@ -200,15 +246,18 @@ function addToCart(productId, size, price, qty = 1) {
   if (found) found.qty += qty;
   else cart.push({ key, id: productId, size: String(size), price: Number(price), qty });
 
-  // write + update UI
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
+
+  // If they were mid-checkout, return them to cart step
+  const co = getCheckout();
+  if (co.step !== "cart") setCheckout({ ...co, step: "cart" });
+
+  refreshCartCount();
   updateCartUI();
 
-  // feedback
   const p = PRODUCTS.find((x) => x.id === productId);
   toast(`${p?.name || "Item"} added to cart`);
 }
-
 function removeFromCart(key) {
   setCart(getCart().filter((i) => i.key !== key));
 }
@@ -326,10 +375,8 @@ function productCard(p) {
   const wrap = document.createElement("article");
   wrap.className = "product";
 
-  /* ✅ add type class for ALL products so CSS can theme them */
   wrap.classList.add(toTypeClass(p.type));
 
-  // ✅ Special themes only for specific categories (kept intact)
   if (p.type === "Tracksuit") wrap.classList.add("product-tracksuit");
   if (p.type === "Socks") wrap.classList.add("product-socks");
 
@@ -377,7 +424,8 @@ function productCard(p) {
     select.appendChild(placeholder);
 
     const sorted = [...variants].sort((a, b) => {
-      const na = Number(a.size), nb = Number(b.size);
+      const na = Number(a.size),
+        nb = Number(b.size);
       if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
       return String(a.size).localeCompare(String(b.size));
     });
@@ -411,7 +459,7 @@ function productCard(p) {
   const addBtn = document.createElement("button");
   addBtn.type = "button";
   addBtn.className = "btn small primary";
-  addBtn.textContent = "Add to cart"; // ✅ renamed
+  addBtn.textContent = "Add to cart";
   addBtn.addEventListener("click", () => {
     if (variants.length) {
       if (!selected) return alert("Please select a size first.");
@@ -492,30 +540,243 @@ function bindFilters() {
 }
 
 /* ======================
+   ✅ Checkout UI (in drawer, injected once)
+   ====================== */
+function ensureCheckoutUI() {
+  if (!els.cartItems) return;
+
+  if (checkoutUI.mounted) {
+    syncCheckoutUIFromState();
+    return;
+  }
+
+  const host = document.createElement("div");
+  host.id = "checkoutPanel";
+  host.className = "card";
+  host.style.marginTop = "12px";
+  host.style.display = "none";
+
+  host.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <strong style="font-size:14px;">Checkout</strong>
+      <span class="chip" id="orderIdChip"></span>
+    </div>
+
+    <div class="muted" style="margin-top:6px;font-size:12px;">
+      Confirm your details, then choose a payment method.
+    </div>
+
+    <div style="display:grid;gap:8px;margin-top:10px;">
+      <label class="muted" style="font-size:12px;">
+        Name
+        <input id="coName" type="text" placeholder="Your name" style="width:100%;margin-top:4px;" />
+      </label>
+
+      <label class="muted" style="font-size:12px;">
+        Phone (M-Pesa number)
+        <input id="coPhone" type="tel" placeholder="07.. or 2547.." style="width:100%;margin-top:4px;" />
+      </label>
+
+      <label class="muted" style="font-size:12px;">
+        Delivery area (optional)
+        <input id="coArea" type="text" placeholder="e.g. Westlands / Rongai" style="width:100%;margin-top:4px;" />
+      </label>
+
+      <label class="muted" style="font-size:12px;">
+        Notes (optional)
+        <input id="coNotes" type="text" placeholder="Any instructions?" style="width:100%;margin-top:4px;" />
+      </label>
+    </div>
+
+    <div style="margin-top:10px;">
+      <div class="muted" style="font-size:12px;margin-bottom:6px;">Payment method</div>
+
+      <label style="display:flex;gap:8px;align-items:center;margin:6px 0;">
+        <input type="radio" name="coPay" value="mpesa_manual" />
+        <span>M-Pesa (manual)</span>
+      </label>
+
+      <label style="display:flex;gap:8px;align-items:center;margin:6px 0;">
+        <input type="radio" name="coPay" value="cash" />
+        <span>Cash on pickup</span>
+      </label>
+
+      <label style="display:flex;gap:8px;align-items:center;margin:6px 0;">
+        <input type="radio" name="coPay" value="whatsapp" />
+        <span>WhatsApp (assist me)</span>
+      </label>
+    </div>
+
+    <div id="coInstructions" class="muted" style="margin-top:10px;font-size:12px;line-height:1.35;"></div>
+
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+      <button id="coBack" type="button" class="btn small ghost">Back to cart</button>
+      <button id="coConfirm" type="button" class="btn small primary">Place order</button>
+    </div>
+  `;
+
+  els.cartItems.insertAdjacentElement("afterend", host);
+
+  checkoutUI.host = host;
+  checkoutUI.orderIdChip = host.querySelector("#orderIdChip");
+  checkoutUI.name = host.querySelector("#coName");
+  checkoutUI.phone = host.querySelector("#coPhone");
+  checkoutUI.area = host.querySelector("#coArea");
+  checkoutUI.notes = host.querySelector("#coNotes");
+  checkoutUI.instructions = host.querySelector("#coInstructions");
+  checkoutUI.payRadios = host.querySelectorAll('input[name="coPay"]');
+  checkoutUI.back = host.querySelector("#coBack");
+  checkoutUI.confirm = host.querySelector("#coConfirm");
+
+  checkoutUI.name.addEventListener("input", () => {
+    const co = getCheckout();
+    setCheckout({ ...co, name: checkoutUI.name.value });
+  });
+  checkoutUI.phone.addEventListener("input", () => {
+    const co = getCheckout();
+    setCheckout({ ...co, phone: checkoutUI.phone.value });
+  });
+  checkoutUI.area.addEventListener("input", () => {
+    const co = getCheckout();
+    setCheckout({ ...co, area: checkoutUI.area.value });
+  });
+  checkoutUI.notes.addEventListener("input", () => {
+    const co = getCheckout();
+    setCheckout({ ...co, notes: checkoutUI.notes.value });
+  });
+
+  checkoutUI.payRadios.forEach((r) => {
+    r.addEventListener("change", () => {
+      const co = getCheckout();
+      setCheckout({ ...co, pay: r.value });
+    });
+  });
+
+  checkoutUI.back.addEventListener("click", () => {
+    const co = getCheckout();
+    setCheckout({ ...co, step: "cart" });
+  });
+
+  checkoutUI.confirm.addEventListener("click", () => {
+    const cart = getCart();
+    if (!cart.length) return alert("Your cart is empty.");
+
+    const co = getCheckout();
+    const name = safeText(co.name);
+    const phone = safeText(co.phone);
+
+    if (!name) return alert("Please enter your name.");
+    if (!phone) return alert("Please enter your phone number.");
+    if (!validPhoneKE(phone)) return alert("Phone number format looks wrong. Use 07.. or 2547..");
+
+    setCheckout({ ...co, step: "placed" });
+
+    // Only auto-open WhatsApp if they chose WhatsApp assistance
+    if (co.pay === "whatsapp") {
+      window.open(buildWhatsAppLink(buildOrderMessage()), "_blank", "noopener,noreferrer");
+    } else {
+      toast("Order placed. Follow the payment instructions.");
+    }
+  });
+
+  checkoutUI.mounted = true;
+  syncCheckoutUIFromState();
+}
+
+function syncCheckoutUIFromState() {
+  if (!checkoutUI.mounted) return;
+  const co = getCheckout();
+  const hasCart = getCart().length > 0;
+
+  checkoutUI.host.style.display =
+    hasCart && (co.step === "checkout" || co.step === "placed") ? "block" : "none";
+
+  checkoutUI.orderIdChip.textContent = hasCart ? getOrCreateOrderId() : "";
+
+  checkoutUI.name.value = co.name || "";
+  checkoutUI.phone.value = co.phone || "";
+  checkoutUI.area.value = co.area || "";
+  checkoutUI.notes.value = co.notes || "";
+
+  checkoutUI.payRadios.forEach((r) => (r.checked = r.value === co.pay));
+
+  const subtotal = formatMoney(cartSubtotal());
+  const orderId = getOrCreateOrderId();
+
+  let instructions = "";
+  if (co.pay === "mpesa_manual") {
+    instructions =
+      `Order Total: <strong>${subtotal}</strong><br>` +
+      `Payment: <strong>M-Pesa (manual)</strong><br>` +
+      `Use reference: <strong>${orderId}</strong><br>` +
+      `After paying, you can send confirmation on WhatsApp.`;
+  } else if (co.pay === "cash") {
+    instructions =
+      `Order Total: <strong>${subtotal}</strong><br>` +
+      `Payment: <strong>Cash on pickup</strong><br>` +
+      `Pickup: <strong>${CONFIG.pickup}</strong>`;
+  } else {
+    instructions =
+      `Order Total: <strong>${subtotal}</strong><br>` +
+      `Payment: <strong>WhatsApp assistance</strong><br>` +
+      `We’ll guide you on payment and delivery once you message us.`;
+  }
+
+  if (co.step === "placed") {
+    instructions += `<br><br><strong>Status:</strong> Order placed (Phase 1).`;
+  }
+
+  checkoutUI.instructions.innerHTML = instructions;
+}
+
+/* ======================
    Drawer / Cart UI
    ====================== */
 function updateCartUI() {
   const cart = getCart();
   refreshCartCount();
+  ensureCheckoutUI();
 
   if (!els.cartItems) return;
   els.cartItems.innerHTML = "";
 
+  const co = getCheckout();
+
   if (!cart.length) {
     els.cartEmpty && (els.cartEmpty.hidden = false);
+
+    // reset checkout state when cart becomes empty
+    if (co.step !== "cart") setCheckout({ ...co, step: "cart" });
+    clearCheckout();
+
     if (els.sendWhatsApp) {
+      els.sendWhatsApp.textContent = "WhatsApp";
       els.sendWhatsApp.href = buildWhatsAppLink(buildGenericWhatsAppMessage());
       els.sendWhatsApp.classList.add("is-hidden");
       els.sendWhatsApp.setAttribute("aria-hidden", "true");
     }
+    syncCheckoutUIFromState();
     return;
   }
 
   els.cartEmpty && (els.cartEmpty.hidden = true);
+
+  // Main CTA behavior
   if (els.sendWhatsApp) {
     els.sendWhatsApp.classList.remove("is-hidden");
     els.sendWhatsApp.setAttribute("aria-hidden", "false");
-    els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+
+    if (co.step === "cart") {
+      els.sendWhatsApp.textContent = "Proceed to checkout";
+      els.sendWhatsApp.href = "#";
+    } else if (co.step === "checkout") {
+      els.sendWhatsApp.textContent = co.pay === "whatsapp" ? "Send on WhatsApp" : "Review payment";
+      els.sendWhatsApp.href = co.pay === "whatsapp" ? buildWhatsAppLink(buildOrderMessage()) : "#";
+    } else {
+      // placed
+      els.sendWhatsApp.textContent = "Send on WhatsApp";
+      els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+    }
   }
 
   const chip = (t) => {
@@ -583,16 +844,18 @@ function updateCartUI() {
     els.cartItems.appendChild(row);
   });
 
-  if (els.sendWhatsApp) els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+  syncCheckoutUIFromState();
 }
 
 function buildOrderMessage() {
   const cart = getCart();
-  const lines = [];
-  const methodText = getSelectedPayMethodLabel();
+  const co = getCheckout();
+  const orderId = getOrCreateOrderId();
 
+  const lines = [];
   lines.push(`Hi ${CONFIG.businessName}, I would like to order:`);
-  lines.push(`Payment method: ${methodText}`);
+  lines.push(`Order ID: ${orderId}`);
+  lines.push(`Payment method: ${payLabel(co.pay)}`);
   lines.push("");
 
   cart.forEach((item) => {
@@ -603,8 +866,19 @@ function buildOrderMessage() {
   });
 
   lines.push("");
+  lines.push(`Subtotal: ${formatMoney(cartSubtotal())}`);
   lines.push(`Pickup: ${CONFIG.pickup}`);
-  lines.push("Delivery: (If needed, share your area and I’ll confirm delivery fee.)");
+
+  if (co.name) lines.push(`Name: ${co.name}`);
+  if (co.phone) lines.push(`Phone: ${co.phone}`);
+  if (co.area) lines.push(`Area: ${co.area}`);
+  if (co.notes) lines.push(`Notes: ${co.notes}`);
+
+  lines.push("");
+  if (co.pay === "mpesa_manual") lines.push(`I will pay via M-Pesa (manual). Reference: ${orderId}`);
+  else if (co.pay === "cash") lines.push("I will pay cash on pickup.");
+  else lines.push("Please assist me with payment and delivery options.");
+
   lines.push("");
   lines.push("Thank you.");
 
@@ -612,12 +886,51 @@ function buildOrderMessage() {
 }
 
 function bindCart() {
-  els.openCart?.addEventListener("click", openDrawer);
+  els.openCart?.addEventListener("click", () => {
+    openDrawer();
+    // When user opens cart, keep them in cart step unless already in checkout/placed
+    updateCartUI();
+  });
+
   els.closeDrawer?.addEventListener("click", closeDrawer);
   els.drawerBackdrop?.addEventListener("click", closeDrawer);
-  els.clearCart?.addEventListener("click", () => setCart([]));
 
-  if (els.sendWhatsApp) els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+  els.clearCart?.addEventListener("click", () => {
+    setCart([]);
+    clearCheckout();
+  });
+
+  // Main CTA click handling
+  if (els.sendWhatsApp) {
+    els.sendWhatsApp.addEventListener("click", (e) => {
+      const cart = getCart();
+      if (!cart.length) return;
+
+      const co = getCheckout();
+      const href = safeText(els.sendWhatsApp.getAttribute("href"));
+      const isWhatsApp = href.startsWith("https://wa.me/");
+
+      if (co.step === "cart") {
+        e.preventDefault();
+        setCheckout({ ...co, step: "checkout" });
+        openDrawer();
+        return;
+      }
+
+      if (co.step === "checkout") {
+        if (co.pay === "whatsapp" && isWhatsApp) return; // allow WhatsApp
+        e.preventDefault();
+        openDrawer();
+        return;
+      }
+
+      if (co.step === "placed") {
+        if (isWhatsApp) return;
+        e.preventDefault();
+        openDrawer();
+      }
+    });
+  }
 }
 
 function openDrawer() {
@@ -704,8 +1017,7 @@ function openModal(productId) {
 
   els.modalMeta.textContent = bits.filter(Boolean).join(" • ");
 
-  if (els.modalAdd) els.modalAdd.textContent = "Add to cart"; // ✅ renamed
-
+  if (els.modalAdd) els.modalAdd.textContent = "Add to cart";
   els.modalAdd.onclick = () => {
     if (variants.length) {
       if (!selected) return alert("Please select a size first.");
@@ -726,7 +1038,6 @@ function closeModal() {
    Load products
    ====================== */
 async function loadProducts() {
-  // root-absolute path avoids path weirdness
   const res = await fetch("/products.json", { cache: "no-store" });
   if (!res.ok) throw new Error("Could not load products.json");
 
@@ -780,12 +1091,12 @@ function initKeyboard() {
   initYear();
   bindCart();
   bindModal();
-  bindPayments();
   initKeyboard();
 
   try {
     await loadProducts();
     bindFilters();
+    refreshCartCount();
     updateCartUI();
     renderProducts();
   } catch (err) {

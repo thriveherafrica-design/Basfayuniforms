@@ -10,7 +10,8 @@
     />
     <meta name="theme-color" content="#1E88E5" />
 
-    <link rel="stylesheet" href="./styles.css?v=20260226-4" />
+    <!-- Styles -->
+    <link rel="stylesheet" href="/styles.css?v=20260227-1" />
 
     <style>
       .is-hidden { display: none !important; }
@@ -18,76 +19,124 @@
   </head>
 
   <body>
-    <main id="main">
-      <section>
-        <h1>BASFAY Uniforms</h1>
-        <p>Select size, add to cart.</p>
+    <a class="skip" href="#main">Skip to content</a>
 
-        <div id="productGrid"></div>
+    <!-- Header -->
+    <header class="header">
+      <div class="container header-inner">
+        <a class="brand" href="#main" aria-label="BASFAY home">
+          <span class="brand-mark">B</span>
+          <span class="brand-text">
+            <span class="brand-name">BASFAY Uniforms</span>
+            <span class="brand-sub">Quality & Affordable</span>
+          </span>
+        </a>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- HERO -->
+      <section class="brand-hero">
+        <div class="container brand-hero-inner">
+          <div class="brand-badge">
+            <div class="brand-logo">B</div>
+            <div class="brand-lines">
+              <h1>BASFAY Uniforms</h1>
+              <p class="muted">Quality & Affordable</p>
+            </div>
+          </div>
+
+          <div class="brand-right">
+            <button class="cart-btn" id="openCart" type="button">
+              <svg viewBox="0 0 24 24">
+                <path
+                  fill="currentColor"
+                  d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2Zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2ZM6.2 6h14.6l-2.1 7.35c-.24.83-1 1.38-1.86 1.38H8.1c-.86 0-1.62-.55-1.86-1.38L3.8 3H2"
+                />
+              </svg>
+              <span class="cart-badge" id="cartCount">0</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SHOP -->
+      <section class="section" id="shop">
+        <div class="container">
+          <div class="section-head">
+            <h2>Catalog</h2>
+            <p class="muted">Select size, add to cart.</p>
+          </div>
+
+          <div class="catalog">
+            <div class="grid" id="productGrid"></div>
+
+            <div class="empty" id="emptyState" hidden>
+              <h3>No matches</h3>
+              <p class="muted">Reset filters or try a broader search.</p>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
 
-    <!-- ===========================
-         🛑 DEBUG OVERLAY (TEMPORARY)
-         =========================== -->
+    <!-- CART DRAWER -->
+    <div class="drawer" id="drawer" aria-hidden="true">
+      <div class="drawer-backdrop" id="drawerBackdrop"></div>
+      <div class="drawer-panel">
+        <div class="drawer-head">
+          <h3>Your Cart</h3>
+          <button id="closeDrawer">✕</button>
+        </div>
+
+        <div class="drawer-body">
+          <div id="cartItems"></div>
+
+          <div id="cartEmpty">
+            <p><strong>No items yet.</strong></p>
+            <p class="muted">Add products from the catalog.</p>
+          </div>
+        </div>
+
+        <div class="drawer-foot">
+          <div class="card soft pay-card">
+            <div class="pay-title">Payment</div>
+
+            <label>
+              <input type="radio" name="payMethod" value="M-Pesa" checked />
+              M-Pesa
+            </label>
+
+            <label>
+              <input type="radio" name="payMethod" value="Cash" />
+              Cash
+            </label>
+          </div>
+
+          <a
+            class="btn primary full"
+            id="sendWhatsApp"
+            href="#"
+            target="_blank"
+            >Proceed to checkout</a
+          >
+
+          <button class="btn ghost full" id="clearCart" type="button">
+            Clear
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- YEAR -->
     <script>
-      (function () {
-        const box = document.createElement("div");
-        box.style.position = "fixed";
-        box.style.left = "10px";
-        box.style.bottom = "10px";
-        box.style.zIndex = "999999";
-        box.style.maxWidth = "92vw";
-        box.style.maxHeight = "45vh";
-        box.style.overflow = "auto";
-        box.style.padding = "10px 12px";
-        box.style.borderRadius = "12px";
-        box.style.background = "rgba(0,0,0,0.9)";
-        box.style.color = "#fff";
-        box.style.fontSize = "12px";
-        box.style.fontFamily = "monospace";
-        box.style.whiteSpace = "pre-wrap";
-        box.textContent = "BASFAY DEBUG OVERLAY ✅\n";
-        document.addEventListener("DOMContentLoaded", () => {
-          document.body.appendChild(box);
-          log("HTML loaded");
-        });
-
-        function log(msg) {
-          box.textContent += msg + "\n";
-        }
-
-        window.addEventListener("error", (e) => {
-          log("❌ ERROR: " + e.message);
-          if (e.filename) log("File: " + e.filename);
-          if (e.lineno) log("Line: " + e.lineno + ":" + e.colno);
-        });
-
-        window.addEventListener("unhandledrejection", (e) => {
-          log("❌ PROMISE ERROR: " + (e.reason?.message || e.reason));
-        });
-
-        const _fetch = window.fetch;
-        window.fetch = function () {
-          return _fetch.apply(this, arguments).then((res) => {
-            if (!res.ok) {
-              log(`❌ FETCH FAIL: ${res.status} ${res.statusText} -> ${res.url}`);
-            }
-            return res;
-          });
-        };
-
-        document.addEventListener("click", (e) => {
-          const btn = e.target.closest("button");
-          if (btn) log("🟦 CLICK: " + btn.textContent.trim());
-        });
-      })();
+      document.addEventListener("DOMContentLoaded", function () {
+        const y = document.getElementById("year");
+        if (y) y.textContent = new Date().getFullYear();
+      });
     </script>
 
-    <!-- ===========================
-         MAIN APP JS (BUSTED CACHE)
-         =========================== -->
-    <script src="./app.js?v=20260227-1" defer></script>
-
+    <!-- IMPORTANT: absolute path -->
+    <script src="/app.js?v=20260227-2" defer></script>
   </body>
 </html>

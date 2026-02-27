@@ -69,7 +69,7 @@ const els = {
   sendWhatsApp: document.getElementById("sendWhatsApp"),
   clearCart: document.getElementById("clearCart"),
 
-  // payment radios
+  // payment radios (legacy - kept)
   payRadios: document.querySelectorAll('input[name="payMethod"]'),
 
   // modal
@@ -90,6 +90,78 @@ const els = {
 let PRODUCTS = [];
 let state = { q: "", color: "", type: "", sort: "featured" };
 const CART_KEY = "basfay_cart_v1";
+
+/* ======================
+   ✅ NEW: Checkout state (Phase 1)
+   ====================== */
+const CHECKOUT_KEY = "basfay_checkout_v1";
+const ORDER_ID_KEY = "basfay_order_id_v1";
+let checkoutUI = { mounted: false };
+
+function getCheckout() {
+  try {
+    const raw = localStorage.getItem(CHECKOUT_KEY);
+    if (!raw) {
+      return {
+        step: "cart", // "cart" | "checkout" | "placed"
+        name: "",
+        phone: "",
+        area: "",
+        notes: "",
+        pay: "mpesa_manual", // mpesa_manual | cash | whatsapp
+      };
+    }
+    const parsed = JSON.parse(raw);
+    return {
+      step: parsed.step || "cart",
+      name: safeText(parsed.name),
+      phone: safeText(parsed.phone),
+      area: safeText(parsed.area),
+      notes: safeText(parsed.notes),
+      pay: parsed.pay || "mpesa_manual",
+    };
+  } catch {
+    return {
+      step: "cart",
+      name: "",
+      phone: "",
+      area: "",
+      notes: "",
+      pay: "mpesa_manual",
+    };
+  }
+}
+function setCheckout(next) {
+  localStorage.setItem(CHECKOUT_KEY, JSON.stringify(next));
+  updateCartUI();
+}
+function clearCheckout() {
+  localStorage.removeItem(CHECKOUT_KEY);
+  localStorage.removeItem(ORDER_ID_KEY);
+}
+function getOrCreateOrderId() {
+  const existing = safeText(localStorage.getItem(ORDER_ID_KEY));
+  if (existing) return existing;
+  const stamp = Date.now().toString(36).toUpperCase();
+  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+  const id = `BASFAY-${stamp}-${rand}`;
+  localStorage.setItem(ORDER_ID_KEY, id);
+  return id;
+}
+function cartSubtotal() {
+  return getCart().reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.qty) || 0), 0);
+}
+function validPhoneKE(phone) {
+  // Basic sanity check for Kenya-style numbers.
+  // Accepts: 07xxxxxxxx, 01xxxxxxxx, 2547xxxxxxxx, 2541xxxxxxxx, +2547xxxxxxxx, +2541xxxxxxxx
+  const p = safeText(phone).replace(/\s+/g, "");
+  return /^(\+?254|0)(7|1)\d{8}$/.test(p);
+}
+function payLabel(pay) {
+  if (pay === "cash") return "Cash on pickup";
+  if (pay === "whatsapp") return "WhatsApp (assist me)";
+  return "M-Pesa (manual)";
+}
 
 /* ======================
    Helpers
@@ -116,7 +188,7 @@ function toTypeClass(type) {
 }
 
 /* ======================
-   Payment selection
+   Payment selection (legacy - kept)
    ====================== */
 function getSelectedPayMethodLabel() {
   const checked = [...(els.payRadios || [])].find((r) => r.checked);
@@ -169,6 +241,12 @@ function addToCart(productId, size, price, qty = 1) {
   else cart.push({ key, id: productId, size: String(size), price: Number(price), qty });
 
   setCart(cart);
+
+  // ✅ Phase 1: adding items should never auto-send to WhatsApp.
+  // Move user back to cart step if they were mid-checkout.
+  const co = getCheckout();
+  if (co.step !== "cart") setCheckout({ ...co, step: "cart" });
+
   openDrawer();
 }
 function removeFromCart(key) {
@@ -455,6 +533,207 @@ function bindFilters() {
 }
 
 /* ======================
+   ✅ NEW: Checkout UI injected into drawer (no HTML edits)
+   ====================== */
+function ensureCheckoutUI() {
+  if (!els.cartItems) return;
+
+  // If already mounted, just refresh values.
+  if (checkoutUI.mounted) {
+    syncCheckoutUIFromState();
+    return;
+  }
+
+  const host = document.createElement("div");
+  host.id = "checkoutPanel";
+  host.className = "card";
+  host.style.marginTop = "12px";
+  host.style.display = "none";
+
+  host.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <strong style="font-size:14px;">Checkout</strong>
+      <span class="chip" id="orderIdChip"></span>
+    </div>
+
+    <div class="muted" style="margin-top:6px;font-size:12px;">
+      Confirm your details, then choose a payment method.
+    </div>
+
+    <div style="display:grid;gap:8px;margin-top:10px;">
+      <label class="muted" style="font-size:12px;">
+        Name
+        <input id="coName" type="text" placeholder="Your name" style="width:100%;margin-top:4px;" />
+      </label>
+
+      <label class="muted" style="font-size:12px;">
+        Phone (M-Pesa number)
+        <input id="coPhone" type="tel" placeholder="07.. or 2547.." style="width:100%;margin-top:4px;" />
+      </label>
+
+      <label class="muted" style="font-size:12px;">
+        Delivery area (optional)
+        <input id="coArea" type="text" placeholder="e.g. Westlands / Rongai" style="width:100%;margin-top:4px;" />
+      </label>
+
+      <label class="muted" style="font-size:12px;">
+        Notes (optional)
+        <input id="coNotes" type="text" placeholder="Any instructions?" style="width:100%;margin-top:4px;" />
+      </label>
+    </div>
+
+    <div style="margin-top:10px;">
+      <div class="muted" style="font-size:12px;margin-bottom:6px;">Payment method</div>
+
+      <label style="display:flex;gap:8px;align-items:center;margin:6px 0;">
+        <input type="radio" name="coPay" value="mpesa_manual" />
+        <span>M-Pesa (manual)</span>
+      </label>
+
+      <label style="display:flex;gap:8px;align-items:center;margin:6px 0;">
+        <input type="radio" name="coPay" value="cash" />
+        <span>Cash on pickup</span>
+      </label>
+
+      <label style="display:flex;gap:8px;align-items:center;margin:6px 0;">
+        <input type="radio" name="coPay" value="whatsapp" />
+        <span>WhatsApp (assist me)</span>
+      </label>
+    </div>
+
+    <div id="coInstructions" class="muted" style="margin-top:10px;font-size:12px;line-height:1.35;"></div>
+
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+      <button id="coBack" type="button" class="btn small ghost">Back to cart</button>
+      <button id="coConfirm" type="button" class="btn small primary">Place order</button>
+    </div>
+  `;
+
+  // Insert panel right after cart items list
+  els.cartItems.insertAdjacentElement("afterend", host);
+
+  checkoutUI.host = host;
+  checkoutUI.orderIdChip = host.querySelector("#orderIdChip");
+  checkoutUI.name = host.querySelector("#coName");
+  checkoutUI.phone = host.querySelector("#coPhone");
+  checkoutUI.area = host.querySelector("#coArea");
+  checkoutUI.notes = host.querySelector("#coNotes");
+  checkoutUI.instructions = host.querySelector("#coInstructions");
+  checkoutUI.payRadios = host.querySelectorAll('input[name="coPay"]');
+  checkoutUI.back = host.querySelector("#coBack");
+  checkoutUI.confirm = host.querySelector("#coConfirm");
+
+  checkoutUI.name.addEventListener("input", () => {
+    const co = getCheckout();
+    setCheckout({ ...co, name: checkoutUI.name.value });
+  });
+  checkoutUI.phone.addEventListener("input", () => {
+    const co = getCheckout();
+    setCheckout({ ...co, phone: checkoutUI.phone.value });
+  });
+  checkoutUI.area.addEventListener("input", () => {
+    const co = getCheckout();
+    setCheckout({ ...co, area: checkoutUI.area.value });
+  });
+  checkoutUI.notes.addEventListener("input", () => {
+    const co = getCheckout();
+    setCheckout({ ...co, notes: checkoutUI.notes.value });
+  });
+
+  checkoutUI.payRadios.forEach((r) => {
+    r.addEventListener("change", () => {
+      const co = getCheckout();
+      setCheckout({ ...co, pay: r.value });
+    });
+  });
+
+  checkoutUI.back.addEventListener("click", () => {
+    const co = getCheckout();
+    setCheckout({ ...co, step: "cart" });
+  });
+
+  checkoutUI.confirm.addEventListener("click", () => {
+    const cart = getCart();
+    if (!cart.length) return alert("Your cart is empty.");
+
+    const co = getCheckout();
+    const name = safeText(co.name);
+    const phone = safeText(co.phone);
+
+    if (!name) return alert("Please enter your name.");
+    if (!phone) return alert("Please enter your phone number.");
+    if (!validPhoneKE(phone)) return alert("Phone number format looks wrong. Use 07.. or 2547..");
+
+    // mark placed
+    setCheckout({ ...co, step: "placed" });
+
+    // For phase 1: if they chose WhatsApp, open WhatsApp immediately.
+    // If they chose M-Pesa/Cash: we still open WhatsApp as a confirmation channel (you can remove if you want).
+    if (co.pay === "whatsapp") {
+      window.open(buildWhatsAppLink(buildOrderMessage()), "_blank", "noopener,noreferrer");
+    } else {
+      // For manual payments, keep them on-page with instructions.
+      // Also set the main button to allow WhatsApp sending if they want.
+      // No forced redirect.
+      // (If you want to always open WhatsApp here, uncomment below)
+      // window.open(buildWhatsAppLink(buildOrderMessage()), "_blank", "noopener,noreferrer");
+    }
+  });
+
+  checkoutUI.mounted = true;
+  syncCheckoutUIFromState();
+}
+
+function syncCheckoutUIFromState() {
+  if (!checkoutUI.mounted) return;
+  const co = getCheckout();
+  const hasCart = getCart().length > 0;
+
+  // panel visible only on checkout/placed and only when cart has items
+  checkoutUI.host.style.display =
+    hasCart && (co.step === "checkout" || co.step === "placed") ? "block" : "none";
+
+  checkoutUI.orderIdChip.textContent = hasCart ? getOrCreateOrderId() : "";
+
+  checkoutUI.name.value = co.name || "";
+  checkoutUI.phone.value = co.phone || "";
+  checkoutUI.area.value = co.area || "";
+  checkoutUI.notes.value = co.notes || "";
+
+  checkoutUI.payRadios.forEach((r) => (r.checked = r.value === co.pay));
+
+  // Instructions text
+  const subtotal = formatMoney(cartSubtotal());
+  const orderId = getOrCreateOrderId();
+
+  let instructions = "";
+  if (co.pay === "mpesa_manual") {
+    instructions =
+      `Order Total: <strong>${subtotal}</strong><br>` +
+      `Payment: <strong>M-Pesa (manual)</strong><br>` +
+      `Use reference: <strong>${orderId}</strong><br>` +
+      `After paying, you can send the confirmation on WhatsApp for faster processing.`;
+  } else if (co.pay === "cash") {
+    instructions =
+      `Order Total: <strong>${subtotal}</strong><br>` +
+      `Payment: <strong>Cash on pickup</strong><br>` +
+      `Pickup: <strong>${CONFIG.pickup}</strong><br>` +
+      `We’ll confirm pickup details on WhatsApp if needed.`;
+  } else {
+    instructions =
+      `Order Total: <strong>${subtotal}</strong><br>` +
+      `Payment: <strong>WhatsApp assistance</strong><br>` +
+      `We’ll guide you on payment and delivery once you message us.`;
+  }
+
+  if (co.step === "placed") {
+    instructions += `<br><br><strong>Status:</strong> Order placed (Phase 1).`;
+  }
+
+  checkoutUI.instructions.innerHTML = instructions;
+}
+
+/* ======================
    Drawer / Cart UI
    ====================== */
 function updateCartUI() {
@@ -462,24 +741,53 @@ function updateCartUI() {
   const total = cartCountTotal();
   if (els.cartCount) els.cartCount.textContent = String(total);
 
+  // Ensure checkout UI exists (injected once)
+  ensureCheckoutUI();
+
   if (!els.cartItems) return;
   els.cartItems.innerHTML = "";
 
   if (!cart.length) {
     els.cartEmpty && (els.cartEmpty.hidden = false);
+
+    // hide checkout panel + reset button behavior
+    const co = getCheckout();
+    if (co.step !== "cart") setCheckout({ ...co, step: "cart" });
+
     if (els.sendWhatsApp) {
       els.sendWhatsApp.href = buildWhatsAppLink(buildGenericWhatsAppMessage());
       els.sendWhatsApp.classList.add("is-hidden");
       els.sendWhatsApp.setAttribute("aria-hidden", "true");
     }
+
+    // If cart is empty, also clear checkout/order id
+    clearCheckout();
+    syncCheckoutUIFromState();
     return;
   }
 
   els.cartEmpty && (els.cartEmpty.hidden = true);
+
+  // ✅ Phase 1: main drawer button becomes "Checkout" until they are in placed/checkout.
   if (els.sendWhatsApp) {
     els.sendWhatsApp.classList.remove("is-hidden");
     els.sendWhatsApp.setAttribute("aria-hidden", "false");
-    els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+
+    const co = getCheckout();
+
+    // Button behavior depends on step
+    if (co.step === "cart") {
+      els.sendWhatsApp.textContent = "Checkout";
+      els.sendWhatsApp.href = "#";
+    } else if (co.step === "checkout") {
+      els.sendWhatsApp.textContent =
+        co.pay === "whatsapp" ? "Send Order on WhatsApp" : "Review payment instructions";
+      els.sendWhatsApp.href = co.pay === "whatsapp" ? buildWhatsAppLink(buildOrderMessage()) : "#";
+    } else {
+      // placed
+      els.sendWhatsApp.textContent = "Send Order on WhatsApp";
+      els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+    }
   }
 
   const chip = (t) => {
@@ -547,16 +855,24 @@ function updateCartUI() {
     els.cartItems.appendChild(row);
   });
 
-  if (els.sendWhatsApp) els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+  // Keep checkout panel synced
+  syncCheckoutUIFromState();
+
+  // Keep WhatsApp link up to date when needed
+  if (els.sendWhatsApp && els.sendWhatsApp.href && els.sendWhatsApp.href !== "#") {
+    els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+  }
 }
 
 function buildOrderMessage() {
   const cart = getCart();
-  const lines = [];
-  const methodText = getSelectedPayMethodLabel();
+  const co = getCheckout();
+  const orderId = getOrCreateOrderId();
 
+  const lines = [];
   lines.push(`Hi ${CONFIG.businessName}, I would like to order:`);
-  lines.push(`Payment method: ${methodText}`);
+  lines.push(`Order ID: ${orderId}`);
+  lines.push(`Payment method: ${payLabel(co.pay)}`);
   lines.push("");
 
   cart.forEach((item) => {
@@ -567,8 +883,23 @@ function buildOrderMessage() {
   });
 
   lines.push("");
+  lines.push(`Subtotal: ${formatMoney(cartSubtotal())}`);
   lines.push(`Pickup: ${CONFIG.pickup}`);
-  lines.push("Delivery: (If needed, share your area and I’ll confirm delivery fee.)");
+
+  if (co.name) lines.push(`Name: ${co.name}`);
+  if (co.phone) lines.push(`Phone: ${co.phone}`);
+  if (co.area) lines.push(`Area: ${co.area}`);
+  if (co.notes) lines.push(`Notes: ${co.notes}`);
+
+  lines.push("");
+  if (co.pay === "mpesa_manual") {
+    lines.push(`I will pay via M-Pesa (manual). Reference: ${orderId}`);
+  } else if (co.pay === "cash") {
+    lines.push("I will pay cash on pickup.");
+  } else {
+    lines.push("Please assist me with payment and delivery options.");
+  }
+
   lines.push("");
   lines.push("Thank you.");
 
@@ -579,7 +910,50 @@ function bindCart() {
   els.openCart?.addEventListener("click", openDrawer);
   els.closeDrawer?.addEventListener("click", closeDrawer);
   els.drawerBackdrop?.addEventListener("click", closeDrawer);
-  els.clearCart?.addEventListener("click", () => setCart([]));
+
+  els.clearCart?.addEventListener("click", () => {
+    setCart([]);
+    clearCheckout();
+  });
+
+  // ✅ Phase 1: intercept the main button to go to checkout instead of WhatsApp.
+  if (els.sendWhatsApp) {
+    els.sendWhatsApp.addEventListener("click", (e) => {
+      const cart = getCart();
+      if (!cart.length) return;
+
+      const co = getCheckout();
+
+      // If href is WhatsApp and they chose whatsapp (or placed), allow default.
+      const href = safeText(els.sendWhatsApp.getAttribute("href"));
+      const isWhatsAppLink = href.startsWith("https://wa.me/");
+
+      if (co.step === "cart") {
+        e.preventDefault();
+        setCheckout({ ...co, step: "checkout" });
+        openDrawer();
+        return;
+      }
+
+      if (co.step === "checkout") {
+        if (co.pay === "whatsapp" && isWhatsAppLink) {
+          // allow default open WhatsApp
+          return;
+        }
+        // Otherwise just keep them in checkout and show instructions.
+        e.preventDefault();
+        openDrawer();
+        return;
+      }
+
+      // placed: allow WhatsApp link
+      if (co.step === "placed" && isWhatsAppLink) return;
+
+      // fallback
+      e.preventDefault();
+      openDrawer();
+    });
+  }
 
   if (els.sendWhatsApp) els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
 }
@@ -741,7 +1115,7 @@ function initKeyboard() {
   initYear();
   bindCart();
   bindModal();
-  bindPayments();
+  bindPayments(); // legacy
   initKeyboard();
 
   try {

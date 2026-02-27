@@ -623,6 +623,45 @@
   ]
 },
   {
+  "id": "leg-warmers-maroon",
+  "name": "Leg Warmers – Maroon",
+  "color": "Maroon",
+  "type": "Socks",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "One Size", "price": 350 }
+  ],
+  "image": "./images/leg-warmers-maroon.png",
+  "featured": false,
+  "description": "Maroon leg warmers. Comfortable knit design suitable for school wear and cold weather."
+},
+  {
+  "id": "leg-warmers-red",
+  "name": "Leg Warmers – Red",
+  "color": "Red",
+  "type": "Socks",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "One Size", "price": 350 }
+  ],
+  "image": "./images/leg-warmers-red.png",
+  "featured": false,
+  "description": "Red leg warmers. Soft, durable knit fabric designed for warmth and comfort."
+},
+  {
+  "id": "leg-warmers-navy",
+  "name": "Leg Warmers – Navy",
+  "color": "Navy",
+  "type": "Socks",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "One Size", "price": 350 }
+  ],
+  "image": "./images/leg-warmers-navy.png",
+  "featured": false,
+  "description": "Navy leg warmers. Comfortable and warm, suitable for school use during cooler weather."
+},
+  {
   "id": "marvin-navy",
   "name": "Marvin – Navy",
   "color": "Navy",

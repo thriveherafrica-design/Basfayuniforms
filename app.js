@@ -3,8 +3,9 @@
    Cart + Two-step Checkout (Phone only)
    Uses existing HTML IDs:
    - cart badge: #cartCount
-   - cart CTA button: #sendWhatsApp  (acts as Proceed -> Send)
-   - phone input: #customerPhone (add to HTML as shown)
+   - checkout CTA button: #checkoutBtn  (Cash -> WhatsApp, Till -> 2-step confirm)
+   - phone input: #customerPhone
+   - Mpesa UI: #tillNumberUI #mpesaBox #copyTillBtn #copyAmountBtn #mpesaCode
    ============================ */
 
 console.log("✅ BASFAY app.js LOADED v20260227-6");
@@ -49,13 +50,21 @@ const els = {
   cartEmpty: document.getElementById("cartEmpty"),
   clearCart: document.getElementById("clearCart"),
 
-  // Existing WhatsApp button in your HTML
-  sendWhatsApp: document.getElementById("sendWhatsApp"),
+  // ✅ UPDATED: checkout CTA in your HTML
+  checkoutBtn: document.getElementById("checkoutBtn"),
 
-  // Phone input (you add it in HTML)
+  // Phone input
   customerPhone: document.getElementById("customerPhone"),
 
+  // Payment radios
   payRadios: document.querySelectorAll('input[name="payMethod"]'),
+
+  // ✅ NEW: Mpesa UI
+  tillNumberUI: document.getElementById("tillNumberUI"),
+  mpesaBox: document.getElementById("mpesaBox"),
+  copyTillBtn: document.getElementById("copyTillBtn"),
+  copyAmountBtn: document.getElementById("copyAmountBtn"),
+  mpesaCode: document.getElementById("mpesaCode"),
 
   modal: document.getElementById("modal"),
   modalBackdrop: document.getElementById("modalBackdrop"),
@@ -111,6 +120,36 @@ function buildWhatsAppLink(message){
   return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
 
+function getPayMethod(){
+  const checked = [...(els.payRadios||[])].find(r=>r.checked);
+  return checked?.value || "Till";
+}
+
+async function copyToClipboard(text){
+  try{
+    await navigator.clipboard.writeText(String(text));
+    toast("Copied ✅");
+  }catch{
+    const ta = document.createElement("textarea");
+    ta.value = String(text);
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+    toast("Copied ✅");
+  }
+}
+
+function getTotalAmount(){
+  return calcSubtotal(); // subtotal only, delivery fee confirmed later
+}
+
+function togglePaymentUI(){
+  const method = getPayMethod();
+  const isTill = method.toLowerCase().includes("till");
+  if (els.mpesaBox) els.mpesaBox.classList.toggle("is-hidden", !isTill);
+}
+
 /* ============ Checkout state ============ */
 function getCheckoutStep(){
   const s = safeText(localStorage.getItem(CHECKOUT_STEP_KEY));
@@ -151,7 +190,7 @@ function addToCart(productId,size,price,qty=1){
   if(found) found.qty += qty;
   else cart.push({ key, id: productId, size: String(size), price: Number(price), qty });
 
-  setCheckoutStep("cart"); // adding should not force checkout
+  setCheckoutStep("cart");
   setCart(cart);
 
   const p = PRODUCTS.find(x=>x.id===productId);
@@ -168,13 +207,9 @@ function setQty(key,qty){
   setCart(cart);
 }
 
-/* ============ Payment + message (human tone) ============ */
-function getSelectedPayMethodValue(){
-  const checked = [...(els.payRadios||[])].find(r=>r.checked);
-  return checked?.value || "M-Pesa";
-}
+/* ============ Payment + message ============ */
 function getSelectedPayMethodLabel(){
-  const v = getSelectedPayMethodValue();
+  const v = getPayMethod();
   if (v.toLowerCase().includes("cash")) return "Cash";
   return `M-Pesa Buy Goods (Till: ${CONFIG.tillNumberPlaceholder})`;
 }
@@ -184,11 +219,19 @@ function buildCheckoutWhatsAppMessage(){
   const phone = cleanPhone(els.customerPhone?.value);
   const payLabel = getSelectedPayMethodLabel();
   const subtotal = calcSubtotal();
+  const method = getPayMethod();
+  const mpesaCode = safeText(els.mpesaCode?.value);
 
   const lines = [];
   lines.push(`Hi ${CONFIG.businessName}, I would like to place an order.`);
   if (phone) lines.push(`Phone: ${phone}`);
   lines.push(`Payment: ${payLabel}`);
+
+  if (method.toLowerCase().includes("till")) {
+    lines.push(`Amount Paid: ${formatMoney(subtotal)} (delivery fee to be confirmed)`);
+    if (mpesaCode) lines.push(`M-Pesa Code: ${mpesaCode}`);
+  }
+
   lines.push("");
 
   cart.forEach((item)=>{
@@ -418,27 +461,27 @@ function updateCartUI(){
   if(!cart.length){
     if(els.cartEmpty) els.cartEmpty.hidden = false;
     setCheckoutStep("cart");
-    if(els.sendWhatsApp){
-      els.sendWhatsApp.textContent = "Proceed to checkout";
-      els.sendWhatsApp.classList.add("is-hidden");
-      els.sendWhatsApp.setAttribute("aria-hidden","true");
-      els.sendWhatsApp.href = buildWhatsAppLink(`Hi ${CONFIG.businessName}, I would like to order. Pickup: ${CONFIG.pickup}.`);
+    if(els.checkoutBtn){
+      els.checkoutBtn.textContent = "Proceed";
+      els.checkoutBtn.classList.add("is-hidden");
+      els.checkoutBtn.setAttribute("aria-hidden","true");
+      els.checkoutBtn.href = "#";
     }
     return;
   }
 
   if(els.cartEmpty) els.cartEmpty.hidden = true;
 
-  // Show CTA
-  if(els.sendWhatsApp){
-    els.sendWhatsApp.classList.remove("is-hidden");
-    els.sendWhatsApp.setAttribute("aria-hidden","false");
-    els.sendWhatsApp.href = "#";
+  if(els.checkoutBtn){
+    els.checkoutBtn.classList.remove("is-hidden");
+    els.checkoutBtn.setAttribute("aria-hidden","false");
+    els.checkoutBtn.href = "#";
 
-    if(getCheckoutStep()==="cart"){
-      els.sendWhatsApp.textContent = "Proceed to checkout";
+    const method = getPayMethod();
+    if(method.toLowerCase().includes("cash")){
+      els.checkoutBtn.textContent = "Order on WhatsApp";
     }else{
-      els.sendWhatsApp.textContent = "Send on WhatsApp";
+      els.checkoutBtn.textContent = getCheckoutStep()==="cart" ? "Proceed" : "Send Payment Confirmation";
     }
   }
 
@@ -641,21 +684,60 @@ function bindCart(){
     setCart([]);
   });
 
-  // Two-step on existing #sendWhatsApp
-  els.sendWhatsApp?.addEventListener("click", (e)=>{
+  // show till placeholder in UI
+  if (els.tillNumberUI) els.tillNumberUI.textContent = CONFIG.tillNumberPlaceholder;
+
+  togglePaymentUI();
+
+  els.copyTillBtn?.addEventListener("click", ()=>{
+    copyToClipboard(CONFIG.tillNumberPlaceholder);
+  });
+
+  els.copyAmountBtn?.addEventListener("click", ()=>{
+    copyToClipboard(String(getTotalAmount()));
+  });
+
+  // payment change should update UI + button label
+  (els.payRadios||[]).forEach(r=>{
+    r.addEventListener("change", ()=>{
+      togglePaymentUI();
+      setCheckoutStep("cart");
+      updateCartUI();
+    });
+  });
+
+  // ✅ Cash -> WhatsApp directly. Till -> 2-step with Mpesa code.
+  els.checkoutBtn?.addEventListener("click", (e)=>{
     const cart = getCart();
     if(!cart.length) return;
 
+    const method = getPayMethod();
+
+    // CASH: go straight to WhatsApp
+    if(method.toLowerCase().includes("cash")){
+      const phone = cleanPhone(els.customerPhone?.value);
+      if(!phone || phone.length < 9){
+        e.preventDefault();
+        els.customerPhone?.focus?.();
+        alert("Please enter a valid phone number.");
+        return;
+      }
+      const msg = buildCheckoutWhatsAppMessage();
+      els.checkoutBtn.href = buildWhatsAppLink(msg);
+      return;
+    }
+
+    // TILL: two-step
     if(getCheckoutStep()==="cart"){
       e.preventDefault();
       setCheckoutStep("checkout");
       updateCartUI();
-      toast("Enter phone number, then send on WhatsApp.");
-      els.customerPhone?.focus?.();
+      toast("Copy Till + Amount, pay, then paste M-Pesa code.");
+      els.mpesaCode?.focus?.();
       return;
     }
 
-    // checkout step
+    // step 2: require phone + mpesa code
     const phone = cleanPhone(els.customerPhone?.value);
     if(!phone || phone.length < 9){
       e.preventDefault();
@@ -664,17 +746,16 @@ function bindCart(){
       return;
     }
 
-    const msg = buildCheckoutWhatsAppMessage();
-    els.sendWhatsApp.href = buildWhatsAppLink(msg); // allow normal link open
-  });
+    const mpesaCode = safeText(els.mpesaCode?.value);
+    if(!mpesaCode || mpesaCode.length < 6){
+      e.preventDefault();
+      els.mpesaCode?.focus?.();
+      alert("Please paste your M-Pesa confirmation code.");
+      return;
+    }
 
-  // keep message consistent if payment changes
-  (els.payRadios||[]).forEach(r=>{
-    r.addEventListener("change", ()=>{
-      if(getCheckoutStep()==="checkout" && els.sendWhatsApp){
-        els.sendWhatsApp.href = "#"; // rebuilt on click
-      }
-    });
+    const msg = buildCheckoutWhatsAppMessage();
+    els.checkoutBtn.href = buildWhatsAppLink(msg);
   });
 }
 

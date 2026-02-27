@@ -877,10 +877,10 @@ input:focus, select:focus {
 }
 .product.type-accessory .tag{ background: rgba(180,83,9,0.92) !important; }
 
-/* Shirt = Soft Warm Ivory */
+/* Shirt = Classic Grey */
 .product.type-shirt{
-  background: #FFF4E6 !important;
-  border: 1px solid #F1E1C6 !important;
+  background: #F3F4F6 !important;   /* soft light grey */
+  border: 1px solid #E5E7EB !important;
 }
 
 /* Dress = Maroon */

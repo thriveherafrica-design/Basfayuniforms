@@ -578,6 +578,21 @@
   "description": "Plain red school shirt. Bright, durable and comfortable for school wear."
 },
   {
+  "id": "shirt-neon-green",
+  "name": "Shirt – Neon Green",
+  "color": "Neon Green",
+  "type": "Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 250 },
+    { "size": "M", "price": 300 },
+    { "size": "L", "price": 350 }
+  ],
+  "image": "./images/shirt-neon-green.png",
+  "featured": false,
+  "description": "Plain neon green school shirt. Bright, breathable fabric with a comfortable everyday fit."
+},
+  {
   "id": "shirt-blue",
   "name": "Shirt – Blue",
   "color": "Blue",

@@ -989,21 +989,95 @@
     "description": ""
   },
   {
-    "id": "white-socks",
-    "name": "White Socks",
-    "color": "White",
-    "type": "Socks",
-    "pattern": "Plain",
-    "price": 100,
-    "image": "",
-    "featured": false,
-    "description": "White school socks.",
-    "variants": [
-      { "size": "S", "price": 100 },
-      { "size": "M", "price": 100 },
-      { "size": "L", "price": 100 }
-    ]
-  },
+  "id": "socks-white-plain",
+  "name": "Socks – White Plain",
+  "color": "White",
+  "type": "Socks",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 100 },
+    { "size": "M", "price": 100 },
+    { "size": "L", "price": 100 }
+  ],
+  "image": "./images/socks-white-plain.png",
+  "featured": false,
+  "description": "Plain white school socks. Comfortable, durable and suitable for everyday school wear."
+},
+  {
+  "id": "socks-white-striped-maroon",
+  "name": "Socks – White Striped Maroon",
+  "color": "White & Maroon",
+  "type": "Socks",
+  "pattern": "Striped",
+  "variants": [
+    { "size": "S", "price": 100 },
+    { "size": "M", "price": 100 },
+    { "size": "L", "price": 100 }
+  ],
+  "image": "./images/socks-white-striped-maroon.png",
+  "featured": false,
+  "description": "White school socks with maroon stripes. Comfortable fit with a classic school design."
+},
+  {
+  "id": "socks-white-striped-green",
+  "name": "Socks – White Striped Green",
+  "color": "White & Green",
+  "type": "Socks",
+  "pattern": "Striped",
+  "variants": [
+    { "size": "S", "price": 100 },
+    { "size": "M", "price": 100 },
+    { "size": "L", "price": 100 }
+  ],
+  "image": "./images/socks-white-striped-green.png",
+  "featured": false,
+  "description": "White school socks with green stripes. Soft, durable and suitable for daily school use."
+},
+  {
+  "id": "socks-white-striped-blue",
+  "name": "Socks – White Striped Blue",
+  "color": "White & Blue",
+  "type": "Socks",
+  "pattern": "Striped",
+  "variants": [
+    { "size": "S", "price": 100 },
+    { "size": "M", "price": 100 },
+    { "size": "L", "price": 100 }
+  ],
+  "image": "./images/socks-white-striped-blue.png",
+  "featured": false,
+  "description": "White school socks with blue stripes. Comfortable and designed for everyday wear."
+},
+  {
+  "id": "socks-white-striped-navy",
+  "name": "Socks – White Striped Navy",
+  "color": "White & Navy",
+  "type": "Socks",
+  "pattern": "Striped",
+  "variants": [
+    { "size": "S", "price": 100 },
+    { "size": "M", "price": 100 },
+    { "size": "L", "price": 100 }
+  ],
+  "image": "./images/socks-white-striped-navy.png",
+  "featured": false,
+  "description": "White school socks with navy stripes. Durable fabric with a comfortable everyday fit."
+},
+  {
+  "id": "socks-grey-striped-green",
+  "name": "Socks – Grey Striped Green",
+  "color": "Grey & Green",
+  "type": "Socks",
+  "pattern": "Striped",
+  "variants": [
+    { "size": "S", "price": 100 },
+    { "size": "M", "price": 100 },
+    { "size": "L", "price": 100 }
+  ],
+  "image": "./images/socks-grey-striped-green.png",
+  "featured": false,
+  "description": "Grey school socks with green stripes. Durable knit fabric designed for comfort and everyday school wear."
+},
   {
     "id": "red-cardigan",
     "name": "Red Cardigan",

@@ -1,3 +1,42 @@
+// ✅ BASFAY DEBUG BOOT (REMOVE AFTER FIXING)
+(function () {
+  const tag = document.createElement("div");
+  tag.id = "basfayDebugTag";
+  tag.style.position = "fixed";
+  tag.style.top = "10px";
+  tag.style.right = "10px";
+  tag.style.zIndex = "99999";
+  tag.style.padding = "8px 10px";
+  tag.style.borderRadius = "10px";
+  tag.style.background = "rgba(0,0,0,0.85)";
+  tag.style.color = "white";
+  tag.style.fontSize = "12px";
+  tag.style.fontWeight = "700";
+  tag.textContent = "BASFAY JS LOADED ✅";
+  document.addEventListener("DOMContentLoaded", () => document.body.appendChild(tag));
+
+  console.log("✅ BASFAY JS LOADED ✅", new Date().toISOString());
+
+  // Watch clicks on any button containing "Add"
+  document.addEventListener("click", (e) => {
+    const btn = e.target?.closest?.("button");
+    if (!btn) return;
+    const t = (btn.textContent || "").trim().toLowerCase();
+    if (t.includes("add")) {
+      console.log("🟦 Clicked button:", btn.textContent);
+    }
+  });
+
+  // Check localStorage works
+  try {
+    localStorage.setItem("__basfay_test__", "ok");
+    localStorage.removeItem("__basfay_test__");
+    console.log("✅ localStorage OK");
+  } catch (err) {
+    console.error("❌ localStorage blocked:", err);
+  }
+})();
+
 /* ============================
    BASFAY Catalog Site (Clean UI)
    - Products loaded from products.json

@@ -22,6 +22,116 @@
     "description": "Maroon plain school sweater. Select size to see price."
   },
   {
+  "id": "sweater-blue-plain",
+  "name": "Blue Sweater",
+  "color": "Blue",
+  "type": "Sweater",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "22", "price": 600 },
+    { "size": "24", "price": 600 },
+    { "size": "26", "price": 600 },
+    { "size": "28", "price": 700 },
+    { "size": "30", "price": 750 },
+    { "size": "32", "price": 800 },
+    { "size": "34", "price": 850 },
+    { "size": "36", "price": 900 },
+    { "size": "38", "price": 950 },
+    { "size": "40", "price": 1000 }
+  ],
+  "image": "./images/sweater-blue-plain-22.png",
+  "featured": false,
+  "description": "Blue plain school sweater. Select size to see price."
+},
+  {
+  "id": "sweater-blue-striped-white",
+  "name": "Blue Striped White Sweater",
+  "color": "Blue",
+  "type": "Sweater",
+  "pattern": "Striped White",
+  "variants": [
+    { "size": "22", "price": 600 },
+    { "size": "24", "price": 600 },
+    { "size": "26", "price": 600 },
+    { "size": "28", "price": 700 },
+    { "size": "30", "price": 750 },
+    { "size": "32", "price": 800 },
+    { "size": "34", "price": 850 },
+    { "size": "36", "price": 900 },
+    { "size": "38", "price": 950 },
+    { "size": "40", "price": 1000 }
+  ],
+  "image": "./images/sweater-blue-striped-white-22.png",
+  "featured": false,
+  "description": "Blue sweater with white stripes. Select size to see price."
+},
+  {
+  "id": "sweater-purple-striped-white",
+  "name": "Purple Striped White Sweater",
+  "color": "Purple",
+  "type": "Sweater",
+  "pattern": "Striped White",
+  "variants": [
+    { "size": "22", "price": 600 },
+    { "size": "24", "price": 600 },
+    { "size": "26", "price": 600 },
+    { "size": "28", "price": 700 },
+    { "size": "30", "price": 750 },
+    { "size": "32", "price": 800 },
+    { "size": "34", "price": 850 },
+    { "size": "36", "price": 900 },
+    { "size": "38", "price": 950 },
+    { "size": "40", "price": 1000 }
+  ],
+  "image": "./images/sweater-purple-striped-white-22.png",
+  "featured": false,
+  "description": "Purple sweater with white stripes. Select size to see price."
+},
+  {
+  "id": "sweater-light-purple-striped-white",
+  "name": "Light Purple Striped White Sweater",
+  "color": "Light Purple",
+  "type": "Sweater",
+  "pattern": "Striped White",
+  "variants": [
+    { "size": "22", "price": 600 },
+    { "size": "24", "price": 600 },
+    { "size": "26", "price": 600 },
+    { "size": "28", "price": 700 },
+    { "size": "30", "price": 750 },
+    { "size": "32", "price": 800 },
+    { "size": "34", "price": 850 },
+    { "size": "36", "price": 900 },
+    { "size": "38", "price": 950 },
+    { "size": "40", "price": 1000 }
+  ],
+  "image": "./images/sweater-light-purple-striped-white-22.png",
+  "featured": false,
+  "description": "Light purple sweater with white stripes. Select size to see price."
+},
+  {
+  "id": "sweater-grey-striped-white",
+  "name": "Grey Striped White Sweater",
+  "color": "Grey",
+  "type": "Sweater",
+  "pattern": "Striped White",
+  "variants": [
+    { "size": "22", "price": 600 },
+    { "size": "24", "price": 600 },
+    { "size": "26", "price": 600 },
+    { "size": "28", "price": 700 },
+    { "size": "30", "price": 750 },
+    { "size": "32", "price": 800 },
+    { "size": "34", "price": 850 },
+    { "size": "36", "price": 900 },
+    { "size": "38", "price": 950 },
+    { "size": "40", "price": 1000 }
+  ],
+  "image": "./images/sweater-grey-striped-white-22.png",
+  "featured": false,
+  "description": "Grey sweater with white stripes. Select size to see price."
+},
+  {
     "id": "sweater-navy-striped-light-blue",
     "name": "Navy Stripped Light Blue",
     "color": "Navy",

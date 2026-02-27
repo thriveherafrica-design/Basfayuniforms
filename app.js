@@ -92,7 +92,7 @@ let state = { q: "", color: "", type: "", sort: "featured" };
 const CART_KEY = "basfay_cart_v1";
 
 /* ======================
-   ✅ NEW: Checkout state (Phase 1)
+   ✅ Checkout state (Phase 1)
    ====================== */
 const CHECKOUT_KEY = "basfay_checkout_v1";
 const ORDER_ID_KEY = "basfay_order_id_v1";
@@ -152,8 +152,6 @@ function cartSubtotal() {
   return getCart().reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.qty) || 0), 0);
 }
 function validPhoneKE(phone) {
-  // Basic sanity check for Kenya-style numbers.
-  // Accepts: 07xxxxxxxx, 01xxxxxxxx, 2547xxxxxxxx, 2541xxxxxxxx, +2547xxxxxxxx, +2541xxxxxxxx
   const p = safeText(phone).replace(/\s+/g, "");
   return /^(\+?254|0)(7|1)\d{8}$/.test(p);
 }
@@ -176,8 +174,6 @@ function formatMoney(amount) {
   if (amount == null || Number.isNaN(Number(amount))) return "";
   return `${CONFIG.currency} ${Number(amount).toLocaleString("en-KE")}`;
 }
-
-/* ✅ NEW: Make a safe CSS class from product type (e.g. "PE Shirt" -> "type-pe-shirt") */
 function toTypeClass(type) {
   return (
     "type-" +
@@ -242,12 +238,13 @@ function addToCart(productId, size, price, qty = 1) {
 
   setCart(cart);
 
-  // ✅ Phase 1: adding items should never auto-send to WhatsApp.
-  // Move user back to cart step if they were mid-checkout.
+  // ✅ CHANGE YOU REQUESTED:
+  // DO NOT open drawer automatically. Buyer keeps shopping.
+  // openDrawer();
+
+  // If they were mid-checkout, return them to cart step silently
   const co = getCheckout();
   if (co.step !== "cart") setCheckout({ ...co, step: "cart" });
-
-  openDrawer();
 }
 function removeFromCart(key) {
   setCart(getCart().filter((i) => i.key !== key));
@@ -366,10 +363,8 @@ function productCard(p) {
   const wrap = document.createElement("article");
   wrap.className = "product";
 
-  /* ✅ NEW: add type class for ALL products so CSS can theme them */
   wrap.classList.add(toTypeClass(p.type));
 
-  // ✅ Special themes only for specific categories (kept intact)
   if (p.type === "Tracksuit") wrap.classList.add("product-tracksuit");
   if (p.type === "Socks") wrap.classList.add("product-socks");
 
@@ -416,7 +411,6 @@ function productCard(p) {
     placeholder.selected = true;
     select.appendChild(placeholder);
 
-    // For socks S/M/L this sort works fine (non-numeric stays stable)
     const sorted = [...variants].sort((a, b) => {
       const na = Number(a.size), nb = Number(b.size);
       if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
@@ -533,12 +527,11 @@ function bindFilters() {
 }
 
 /* ======================
-   ✅ NEW: Checkout UI injected into drawer (no HTML edits)
+   Checkout UI injected into drawer (no HTML edits)
    ====================== */
 function ensureCheckoutUI() {
   if (!els.cartItems) return;
 
-  // If already mounted, just refresh values.
   if (checkoutUI.mounted) {
     syncCheckoutUIFromState();
     return;
@@ -609,7 +602,6 @@ function ensureCheckoutUI() {
     </div>
   `;
 
-  // Insert panel right after cart items list
   els.cartItems.insertAdjacentElement("afterend", host);
 
   checkoutUI.host = host;
@@ -664,19 +656,10 @@ function ensureCheckoutUI() {
     if (!phone) return alert("Please enter your phone number.");
     if (!validPhoneKE(phone)) return alert("Phone number format looks wrong. Use 07.. or 2547..");
 
-    // mark placed
     setCheckout({ ...co, step: "placed" });
 
-    // For phase 1: if they chose WhatsApp, open WhatsApp immediately.
-    // If they chose M-Pesa/Cash: we still open WhatsApp as a confirmation channel (you can remove if you want).
     if (co.pay === "whatsapp") {
       window.open(buildWhatsAppLink(buildOrderMessage()), "_blank", "noopener,noreferrer");
-    } else {
-      // For manual payments, keep them on-page with instructions.
-      // Also set the main button to allow WhatsApp sending if they want.
-      // No forced redirect.
-      // (If you want to always open WhatsApp here, uncomment below)
-      // window.open(buildWhatsAppLink(buildOrderMessage()), "_blank", "noopener,noreferrer");
     }
   });
 
@@ -689,7 +672,6 @@ function syncCheckoutUIFromState() {
   const co = getCheckout();
   const hasCart = getCart().length > 0;
 
-  // panel visible only on checkout/placed and only when cart has items
   checkoutUI.host.style.display =
     hasCart && (co.step === "checkout" || co.step === "placed") ? "block" : "none";
 
@@ -702,7 +684,6 @@ function syncCheckoutUIFromState() {
 
   checkoutUI.payRadios.forEach((r) => (r.checked = r.value === co.pay));
 
-  // Instructions text
   const subtotal = formatMoney(cartSubtotal());
   const orderId = getOrCreateOrderId();
 
@@ -741,7 +722,6 @@ function updateCartUI() {
   const total = cartCountTotal();
   if (els.cartCount) els.cartCount.textContent = String(total);
 
-  // Ensure checkout UI exists (injected once)
   ensureCheckoutUI();
 
   if (!els.cartItems) return;
@@ -750,7 +730,6 @@ function updateCartUI() {
   if (!cart.length) {
     els.cartEmpty && (els.cartEmpty.hidden = false);
 
-    // hide checkout panel + reset button behavior
     const co = getCheckout();
     if (co.step !== "cart") setCheckout({ ...co, step: "cart" });
 
@@ -760,7 +739,6 @@ function updateCartUI() {
       els.sendWhatsApp.setAttribute("aria-hidden", "true");
     }
 
-    // If cart is empty, also clear checkout/order id
     clearCheckout();
     syncCheckoutUIFromState();
     return;
@@ -768,14 +746,12 @@ function updateCartUI() {
 
   els.cartEmpty && (els.cartEmpty.hidden = true);
 
-  // ✅ Phase 1: main drawer button becomes "Checkout" until they are in placed/checkout.
   if (els.sendWhatsApp) {
     els.sendWhatsApp.classList.remove("is-hidden");
     els.sendWhatsApp.setAttribute("aria-hidden", "false");
 
     const co = getCheckout();
 
-    // Button behavior depends on step
     if (co.step === "cart") {
       els.sendWhatsApp.textContent = "Checkout";
       els.sendWhatsApp.href = "#";
@@ -784,7 +760,6 @@ function updateCartUI() {
         co.pay === "whatsapp" ? "Send Order on WhatsApp" : "Review payment instructions";
       els.sendWhatsApp.href = co.pay === "whatsapp" ? buildWhatsAppLink(buildOrderMessage()) : "#";
     } else {
-      // placed
       els.sendWhatsApp.textContent = "Send Order on WhatsApp";
       els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
     }
@@ -855,10 +830,8 @@ function updateCartUI() {
     els.cartItems.appendChild(row);
   });
 
-  // Keep checkout panel synced
   syncCheckoutUIFromState();
 
-  // Keep WhatsApp link up to date when needed
   if (els.sendWhatsApp && els.sendWhatsApp.href && els.sendWhatsApp.href !== "#") {
     els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
   }
@@ -916,15 +889,12 @@ function bindCart() {
     clearCheckout();
   });
 
-  // ✅ Phase 1: intercept the main button to go to checkout instead of WhatsApp.
   if (els.sendWhatsApp) {
     els.sendWhatsApp.addEventListener("click", (e) => {
       const cart = getCart();
       if (!cart.length) return;
 
       const co = getCheckout();
-
-      // If href is WhatsApp and they chose whatsapp (or placed), allow default.
       const href = safeText(els.sendWhatsApp.getAttribute("href"));
       const isWhatsAppLink = href.startsWith("https://wa.me/");
 
@@ -936,20 +906,14 @@ function bindCart() {
       }
 
       if (co.step === "checkout") {
-        if (co.pay === "whatsapp" && isWhatsAppLink) {
-          // allow default open WhatsApp
-          return;
-        }
-        // Otherwise just keep them in checkout and show instructions.
+        if (co.pay === "whatsapp" && isWhatsAppLink) return;
         e.preventDefault();
         openDrawer();
         return;
       }
 
-      // placed: allow WhatsApp link
       if (co.step === "placed" && isWhatsAppLink) return;
 
-      // fallback
       e.preventDefault();
       openDrawer();
     });
@@ -1061,7 +1025,6 @@ function closeModal() {
    Load products
    ====================== */
 async function loadProducts() {
-  // root-absolute path avoids path weirdness
   const res = await fetch("/products.json", { cache: "no-store" });
   if (!res.ok) throw new Error("Could not load products.json");
 
@@ -1115,7 +1078,7 @@ function initKeyboard() {
   initYear();
   bindCart();
   bindModal();
-  bindPayments(); // legacy
+  bindPayments();
   initKeyboard();
 
   try {

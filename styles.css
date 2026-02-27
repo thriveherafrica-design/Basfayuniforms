@@ -877,11 +877,11 @@ input:focus, select:focus {
 }
 .product.type-accessory .tag{ background: rgba(180,83,9,0.92) !important; }
 
-/* Shirt = Cool Slate Blue */
+/* Shirt = Soft Dusty Rose */
 .product.type-shirt{
-  background: #E6EEF8 !important;
-  border: 1px solid #C9D6EA !important;
-}
+  background: #F6E6EC !important;
+  border: 1px solid #E9CBD6 !important;
+} 
 
 /* Dress = Maroon */
 .product.type-dress{

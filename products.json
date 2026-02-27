@@ -533,6 +533,111 @@
   "description": "Plain green school marvin (beanie). Soft knit, warm and comfortable."
 },
   {
+  "id": "shirt-white",
+  "name": "Shirt – White",
+  "color": "White",
+  "type": "Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 250 },
+    { "size": "M", "price": 300 },
+    { "size": "L", "price": 350 }
+  ],
+  "image": "./images/shirt-white.png",
+  "featured": false,
+  "description": "Plain white school shirt. Comfortable fabric, neat fit, suitable for daily school wear."
+},
+  {
+  "id": "shirt-cream-white",
+  "name": "Shirt – Cream White",
+  "color": "Cream White",
+  "type": "Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 250 },
+    { "size": "M", "price": 300 },
+    { "size": "L", "price": 350 }
+  ],
+  "image": "./images/shirt-cream-white.png",
+  "featured": false,
+  "description": "Plain cream white school shirt. Soft, durable fabric for everyday school use."
+},
+  {
+  "id": "shirt-red",
+  "name": "Shirt – Red",
+  "color": "Red",
+  "type": "Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 250 },
+    { "size": "M", "price": 300 },
+    { "size": "L", "price": 350 }
+  ],
+  "image": "./images/shirt-red.png",
+  "featured": false,
+  "description": "Plain red school shirt. Bright, durable and comfortable for school wear."
+},
+  {
+  "id": "shirt-blue",
+  "name": "Shirt – Blue",
+  "color": "Blue",
+  "type": "Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 250 },
+    { "size": "M", "price": 300 },
+    { "size": "L", "price": 350 }
+  ],
+  "image": "./images/shirt-blue.png",
+  "featured": false,
+  "description": "Plain blue school shirt. Clean finish, comfortable and easy to maintain."
+},
+  {
+  "id": "shirt-sky-blue",
+  "name": "Shirt – Sky Blue",
+  "color": "Sky Blue",
+  "type": "Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 250 },
+    { "size": "M", "price": 300 },
+    { "size": "L", "price": 350 }
+  ],
+  "image": "./images/shirt-sky-blue.png",
+  "featured": false,
+  "description": "Plain sky blue school shirt. Light, breathable and ideal for daily school use."
+},
+  {
+  "id": "shirt-yellow",
+  "name": "Shirt – Yellow",
+  "color": "Yellow",
+  "type": "Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 250 },
+    { "size": "M", "price": 300 },
+    { "size": "L", "price": 350 }
+  ],
+  "image": "./images/shirt-yellow.png",
+  "featured": false,
+  "description": "Plain yellow school shirt. Bright, comfortable and durable for school wear."
+},
+  {
+  "id": "shirt-green",
+  "name": "Shirt – Green",
+  "color": "Green",
+  "type": "Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 250 },
+    { "size": "M", "price": 300 },
+    { "size": "L", "price": 350 }
+  ],
+  "image": "./images/shirt-green.png",
+  "featured": false,
+  "description": "Plain green school shirt. Comfortable, long-lasting fabric suitable for daily wear."
+},
+  {
     "id": "red-checked-dress",
     "name": "Red Checked Dress",
     "color": "Red",

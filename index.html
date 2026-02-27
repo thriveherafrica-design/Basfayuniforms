@@ -343,14 +343,14 @@
         <div class="drawer-foot">
           <div class="cart-note muted">Size included.</div>
 
+          <!-- ✅ UPDATED PAYMENT CARD (Till + Copy buttons + Mpesa code) -->
           <div class="card soft pay-card">
             <div class="pay-title">Payment</div>
 
             <div class="pay-options">
-              <!-- ✅ updated to Till (placeholder till number) -->
               <label class="pay-opt">
                 <input type="radio" name="payMethod" value="Till" checked />
-                <span><strong>M-Pesa Buy Goods</strong> (Till: XXXX)</span>
+                <span><strong>M-Pesa Buy Goods</strong> (Till: <span id="tillNumberUI">XXXX</span>)</span>
               </label>
 
               <label class="pay-opt">
@@ -359,7 +359,25 @@
               </label>
             </div>
 
-            <!-- ✅ phone only (minimal friction) -->
+            <div id="mpesaBox" class="checkout-field">
+              <div class="muted" style="margin-bottom:10px;">
+                1) Copy Till and Amount<br />
+                2) Pay via M-Pesa Buy Goods<br />
+                3) Paste the M-Pesa confirmation code below
+              </div>
+
+              <button class="btn ghost full" id="copyTillBtn" type="button">Copy Till Number</button>
+              <button class="btn ghost full" id="copyAmountBtn" type="button">Copy Amount</button>
+
+              <label for="mpesaCode" style="margin-top:10px; display:block; font-weight:800;">M-Pesa Confirmation Code</label>
+              <input
+                type="text"
+                id="mpesaCode"
+                placeholder="e.g. QFT3XYZ123"
+                autocomplete="off"
+              />
+            </div>
+
             <div class="checkout-field">
               <label for="customerPhone">Phone Number</label>
               <input
@@ -376,14 +394,8 @@
             </div>
           </div>
 
-          <!-- ✅ changed: proceed button (JS will turn it into Send on WhatsApp in step 2) -->
-          <a
-            class="btn primary full"
-            id="checkoutBtn"
-            href="#"
-            rel="noopener"
-            >Proceed to checkout</a
-          >
+          <!-- ✅ UPDATED CTA (kept your original ID) -->
+          <a class="btn primary full" id="checkoutBtn" href="#" rel="noopener">Proceed</a>
 
           <button class="btn ghost full" id="clearCart" type="button">Clear</button>
         </div>

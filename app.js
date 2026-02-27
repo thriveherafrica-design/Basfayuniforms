@@ -50,16 +50,11 @@ const els = {
   cartEmpty: document.getElementById("cartEmpty"),
   clearCart: document.getElementById("clearCart"),
 
-  // ✅ UPDATED: checkout CTA in your HTML
   checkoutBtn: document.getElementById("checkoutBtn"),
-
-  // Phone input
   customerPhone: document.getElementById("customerPhone"),
 
-  // Payment radios
   payRadios: document.querySelectorAll('input[name="payMethod"]'),
 
-  // ✅ NEW: Mpesa UI
   tillNumberUI: document.getElementById("tillNumberUI"),
   mpesaBox: document.getElementById("mpesaBox"),
   copyTillBtn: document.getElementById("copyTillBtn"),
@@ -141,7 +136,7 @@ async function copyToClipboard(text){
 }
 
 function getTotalAmount(){
-  return calcSubtotal(); // subtotal only, delivery fee confirmed later
+  return calcSubtotal();
 }
 
 function togglePaymentUI(){
@@ -235,11 +230,12 @@ function buildCheckoutWhatsAppMessage(){
   lines.push("");
 
   cart.forEach((item)=>{
-    const p = PRODUCTS.find(x=>x.id===item.id);
-    if(!p) return;
+    // ✅ UPDATED: tolerate id mismatches, never drop item
+    const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
+    const name = p?.name || `Item (${safeText(item.id)})`;
     const sizeText = item.size && item.size !== "-" ? ` (Size ${item.size})` : "";
     const lineTotal = (Number(item.price)||0)*(Number(item.qty)||0);
-    lines.push(`- ${item.qty} × ${p.name}${sizeText} — ${formatMoney(lineTotal)}`);
+    lines.push(`- ${item.qty} × ${name}${sizeText} — ${formatMoney(lineTotal)}`);
   });
 
   lines.push("");
@@ -486,19 +482,21 @@ function updateCartUI(){
   }
 
   cart.forEach(item=>{
-    const p = PRODUCTS.find(x=>x.id===item.id);
-    if(!p) return;
+    // ✅ UPDATED: tolerate id mismatches, never drop item
+    const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
 
     const row = document.createElement("div");
     row.className="cart-item";
 
     const left = document.createElement("div");
     const title = document.createElement("h4");
-    title.textContent = item.size && item.size !== "-" ? `${p.name} (Size ${item.size})` : p.name;
+
+    const displayName = p?.name || `Item (${safeText(item.id)})`;
+    title.textContent = item.size && item.size !== "-" ? `${displayName} (Size ${item.size})` : displayName;
 
     const meta = document.createElement("div");
     meta.className="meta";
-    meta.innerHTML = `<span class="chip">${safeText(p.color)||"Item"}</span><span class="chip">${formatMoney(item.price)}</span>`;
+    meta.innerHTML = `<span class="chip">${safeText(p?.color || "Item")}</span><span class="chip">${formatMoney(item.price)}</span>`;
 
     left.appendChild(title);
     left.appendChild(meta);
@@ -684,7 +682,6 @@ function bindCart(){
     setCart([]);
   });
 
-  // show till placeholder in UI
   if (els.tillNumberUI) els.tillNumberUI.textContent = CONFIG.tillNumberPlaceholder;
 
   togglePaymentUI();
@@ -697,7 +694,6 @@ function bindCart(){
     copyToClipboard(String(getTotalAmount()));
   });
 
-  // payment change should update UI + button label
   (els.payRadios||[]).forEach(r=>{
     r.addEventListener("change", ()=>{
       togglePaymentUI();
@@ -706,14 +702,12 @@ function bindCart(){
     });
   });
 
-  // ✅ Cash -> WhatsApp directly. Till -> 2-step with Mpesa code.
   els.checkoutBtn?.addEventListener("click", (e)=>{
     const cart = getCart();
     if(!cart.length) return;
 
     const method = getPayMethod();
 
-    // CASH: go straight to WhatsApp
     if(method.toLowerCase().includes("cash")){
       const phone = cleanPhone(els.customerPhone?.value);
       if(!phone || phone.length < 9){
@@ -727,7 +721,6 @@ function bindCart(){
       return;
     }
 
-    // TILL: two-step
     if(getCheckoutStep()==="cart"){
       e.preventDefault();
       setCheckoutStep("checkout");
@@ -737,7 +730,6 @@ function bindCart(){
       return;
     }
 
-    // step 2: require phone + mpesa code
     const phone = cleanPhone(els.customerPhone?.value);
     if(!phone || phone.length < 9){
       e.preventDefault();

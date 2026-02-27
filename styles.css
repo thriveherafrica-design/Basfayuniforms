@@ -877,14 +877,10 @@ input:focus, select:focus {
 }
 .product.type-accessory .tag{ background: rgba(180,83,9,0.92) !important; }
 
-/* Shirt = Bright Warm Beige */
+/* Shirt = Soft Warm Ivory */
 .product.type-shirt{
-  background: linear-gradient(
-    180deg,
-    rgba(255, 236, 200, 0.9),
-    rgba(255, 224, 178, 0.75)
-  ) !important;
-  border: 1px solid rgba(245, 158, 11, 0.25) !important;
+  background: #FFF4E6 !important;
+  border: 1px solid #F1E1C6 !important;
 }
 
 /* Dress = Maroon */

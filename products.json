@@ -789,6 +789,81 @@
   "description": "Plain navy school marvin (beanie). Soft knit, warm and comfortable."
 },
   {
+  "id": "marvin-blue",
+  "name": "Marvin – Blue",
+  "color": "Blue",
+  "type": "Marvin",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 150 },
+    { "size": "M", "price": 150 },
+    { "size": "L", "price": 150 }
+  ],
+  "image": "./images/marvin-blue.png",
+  "featured": false,
+  "description": "Plain blue school marvin (beanie). Soft knit, warm and comfortable."
+},
+  {
+  "id": "marvin-purple",
+  "name": "Marvin – Purple",
+  "color": "Purple",
+  "type": "Marvin",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 150 },
+    { "size": "M", "price": 150 },
+    { "size": "L", "price": 150 }
+  ],
+  "image": "./images/marvin-purple.png",
+  "featured": false,
+  "description": "Plain purple school marvin (beanie). Comfortable knit fabric suitable for daily school wear."
+},
+  {
+  "id": "marvin-sky-blue",
+  "name": "Marvin – Sky Blue",
+  "color": "Sky Blue",
+  "type": "Marvin",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 150 },
+    { "size": "M", "price": 150 },
+    { "size": "L", "price": 150 }
+  ],
+  "image": "./images/marvin-sky-blue.png",
+  "featured": false,
+  "description": "Plain sky blue school marvin (beanie). Warm, soft knit fabric designed for comfort."
+},
+ {
+  "id": "marvin-light-blue-striped-white",
+  "name": "Marvin – Light Blue Striped White",
+  "color": "Light Blue & White",
+  "type": "Marvin",
+  "pattern": "Striped",
+  "variants": [
+    { "size": "S", "price": 150 },
+    { "size": "M", "price": 150 },
+    { "size": "L", "price": 150 }
+  ],
+  "image": "./images/marvin-light-blue-striped-white.png",
+  "featured": false,
+  "description": "Light blue school marvin with white stripes. Soft knit fabric designed for warmth and everyday school wear."
+},
+  {
+  "id": "marvin-light-purple",
+  "name": "Marvin – Light Purple",
+  "color": "Light Purple",
+  "type": "Marvin",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 150 },
+    { "size": "M", "price": 150 },
+    { "size": "L", "price": 150 }
+  ],
+  "image": "./images/marvin-light-purple.png",
+  "featured": false,
+  "description": "Plain light purple school marvin (beanie). Soft, warm and suitable for everyday use."
+},
+  {
   "id": "marvin-red",
   "name": "Marvin – Red",
   "color": "Red",

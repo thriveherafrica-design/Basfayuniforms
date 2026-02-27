@@ -1,21 +1,17 @@
 /* ============================
    BASFAY Catalog Site (Clean UI)
-   Cart + Two-step Checkout (Phone only)
-   Uses existing HTML IDs:
-   - cart badge: #cartCount
-   - checkout CTA button: #checkoutBtn  (Cash -> WhatsApp, Till -> 2-step confirm)
-   - phone input: #customerPhone
-   - Mpesa UI: #tillNumberUI #mpesaBox #copyTillBtn #copyAmountBtn #mpesaCode
+   Cart + Two-step Checkout (Cash vs Till)
+   (FULL VERSION — keeps your full catalog, filters, modal, drawer)
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED v20260227-6");
+console.log("✅ BASFAY app.js LOADED (FULL + CART DISPLAY FIX)");
 
 const CONFIG = {
   currency: "KES",
   pickup: "Kangemi",
   whatsappNumber: "254119667836",
   businessName: "BASFAY Uniforms",
-  tillNumberPlaceholder: "XXXX",
+  tillNumberPlaceholder: "XXXX", // replace with real till later
 };
 
 const FUTURE_CATEGORIES = [
@@ -50,17 +46,20 @@ const els = {
   cartEmpty: document.getElementById("cartEmpty"),
   clearCart: document.getElementById("clearCart"),
 
+  // ✅ HTML CTA is checkoutBtn
   checkoutBtn: document.getElementById("checkoutBtn"),
-  customerPhone: document.getElementById("customerPhone"),
 
+  customerPhone: document.getElementById("customerPhone"),
   payRadios: document.querySelectorAll('input[name="payMethod"]'),
 
+  // ✅ Mpesa UI
   tillNumberUI: document.getElementById("tillNumberUI"),
   mpesaBox: document.getElementById("mpesaBox"),
   copyTillBtn: document.getElementById("copyTillBtn"),
   copyAmountBtn: document.getElementById("copyAmountBtn"),
   mpesaCode: document.getElementById("mpesaCode"),
 
+  // Modal
   modal: document.getElementById("modal"),
   modalBackdrop: document.getElementById("modalBackdrop"),
   closeModal: document.getElementById("closeModal"),
@@ -114,12 +113,6 @@ function cleanPhone(raw){
 function buildWhatsAppLink(message){
   return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
-
-function getPayMethod(){
-  const checked = [...(els.payRadios||[])].find(r=>r.checked);
-  return checked?.value || "Till";
-}
-
 async function copyToClipboard(text){
   try{
     await navigator.clipboard.writeText(String(text));
@@ -133,16 +126,6 @@ async function copyToClipboard(text){
     ta.remove();
     toast("Copied ✅");
   }
-}
-
-function getTotalAmount(){
-  return calcSubtotal();
-}
-
-function togglePaymentUI(){
-  const method = getPayMethod();
-  const isTill = method.toLowerCase().includes("till");
-  if (els.mpesaBox) els.mpesaBox.classList.toggle("is-hidden", !isTill);
 }
 
 /* ============ Checkout state ============ */
@@ -188,7 +171,7 @@ function addToCart(productId,size,price,qty=1){
   setCheckoutStep("cart");
   setCart(cart);
 
-  const p = PRODUCTS.find(x=>x.id===productId);
+  const p = PRODUCTS.find(x => normalize(x.id) === normalize(productId));
   toast(`${p?.name || "Item"} added to cart`);
 }
 function removeFromCart(key){
@@ -202,11 +185,23 @@ function setQty(key,qty){
   setCart(cart);
 }
 
-/* ============ Payment + message ============ */
+/* ============ Payment helpers ============ */
+function getPayMethod(){
+  const checked = [...(els.payRadios||[])].find(r=>r.checked);
+  return checked?.value || "Till";
+}
+function togglePaymentUI(){
+  const method = getPayMethod();
+  const isTill = method.toLowerCase().includes("till");
+  if (els.mpesaBox) els.mpesaBox.classList.toggle("is-hidden", !isTill);
+}
 function getSelectedPayMethodLabel(){
   const v = getPayMethod();
   if (v.toLowerCase().includes("cash")) return "Cash";
   return `M-Pesa Buy Goods (Till: ${CONFIG.tillNumberPlaceholder})`;
+}
+function getTotalAmount(){
+  return calcSubtotal(); // delivery fee confirmed later
 }
 
 function buildCheckoutWhatsAppMessage(){
@@ -230,9 +225,9 @@ function buildCheckoutWhatsAppMessage(){
   lines.push("");
 
   cart.forEach((item)=>{
-    // ✅ UPDATED: tolerate id mismatches, never drop item
     const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
     const name = p?.name || `Item (${safeText(item.id)})`;
+
     const sizeText = item.size && item.size !== "-" ? ` (Size ${item.size})` : "";
     const lineTotal = (Number(item.price)||0)*(Number(item.qty)||0);
     lines.push(`- ${item.qty} × ${name}${sizeText} — ${formatMoney(lineTotal)}`);
@@ -446,7 +441,7 @@ function productCard(p){
   return wrap;
 }
 
-/* ============ Drawer / Cart UI ============ */
+/* ============ Drawer / Cart UI (FIXED DISPLAY) ============ */
 function updateCartUI(){
   const cart = getCart();
   refreshCartCount();
@@ -454,9 +449,14 @@ function updateCartUI(){
   if(!els.cartItems) return;
   els.cartItems.innerHTML = "";
 
+  // ✅ force container visible
+  els.cartItems.style.display = "block";
+  els.cartItems.style.minHeight = "10px";
+
   if(!cart.length){
     if(els.cartEmpty) els.cartEmpty.hidden = false;
     setCheckoutStep("cart");
+
     if(els.checkoutBtn){
       els.checkoutBtn.textContent = "Proceed";
       els.checkoutBtn.classList.add("is-hidden");
@@ -482,49 +482,95 @@ function updateCartUI(){
   }
 
   cart.forEach(item=>{
-    // ✅ UPDATED: tolerate id mismatches, never drop item
+    // ✅ tolerate id mismatch, never skip
     const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
 
     const row = document.createElement("div");
-    row.className="cart-item";
+    row.className = "cart-item";
+
+    // ✅ inline layout so it can’t “vanish”
+    row.style.display = "flex";
+    row.style.alignItems = "center";
+    row.style.justifyContent = "space-between";
+    row.style.gap = "12px";
+    row.style.padding = "10px 0";
+    row.style.borderBottom = "1px solid rgba(0,0,0,.10)";
 
     const left = document.createElement("div");
+    left.style.flex = "1";
+    left.style.minWidth = "0";
+
     const title = document.createElement("h4");
+    title.style.margin = "0 0 6px 0";
+    title.style.fontSize = "14px";
+    title.style.fontWeight = "900";
+    title.style.wordBreak = "break-word";
 
     const displayName = p?.name || `Item (${safeText(item.id)})`;
-    title.textContent = item.size && item.size !== "-" ? `${displayName} (Size ${item.size})` : displayName;
+    title.textContent = item.size && item.size !== "-"
+      ? `${displayName} (Size ${item.size})`
+      : displayName;
 
     const meta = document.createElement("div");
-    meta.className="meta";
-    meta.innerHTML = `<span class="chip">${safeText(p?.color || "Item")}</span><span class="chip">${formatMoney(item.price)}</span>`;
+    meta.className = "meta";
+    meta.style.display = "flex";
+    meta.style.gap = "8px";
+    meta.style.flexWrap = "wrap";
+    meta.style.fontSize = "12px";
+    meta.style.opacity = "0.9";
+
+    const chip = (txt)=>{
+      const s = document.createElement("span");
+      s.textContent = txt;
+      s.style.padding = "3px 8px";
+      s.style.borderRadius = "999px";
+      s.style.background = "rgba(0,0,0,.06)";
+      s.style.border = "1px solid rgba(0,0,0,.08)";
+      return s;
+    };
+
+    meta.appendChild(chip(safeText(p?.color || "Item")));
+    meta.appendChild(chip(formatMoney(item.price)));
 
     left.appendChild(title);
     left.appendChild(meta);
 
     const right = document.createElement("div");
     const controls = document.createElement("div");
-    controls.className="cart-controls";
+    controls.className = "cart-controls";
+    controls.style.display = "flex";
+    controls.style.alignItems = "center";
+    controls.style.gap = "8px";
 
-    const minus = document.createElement("button");
-    minus.className="qty-btn";
-    minus.type="button";
-    minus.textContent="−";
-    minus.addEventListener("click", ()=>setQty(item.key, item.qty-1));
+    const makeBtn = (txt)=>{
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = txt;
+      b.style.width = "34px";
+      b.style.height = "34px";
+      b.style.borderRadius = "10px";
+      b.style.border = "1px solid rgba(0,0,0,.18)";
+      b.style.background = "#fff";
+      b.style.cursor = "pointer";
+      b.style.fontWeight = "900";
+      b.style.lineHeight = "1";
+      return b;
+    };
+
+    const minus = makeBtn("−");
+    minus.addEventListener("click", ()=>setQty(item.key, (Number(item.qty)||1) - 1));
 
     const qty = document.createElement("div");
-    qty.className="qty";
-    qty.textContent=String(item.qty);
+    qty.className = "qty";
+    qty.textContent = String(item.qty);
+    qty.style.minWidth = "22px";
+    qty.style.textAlign = "center";
+    qty.style.fontWeight = "900";
 
-    const plus = document.createElement("button");
-    plus.className="qty-btn";
-    plus.type="button";
-    plus.textContent="+";
-    plus.addEventListener("click", ()=>setQty(item.key, item.qty+1));
+    const plus = makeBtn("+");
+    plus.addEventListener("click", ()=>setQty(item.key, (Number(item.qty)||1) + 1));
 
-    const del = document.createElement("button");
-    del.className="qty-btn";
-    del.type="button";
-    del.textContent="🗑";
+    const del = makeBtn("🗑");
     del.addEventListener("click", ()=>removeFromCart(item.key));
 
     controls.appendChild(minus);
@@ -533,6 +579,7 @@ function updateCartUI(){
     controls.appendChild(del);
 
     right.appendChild(controls);
+
     row.appendChild(left);
     row.appendChild(right);
 
@@ -548,8 +595,9 @@ function bindModal(){
   els.closeModal?.addEventListener("click", closeModal);
   els.modalBackdrop?.addEventListener("click", closeModal);
 }
+
 function openModal(productId){
-  const p = PRODUCTS.find(x=>x.id===productId);
+  const p = PRODUCTS.find(x => normalize(x.id) === normalize(productId));
   if(!p || !els.modal) return;
 
   els.modalTitle.textContent = p.name;
@@ -668,7 +716,7 @@ function bindFilters(){
   });
 }
 
-/* ============ Bind cart + CTA ============ */
+/* ============ Bind cart + checkout ============ */
 function bindCart(){
   els.openCart?.addEventListener("click", ()=>{
     updateCartUI();
@@ -702,12 +750,15 @@ function bindCart(){
     });
   });
 
+  // ✅ Cash: WhatsApp directly
+  // ✅ Till: Step 1 proceed -> Step 2 require mpesa code -> WhatsApp confirmation
   els.checkoutBtn?.addEventListener("click", (e)=>{
     const cart = getCart();
     if(!cart.length) return;
 
     const method = getPayMethod();
 
+    // CASH
     if(method.toLowerCase().includes("cash")){
       const phone = cleanPhone(els.customerPhone?.value);
       if(!phone || phone.length < 9){
@@ -721,6 +772,7 @@ function bindCart(){
       return;
     }
 
+    // TILL: step 1
     if(getCheckoutStep()==="cart"){
       e.preventDefault();
       setCheckoutStep("checkout");
@@ -730,6 +782,7 @@ function bindCart(){
       return;
     }
 
+    // TILL: step 2 validation
     const phone = cleanPhone(els.customerPhone?.value);
     if(!phone || phone.length < 9){
       e.preventDefault();
@@ -753,7 +806,7 @@ function bindCart(){
 
 /* ============ Load products ============ */
 async function loadProducts(){
-  const res = await fetch("/products.json", { cache:"no-store" });
+  const res = await fetch("./products.json", { cache:"no-store" });
   if(!res.ok) throw new Error("Could not load products.json");
   const data = await res.json();
   if(!Array.isArray(data)) throw new Error("products.json must be an array");

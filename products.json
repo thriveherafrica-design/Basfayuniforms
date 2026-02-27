@@ -638,23 +638,26 @@
   "description": "Plain green school shirt. Comfortable, long-lasting fabric suitable for daily wear."
 },
   {
+  "id": "shirt-light-yellow",
+  "name": "Shirt – Light Yellow",
+  "color": "Light Yellow",
+  "type": "Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 250 },
+    { "size": "M", "price": 300 },
+    { "size": "L", "price": 350 }
+  ],
+  "image": "./images/shirt-light-yellow.png",
+  "featured": false,
+  "description": "Plain light yellow school shirt. Soft tone, breathable fabric and comfortable for everyday school wear."
+},
+  {
     "id": "red-checked-dress",
     "name": "Red Checked Dress",
     "color": "Red",
     "type": "Dress",
     "pattern": "Checked",
-    "variants": [],
-    "price": null,
-    "image": "",
-    "featured": false,
-    "description": ""
-  },
-  {
-    "id": "blue-shirt",
-    "name": "Blue Shirt",
-    "color": "Blue",
-    "type": "Shirt",
-    "pattern": "Plain",
     "variants": [],
     "price": null,
     "image": "",
@@ -718,18 +721,6 @@
     "name": "Grey Trousers",
     "color": "Grey",
     "type": "Trousers",
-    "pattern": "Plain",
-    "variants": [],
-    "price": null,
-    "image": "",
-    "featured": false,
-    "description": ""
-  },
-  {
-    "id": "white-shirt",
-    "name": "White Shirt",
-    "color": "White",
-    "type": "Shirt",
     "pattern": "Plain",
     "variants": [],
     "price": null,

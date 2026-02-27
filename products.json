@@ -470,6 +470,81 @@
   "description": "Maroon PE shirt. comfortable, durable and designed for school physical activities."
 },
   {
+  "id": "pe-shirt-yellow-white-vneck",
+  "name": "PE Shirt – Yellow (White V-Neck)",
+  "color": "Yellow",
+  "type": "PE Shirt",
+  "pattern": "White V-Neck",
+  "variants": [
+    { "size": "S", "price": 350 },
+    { "size": "M", "price": 400 },
+    { "size": "L", "price": 450 }
+  ],
+  "image": "./images/pe-shirt-yellow-white-vneck.png",
+  "featured": false,
+  "description": "Yellow PE shirt with white V-neck detail. Breathable fabric designed for comfort during sports and school activities."
+},
+  {
+  "id": "pe-shirt-red-white-vneck",
+  "name": "PE Shirt – Red (White V-Neck)",
+  "color": "Red",
+  "type": "PE Shirt",
+  "pattern": "White V-Neck",
+  "variants": [
+    { "size": "S", "price": 350 },
+    { "size": "M", "price": 400 },
+    { "size": "L", "price": 450 }
+  ],
+  "image": "./images/pe-shirt-red-white-vneck.png",
+  "featured": false,
+  "description": "Red PE shirt with white V-neck detail. Comfortable, lightweight and suitable for active school use."
+},
+  {
+  "id": "pe-shirt-navy-white-vneck",
+  "name": "PE Shirt – Navy (White V-Neck)",
+  "color": "Navy",
+  "type": "PE Shirt",
+  "pattern": "White V-Neck",
+  "variants": [
+    { "size": "S", "price": 350 },
+    { "size": "M", "price": 400 },
+    { "size": "L", "price": 450 }
+  ],
+  "image": "./images/pe-shirt-navy-white-vneck.png",
+  "featured": false,
+  "description": "Navy PE shirt with white V-neck detail. Smart design with comfortable, breathable fabric."
+},
+  {
+  "id": "pe-shirt-grey-white-vneck",
+  "name": "PE Shirt – Grey (White V-Neck)",
+  "color": "Grey",
+  "type": "PE Shirt",
+  "pattern": "White V-Neck",
+  "variants": [
+    { "size": "S", "price": 350 },
+    { "size": "M", "price": 400 },
+    { "size": "L", "price": 450 }
+  ],
+  "image": "./images/pe-shirt-grey-white-vneck.png",
+  "featured": false,
+  "description": "Grey PE shirt with white V-neck detail. Durable and breathable fabric for sports and school activities."
+},
+  {
+  "id": "pe-shirt-blue-white-vneck",
+  "name": "PE Shirt – Blue (White V-Neck)",
+  "color": "Blue",
+  "type": "PE Shirt",
+  "pattern": "White V-Neck",
+  "variants": [
+    { "size": "S", "price": 350 },
+    { "size": "M", "price": 400 },
+    { "size": "L", "price": 450 }
+  ],
+  "image": "./images/pe-shirt-blue-white-vneck.png",
+  "featured": false,
+  "description": "Blue PE shirt with white V-neck detail. Comfortable fit designed for daily school sports."
+},
+  {
     "id": "socks-grey-blue-white-001",
     "name": "Grey Socks - Blue & White Stripes",
     "color": "Grey",

@@ -112,6 +112,18 @@
       .pay-opt input{ transform: translateY(1px); }
       .pay-help{ margin-top: 8px; font-size: 13px; }
 
+      /* ✅ NEW: phone input styling (minimal, matches your style) */
+      .checkout-field{ margin-top:12px; }
+      .checkout-field label{ display:block; font-weight:800; margin-bottom:6px; }
+      .checkout-field input{
+        width:100%;
+        padding:10px 12px;
+        border-radius:12px;
+        border:1px solid rgba(0,0,0,.18);
+        background:#fff;
+        font-size:.95rem;
+      }
+
       /* Size dropdown */
       .size-label{ display:block; font-size:.85rem; margin:10px 0 6px; opacity:.85; }
       .size-select{
@@ -337,9 +349,10 @@
             <div class="pay-title">Payment</div>
 
             <div class="pay-options">
+              <!-- ✅ updated to Till (placeholder till number) -->
               <label class="pay-opt">
-                <input type="radio" name="payMethod" value="M-Pesa" checked />
-                <span><strong>M-Pesa</strong> (After confirm)</span>
+                <input type="radio" name="payMethod" value="Till" checked />
+                <span><strong>M-Pesa Buy Goods</strong> (Till: XXXX)</span>
               </label>
 
               <label class="pay-opt">
@@ -348,18 +361,30 @@
               </label>
             </div>
 
+            <!-- ✅ phone only (minimal friction) -->
+            <div class="checkout-field">
+              <label for="customerPhone">Phone Number</label>
+              <input
+                type="tel"
+                id="customerPhone"
+                placeholder="07XXXXXXXX"
+                inputmode="tel"
+                autocomplete="tel"
+              />
+            </div>
+
             <div class="muted pay-help">
-              We confirm total + delivery fee before payment.
+              We confirm delivery fee before payment.
             </div>
           </div>
 
+          <!-- ✅ changed: proceed button (JS will turn it into Send on WhatsApp in step 2) -->
           <a
             class="btn primary full"
-            id="sendWhatsApp"
-            href="https://wa.me/254119667836"
+            id="checkoutBtn"
+            href="#"
             rel="noopener"
-            target="_blank"
-            >Send on WhatsApp</a
+            >Proceed to checkout</a
           >
 
           <button class="btn ghost full" id="clearCart" type="button">Clear</button>
@@ -406,4 +431,4 @@
       document.getElementById("year").textContent = new Date().getFullYear();
     </script>
   </body>
-</html> here is the html
+</html>

@@ -591,6 +591,66 @@
     ]
   },
   {
+  "id": "socks-light-brown-striped-dark-brown",
+  "name": "Socks – Light Brown Striped Dark Brown",
+  "color": "Light Brown & Dark Brown",
+  "type": "Socks",
+  "pattern": "Striped",
+  "variants": [
+    { "size": "S", "price": 100 },
+    { "size": "M", "price": 100 },
+    { "size": "L", "price": 100 }
+  ],
+  "image": "./images/socks-light-brown-striped-dark-brown.png",
+  "featured": false,
+  "description": "Light brown school socks with dark brown stripes. Comfortable knit fabric suitable for everyday school wear."
+},
+  {
+  "id": "socks-red-plain",
+  "name": "Socks – Red Plain",
+  "color": "Red",
+  "type": "Socks",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 100 },
+    { "size": "M", "price": 100 },
+    { "size": "L", "price": 100 }
+  ],
+  "image": "./images/socks-red-plain.png",
+  "featured": false,
+  "description": "Plain red school socks. Soft, durable knit suitable for everyday school wear."
+},
+  {
+  "id": "socks-blue-plain",
+  "name": "Socks – Blue Plain",
+  "color": "Blue",
+  "type": "Socks",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 100 },
+    { "size": "M", "price": 100 },
+    { "size": "L", "price": 100 }
+  ],
+  "image": "./images/socks-blue-plain.png",
+  "featured": false,
+  "description": "Plain blue school socks. Comfortable and durable for daily school use."
+},
+  {
+  "id": "socks-navy-plain",
+  "name": "Socks – Navy Plain",
+  "color": "Navy",
+  "type": "Socks",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 100 },
+    { "size": "M", "price": 100 },
+    { "size": "L", "price": 100 }
+  ],
+  "image": "./images/socks-navy-plain.png",
+  "featured": false,
+  "description": "Plain navy school socks. Durable knit fabric designed for comfort and everyday school wear."
+},
+  {
   "id": "socks-grey-plain-001",
   "name": "Grey Socks - Plain",
   "color": "Grey",

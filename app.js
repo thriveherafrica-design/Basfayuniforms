@@ -1,61 +1,16 @@
-// ✅ BASFAY DEBUG BOOT (REMOVE AFTER FIXING)
-(function () {
-  const tag = document.createElement("div");
-  tag.id = "basfayDebugTag";
-  tag.style.position = "fixed";
-  tag.style.top = "10px";
-  tag.style.right = "10px";
-  tag.style.zIndex = "99999";
-  tag.style.padding = "8px 10px";
-  tag.style.borderRadius = "10px";
-  tag.style.background = "rgba(0,0,0,0.85)";
-  tag.style.color = "white";
-  tag.style.fontSize = "12px";
-  tag.style.fontWeight = "700";
-  tag.textContent = "BASFAY JS LOADED ✅";
-  document.addEventListener("DOMContentLoaded", () => document.body.appendChild(tag));
-
-  console.log("✅ BASFAY JS LOADED ✅", new Date().toISOString());
-
-  // Watch clicks on any button containing "Add"
-  document.addEventListener("click", (e) => {
-    const btn = e.target?.closest?.("button");
-    if (!btn) return;
-    const t = (btn.textContent || "").trim().toLowerCase();
-    if (t.includes("add")) {
-      console.log("🟦 Clicked button:", btn.textContent);
-    }
-  });
-
-  // Check localStorage works
-  try {
-    localStorage.setItem("__basfay_test__", "ok");
-    localStorage.removeItem("__basfay_test__");
-    console.log("✅ localStorage OK");
-  } catch (err) {
-    console.error("❌ localStorage blocked:", err);
-  }
-})();
-
 /* ============================
-   BASFAY Catalog Site (Clean UI)
+   BASFAY Catalog Site (Clean UI) — Hardened Cart
    - Products loaded from products.json
-   - Top toolbar: Category dropdown + Color + Sort
-   - Sidebar exists but hidden by CSS
-   - Order list stored in localStorage
-   - WhatsApp order message generator
-   - Size dropdown per product card
-   - Payment method selector (Cash / M-Pesa)
-   - Category dropdown ALWAYS shows all FUTURE_CATEGORIES order
-   - ✅ Tracksuit cards = lime theme only
-   - ✅ Socks cards = emerald theme only
+   - Add to cart DOES NOT auto-open cart
+   - Cart count ALWAYS updates (creates badge if missing)
+   - Drawer shows items + Proceed to checkout -> WhatsApp
    ============================ */
 
 const CONFIG = {
   currency: "KES",
   pickup: "Kangemi",
   whatsappNumber: "254119667836",
-  businessName: "BASFAY School Uniforms",
+  businessName: "BASFAY Uniforms",
 };
 
 const FUTURE_CATEGORIES = [
@@ -108,7 +63,7 @@ const els = {
   sendWhatsApp: document.getElementById("sendWhatsApp"),
   clearCart: document.getElementById("clearCart"),
 
-  // payment radios
+  // payment radios (kept if they exist)
   payRadios: document.querySelectorAll('input[name="payMethod"]'),
 
   // modal
@@ -145,8 +100,6 @@ function formatMoney(amount) {
   if (amount == null || Number.isNaN(Number(amount))) return "";
   return `${CONFIG.currency} ${Number(amount).toLocaleString("en-KE")}`;
 }
-
-/* Make safe CSS class from product type (e.g. "PE Shirt" -> "type-pe-shirt") */
 function toTypeClass(type) {
   return (
     "type-" +
@@ -156,7 +109,7 @@ function toTypeClass(type) {
   );
 }
 
-/* Small toast so Add to cart doesn't feel dead */
+/* Toast */
 function toast(msg) {
   const t = document.createElement("div");
   t.textContent = msg;
@@ -188,19 +141,67 @@ function setCheckoutStep(step) {
 }
 
 /* ======================
-   Robust cart count update
+   Cart storage
    ====================== */
+function getCart() {
+  try {
+    const raw = localStorage.getItem(CART_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+function setCart(items) {
+  localStorage.setItem(CART_KEY, JSON.stringify(items));
+  updateCartUI();
+}
+function cartCountTotal() {
+  return getCart().reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
+}
+
+/* ======================
+   Cart count (bulletproof)
+   - Updates #cartCount if exists
+   - Updates any [data-cart-count] if you have one
+   - If nothing exists, creates a badge inside the cart button
+   ====================== */
+function ensureCartBadgeExists() {
+  // If you already have #cartCount, cool.
+  if (document.getElementById("cartCount")) return;
+
+  // If there's a tagged badge, also cool.
+  if (document.querySelector("[data-cart-count]")) return;
+
+  // Create badge inside the cart button
+  const btn = els.openCart || document.getElementById("openCart");
+  if (!btn) return;
+
+  const badge = document.createElement("span");
+  badge.setAttribute("data-cart-count", "true");
+  badge.style.marginLeft = "8px";
+  badge.style.fontWeight = "800";
+  badge.style.fontSize = "12px";
+  badge.style.padding = "2px 8px";
+  badge.style.borderRadius = "999px";
+  badge.style.background = "#000";
+  badge.style.color = "#fff";
+  badge.textContent = "0";
+  btn.appendChild(badge);
+}
+
 function refreshCartCount() {
   const total = cartCountTotal();
 
-  // Update cached el
+  // Update cached
   if (els.cartCount) els.cartCount.textContent = String(total);
 
-  // Update DOM by id (if it was added later)
+  // Update id if present
   const idEl = document.getElementById("cartCount");
   if (idEl) idEl.textContent = String(total);
 
-  // Update any element you choose to tag
+  // Update tagged badges
   document.querySelectorAll("[data-cart-count]").forEach((el) => {
     el.textContent = String(total);
   });
@@ -216,7 +217,6 @@ function getSelectedPayMethodLabel() {
 function bindPayments() {
   (els.payRadios || []).forEach((r) => {
     r.addEventListener("change", () => {
-      // If already in checkout step, refresh WhatsApp link
       if (els.sendWhatsApp && getCheckoutStep() === "checkout") {
         els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
       }
@@ -235,27 +235,8 @@ function buildGenericWhatsAppMessage() {
 }
 
 /* ======================
-   CART (size-aware)
+   Add to cart (GUARANTEED)
    ====================== */
-function getCart() {
-  try {
-    const raw = localStorage.getItem(CART_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-function setCart(items) {
-  localStorage.setItem(CART_KEY, JSON.stringify(items));
-  updateCartUI();
-}
-function cartCountTotal() {
-  return getCart().reduce((sum, item) => sum + (item.qty || 0), 0);
-}
-
-/* Add to cart WITHOUT opening drawer (no forced checkout) */
 function addToCart(productId, size, price, qty = 1) {
   const cart = getCart();
   const key = `${productId}__${size}`;
@@ -264,10 +245,10 @@ function addToCart(productId, size, price, qty = 1) {
   if (found) found.qty += qty;
   else cart.push({ key, id: productId, size: String(size), price: Number(price), qty });
 
-  // When user is still shopping, keep step as cart
-  setCheckoutStep("cart");
-
+  setCheckoutStep("cart"); // keep them shopping
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
+
+  ensureCartBadgeExists();
   refreshCartCount();
   updateCartUI();
 
@@ -282,7 +263,7 @@ function setQty(key, qty) {
   const cart = getCart();
   const item = cart.find((i) => i.key === key);
   if (!item) return;
-  item.qty = Math.max(1, qty);
+  item.qty = Math.max(1, Number(qty) || 1);
   setCart(cart);
 }
 
@@ -299,7 +280,6 @@ function hydrateFiltersOptions() {
   });
 
   const colorList = ["", ...Array.from(colors).sort()];
-
   const existing = Array.from(types).filter(Boolean);
   const extras = existing.filter((c) => !FUTURE_CATEGORIES.includes(c)).sort();
   const typeList = ["", ...FUTURE_CATEGORIES, ...extras];
@@ -360,7 +340,6 @@ function matchesFilters(p) {
 
   if (color && p.color !== color) return false;
   if (type && p.type !== type) return false;
-
   if (!q) return true;
 
   const hay = normalize([p.name, p.color, p.type, p.pattern, p.description].filter(Boolean).join(" "));
@@ -391,7 +370,6 @@ function renderProducts() {
 function productCard(p) {
   const wrap = document.createElement("article");
   wrap.className = "product";
-
   wrap.classList.add(toTypeClass(p.type));
 
   if (p.type === "Tracksuit") wrap.classList.add("product-tracksuit");
@@ -559,16 +537,42 @@ function bindFilters() {
 /* ======================
    Drawer / Cart UI
    ====================== */
-function updateCartUI() {
+function buildOrderMessage() {
   const cart = getCart();
+  const lines = [];
+  const methodText = getSelectedPayMethodLabel();
+
+  lines.push(`Hi ${CONFIG.businessName}, I would like to order:`);
+  lines.push(`Payment method: ${methodText}`);
+  lines.push("");
+
+  cart.forEach((item) => {
+    const p = PRODUCTS.find((x) => x.id === item.id);
+    if (!p) return;
+    const sizeText = item.size && item.size !== "-" ? ` (Size ${item.size})` : "";
+    lines.push(`- ${item.qty} × ${p.name}${sizeText} (${formatMoney(item.price)})`);
+  });
+
+  lines.push("");
+  lines.push(`Pickup: ${CONFIG.pickup}`);
+  lines.push("Delivery: (If needed, share your area and I’ll confirm delivery fee.)");
+  lines.push("");
+  lines.push("Thank you.");
+
+  return lines.join("\n");
+}
+
+function updateCartUI() {
+  ensureCartBadgeExists();
   refreshCartCount();
 
+  const cart = getCart();
   if (!els.cartItems) return;
+
   els.cartItems.innerHTML = "";
 
   if (!cart.length) {
     els.cartEmpty && (els.cartEmpty.hidden = false);
-
     setCheckoutStep("cart");
 
     if (els.sendWhatsApp) {
@@ -582,12 +586,11 @@ function updateCartUI() {
 
   els.cartEmpty && (els.cartEmpty.hidden = true);
 
-  // CTA behavior: Proceed -> Checkout -> WhatsApp
+  const step = getCheckoutStep();
   if (els.sendWhatsApp) {
     els.sendWhatsApp.classList.remove("is-hidden");
     els.sendWhatsApp.setAttribute("aria-hidden", "false");
 
-    const step = getCheckoutStep();
     if (step === "cart") {
       els.sendWhatsApp.textContent = "Proceed to checkout";
       els.sendWhatsApp.href = "#";
@@ -662,35 +665,9 @@ function updateCartUI() {
     els.cartItems.appendChild(row);
   });
 
-  // Update WA link if already on checkout step
   if (els.sendWhatsApp && getCheckoutStep() === "checkout") {
     els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
   }
-}
-
-function buildOrderMessage() {
-  const cart = getCart();
-  const lines = [];
-  const methodText = getSelectedPayMethodLabel();
-
-  lines.push(`Hi ${CONFIG.businessName}, I would like to order:`);
-  lines.push(`Payment method: ${methodText}`);
-  lines.push("");
-
-  cart.forEach((item) => {
-    const p = PRODUCTS.find((x) => x.id === item.id);
-    if (!p) return;
-    const sizeText = item.size && item.size !== "-" ? ` (Size ${item.size})` : "";
-    lines.push(`- ${item.qty} × ${p.name}${sizeText} (${formatMoney(item.price)})`);
-  });
-
-  lines.push("");
-  lines.push(`Pickup: ${CONFIG.pickup}`);
-  lines.push("Delivery: (If needed, share your area and I’ll confirm delivery fee.)");
-  lines.push("");
-  lines.push("Thank you.");
-
-  return lines.join("\n");
 }
 
 function bindCart() {
@@ -703,39 +680,22 @@ function bindCart() {
     setCart([]);
   });
 
-  // CTA click handling: Proceed to checkout (no WhatsApp yet) then Send WhatsApp
   if (els.sendWhatsApp) {
     els.sendWhatsApp.addEventListener("click", (e) => {
       const cart = getCart();
       if (!cart.length) return;
 
-      const step = getCheckoutStep();
-
-      if (step === "cart") {
-        // proceed to checkout inside drawer
+      if (getCheckoutStep() === "cart") {
         e.preventDefault();
         setCheckoutStep("checkout");
         updateCartUI();
-
-        // scroll drawer to payment section if it exists
-        const paySection = document.querySelector('input[name="payMethod"]')?.closest(".card") ||
-          document.querySelector('input[name="payMethod"]')?.closest("section") ||
-          document.querySelector('input[name="payMethod"]')?.parentElement;
-
-        if (paySection && typeof paySection.scrollIntoView === "function") {
-          paySection.scrollIntoView({ behavior: "smooth", block: "start" });
-        } else {
-          toast("Select payment method, then send on WhatsApp.");
-        }
-        return;
+        toast("Select payment method, then send on WhatsApp.");
+      } else {
+        // allow WhatsApp link
+        els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
       }
-
-      // checkout step: allow link to WhatsApp
-      els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
     });
   }
-
-  if (els.sendWhatsApp) els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
 }
 
 function openDrawer() {
@@ -754,6 +714,7 @@ function bindModal() {
   els.closeModal?.addEventListener("click", closeModal);
   els.modalBackdrop?.addEventListener("click", closeModal);
 }
+
 function openModal(productId) {
   const p = PRODUCTS.find((x) => x.id === productId);
   if (!p || !els.modal) return;
@@ -823,7 +784,6 @@ function openModal(productId) {
   els.modalMeta.textContent = bits.filter(Boolean).join(" • ");
 
   if (els.modalAdd) els.modalAdd.textContent = "Add to cart";
-
   els.modalAdd.onclick = () => {
     if (variants.length) {
       if (!selected) return alert("Please select a size first.");
@@ -836,6 +796,7 @@ function openModal(productId) {
 
   els.modal.setAttribute("aria-hidden", "false");
 }
+
 function closeModal() {
   els.modal?.setAttribute("aria-hidden", "true");
 }
@@ -903,6 +864,8 @@ function initKeyboard() {
   try {
     await loadProducts();
     bindFilters();
+
+    ensureCartBadgeExists();
     refreshCartCount();
     updateCartUI();
     renderProducts();

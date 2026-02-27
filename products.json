@@ -696,6 +696,19 @@
   "description": "Maroon leg warmers. Comfortable knit design suitable for school wear and cold weather."
 },
   {
+  "id": "leg-warmers-black",
+  "name": "Leg Warmers – Black",
+  "color": "Black",
+  "type": "Socks",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "One Size", "price": 350 }
+  ],
+  "image": "./images/leg-warmers-black.png",
+  "featured": false,
+  "description": "Black leg warmers. Soft knit design providing warmth and comfort for everyday school wear."
+},
+  {
   "id": "leg-warmers-red",
   "name": "Leg Warmers – Red",
   "color": "Red",

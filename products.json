@@ -548,6 +548,21 @@
   "description": "Plain white school shirt. Comfortable fabric, neat fit, suitable for daily school wear."
 },
   {
+  "id": "shirt-grey",
+  "name": "Shirt – Grey",
+  "color": "Grey",
+  "type": "Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 250 },
+    { "size": "M", "price": 300 },
+    { "size": "L", "price": 350 }
+  ],
+  "image": "./images/shirt-grey.png",
+  "featured": false,
+  "description": "Plain grey school shirt. Comfortable, durable fabric suitable for everyday school wear."
+},
+  {
   "id": "shirt-cream-white",
   "name": "Shirt – Cream White",
   "color": "Cream White",

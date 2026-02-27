@@ -1,6 +1,6 @@
 /* ============================
-   BASFAY Catalog Site (Clean UI) — WORKING Cart + Checkout Step
-   (matches your HTML exactly)
+   BASFAY Catalog Site (Clean UI) — Cart + Two-step Checkout (Phone only)
+   (matches your UPDATED HTML exactly)
    ============================ */
 
 const CONFIG = {
@@ -8,6 +8,7 @@ const CONFIG = {
   pickup: "Kangemi",
   whatsappNumber: "254119667836",
   businessName: "BASFAY Uniforms",
+  tillNumberPlaceholder: "XXXX", // replace when you open the Till
 };
 
 const FUTURE_CATEGORIES = [
@@ -53,8 +54,11 @@ const els = {
   cartCount: document.getElementById("cartCount"),
   cartItems: document.getElementById("cartItems"),
   cartEmpty: document.getElementById("cartEmpty"),
-  sendWhatsApp: document.getElementById("sendWhatsApp"),
   clearCart: document.getElementById("clearCart"),
+
+  // ✅ NEW HTML ids
+  checkoutBtn: document.getElementById("checkoutBtn"),
+  customerPhone: document.getElementById("customerPhone"),
 
   payRadios: document.querySelectorAll('input[name="payMethod"]'),
 
@@ -117,6 +121,21 @@ function toast(msg) {
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 900);
 }
+function generateOrderId() {
+  // BASFAY-27-482 (day + random)
+  const d = new Date();
+  const day = String(d.getDate()).padStart(2, "0");
+  const rand = Math.floor(100 + Math.random() * 900);
+  return `BASFAY-${day}-${rand}`;
+}
+function calcSubtotal() {
+  const cart = getCart();
+  return cart.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.qty) || 0), 0);
+}
+function cleanPhone(raw) {
+  // keep digits + plus only; don’t overthink Kenyan formats
+  return safeText(raw).replace(/[^\d+]/g, "");
+}
 
 /* ======================
    Checkout step
@@ -130,7 +149,7 @@ function setCheckoutStep(step) {
 }
 
 /* ======================
-   Cart
+   Cart storage
    ====================== */
 function getCart() {
   try {
@@ -152,6 +171,10 @@ function cartCountTotal() {
 function refreshCartCount() {
   if (els.cartCount) els.cartCount.textContent = String(cartCountTotal());
 }
+
+/* ======================
+   Cart actions
+   ====================== */
 function addToCart(productId, size, price, qty = 1) {
   const cart = getCart();
   const key = `${productId}__${size}`;
@@ -160,7 +183,7 @@ function addToCart(productId, size, price, qty = 1) {
   if (found) found.qty += qty;
   else cart.push({ key, id: productId, size: String(size), price: Number(price), qty });
 
-  setCheckoutStep("cart");
+  setCheckoutStep("cart"); // adding an item should NOT force checkout
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 
   refreshCartCount();
@@ -169,6 +192,7 @@ function addToCart(productId, size, price, qty = 1) {
   const p = PRODUCTS.find((x) => x.id === productId);
   toast(`${p?.name || "Item"} added to cart`);
 }
+
 function removeFromCart(key) {
   setCart(getCart().filter((i) => i.key !== key));
 }
@@ -181,36 +205,49 @@ function setQty(key, qty) {
 }
 
 /* ======================
-   WhatsApp helpers
+   Payment + WhatsApp helpers
    ====================== */
+function getSelectedPayMethodValue() {
+  const checked = [...(els.payRadios || [])].find((r) => r.checked);
+  return checked?.value || "Till"; // matches your HTML (Till/Cash)
+}
+function getSelectedPayMethodLabel() {
+  const v = getSelectedPayMethodValue();
+  if (v === "Cash") return "Cash (On pickup / delivery)";
+  return `M-Pesa Buy Goods (Till: ${CONFIG.tillNumberPlaceholder})`;
+}
 function buildWhatsAppLink(message) {
   return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
-function getSelectedPayMethodLabel() {
-  const checked = [...(els.payRadios || [])].find((r) => r.checked);
-  return checked?.value || "M-Pesa";
-}
-function buildOrderMessage() {
-  const cart = getCart();
-  const lines = [];
-  const methodText = getSelectedPayMethodLabel();
 
-  lines.push(`Hi ${CONFIG.businessName}, I would like to order:`);
-  lines.push(`Payment method: ${methodText}`);
+function buildCheckoutWhatsAppMessage() {
+  const cart = getCart();
+  const phone = cleanPhone(els.customerPhone?.value);
+  const orderId = generateOrderId();
+  const payLabel = getSelectedPayMethodLabel();
+  const subtotal = calcSubtotal();
+
+  const lines = [];
+  lines.push(`ORDER ID: ${orderId}`);
   lines.push("");
+  lines.push(`Phone: ${phone}`);
+  lines.push(`Payment Method: ${payLabel}`);
+  lines.push("");
+  lines.push("Items:");
 
   cart.forEach((item) => {
     const p = PRODUCTS.find((x) => x.id === item.id);
     if (!p) return;
     const sizeText = item.size && item.size !== "-" ? ` (Size ${item.size})` : "";
-    lines.push(`- ${item.qty} × ${p.name}${sizeText} (${formatMoney(item.price)})`);
+    const lineTotal = (Number(item.price) || 0) * (Number(item.qty) || 0);
+    lines.push(`- ${item.qty} × ${p.name}${sizeText} — ${formatMoney(lineTotal)}`);
   });
 
   lines.push("");
-  lines.push(`Pickup: ${CONFIG.pickup}`);
-  lines.push("Delivery: (If needed, share your area and I’ll confirm delivery fee.)");
+  lines.push(`Subtotal: ${formatMoney(subtotal)}`);
   lines.push("");
-  lines.push("Thank you.");
+  lines.push("Awaiting delivery fee confirmation.");
+  lines.push(`Pickup: ${CONFIG.pickup}`);
 
   return lines.join("\n");
 }
@@ -367,8 +404,7 @@ function productCard(p) {
     select.appendChild(placeholder);
 
     const sorted = [...variants].sort((a, b) => {
-      const na = Number(a.size),
-        nb = Number(b.size);
+      const na = Number(a.size), nb = Number(b.size);
       if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
       return String(a.size).localeCompare(String(b.size));
     });
@@ -438,32 +474,33 @@ function updateCartUI() {
   if (!els.cartItems) return;
   els.cartItems.innerHTML = "";
 
+  // Empty cart
   if (!cart.length) {
     if (els.cartEmpty) els.cartEmpty.hidden = false;
     setCheckoutStep("cart");
 
-    if (els.sendWhatsApp) {
-      els.sendWhatsApp.textContent = "Send on WhatsApp";
-      els.sendWhatsApp.href = buildWhatsAppLink(`Hi ${CONFIG.businessName}, I would like to order. Pickup: ${CONFIG.pickup}.`);
-      els.sendWhatsApp.classList.add("is-hidden");
-      els.sendWhatsApp.setAttribute("aria-hidden", "true");
+    if (els.checkoutBtn) {
+      els.checkoutBtn.textContent = "Proceed to checkout";
+      els.checkoutBtn.classList.add("is-hidden");
+      els.checkoutBtn.setAttribute("aria-hidden", "true");
+      els.checkoutBtn.setAttribute("href", "#");
     }
     return;
   }
 
   if (els.cartEmpty) els.cartEmpty.hidden = true;
 
-  // CTA step logic
-  if (els.sendWhatsApp) {
-    els.sendWhatsApp.classList.remove("is-hidden");
-    els.sendWhatsApp.setAttribute("aria-hidden", "false");
+  // Show checkout button
+  if (els.checkoutBtn) {
+    els.checkoutBtn.classList.remove("is-hidden");
+    els.checkoutBtn.setAttribute("aria-hidden", "false");
 
     if (getCheckoutStep() === "cart") {
-      els.sendWhatsApp.textContent = "Proceed to checkout";
-      els.sendWhatsApp.href = "#";
+      els.checkoutBtn.textContent = "Proceed to checkout";
+      els.checkoutBtn.setAttribute("href", "#");
     } else {
-      els.sendWhatsApp.textContent = "Send on WhatsApp";
-      els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+      els.checkoutBtn.textContent = "Send on WhatsApp";
+      els.checkoutBtn.setAttribute("href", "#");
     }
   }
 
@@ -522,11 +559,6 @@ function updateCartUI() {
 
     els.cartItems.appendChild(row);
   });
-
-  // keep WA link synced
-  if (els.sendWhatsApp && getCheckoutStep() === "checkout") {
-    els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
-  }
 }
 
 function openDrawer() {
@@ -675,7 +707,7 @@ function bindFilters() {
 }
 
 /* ======================
-   Bind cart + payments
+   Bind cart + checkout
    ====================== */
 function bindCart() {
   els.openCart?.addEventListener("click", () => {
@@ -690,29 +722,43 @@ function bindCart() {
     setCart([]);
   });
 
-  // CTA: Proceed -> (stay on page) -> Send WhatsApp
-  els.sendWhatsApp?.addEventListener("click", (e) => {
+  // ✅ Two-step checkout button
+  els.checkoutBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+
     const cart = getCart();
-    if (!cart.length) return;
+    if (!cart.length) return toast("Cart is empty.");
 
     if (getCheckoutStep() === "cart") {
-      e.preventDefault();
       setCheckoutStep("checkout");
       updateCartUI();
-      toast("Select payment method, then send on WhatsApp.");
-    } else {
-      els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+      toast("Enter phone number, then send on WhatsApp.");
+      els.customerPhone?.focus();
+      return;
     }
+
+    // Step = checkout: validate + open WhatsApp
+    const phone = cleanPhone(els.customerPhone?.value);
+    if (!phone || phone.length < 9) {
+      els.customerPhone?.focus();
+      return alert("Please enter a valid phone number.");
+    }
+
+    const msg = buildCheckoutWhatsAppMessage();
+    const link = buildWhatsAppLink(msg);
+    window.open(link, "_blank");
   });
 
-  // keep WA link synced with payment method
+  // If payment method changes while on checkout, keep state (message is built at click time)
   (els.payRadios || []).forEach((r) => {
     r.addEventListener("change", () => {
-      if (els.sendWhatsApp && getCheckoutStep() === "checkout") {
-        els.sendWhatsApp.href = buildWhatsAppLink(buildOrderMessage());
+      if (getCheckoutStep() === "checkout") {
+        // nothing needed; message is generated on click
       }
     });
   });
+
+  // If user edits phone, no special logic needed.
 }
 
 /* ======================
@@ -754,7 +800,6 @@ async function loadProducts() {
    ====================== */
 (async function main() {
   try {
-    // If this throws, the rest won't bind, so we log loudly.
     await loadProducts();
 
     bindFilters();
@@ -764,11 +809,12 @@ async function loadProducts() {
     // init cart UI state
     refreshCartCount();
     updateCartUI();
-
     renderProducts();
+
+    // Reset checkout step on load if cart is empty
+    if (!getCart().length) setCheckoutStep("cart");
   } catch (err) {
     console.error("BASFAY app.js error:", err);
-    // make it visible (so it’s not “nothing happens”)
     toast("Site error: open Console (F12) to see why.");
   }
 })();

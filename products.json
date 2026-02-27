@@ -575,7 +575,7 @@
   ],
   "image": "./images/shirt-cream-white.png",
   "featured": false,
-  "description": "Plain cream white school shirt. Soft, durable fabric for everyday school use."
+  "description": "Plain cream white school shirt. Soft, durable fabric."
 },
   {
   "id": "shirt-red",
@@ -590,7 +590,7 @@
   ],
   "image": "./images/shirt-red.png",
   "featured": false,
-  "description": "Plain red school shirt. Bright, durable and comfortable for school wear."
+  "description": "Plain red school shirt. Bright, durable and comfortable."
 },
   {
   "id": "shirt-neon-green",
@@ -605,7 +605,7 @@
   ],
   "image": "./images/shirt-neon-green.png",
   "featured": false,
-  "description": "Plain neon green school shirt. Bright, breathable fabric with a comfortable everyday fit."
+  "description": "Plain neon green school shirt. Bright, breathable fabric."
 },
   {
   "id": "shirt-blue",
@@ -620,7 +620,7 @@
   ],
   "image": "./images/shirt-blue.png",
   "featured": false,
-  "description": "Plain blue school shirt. Clean finish, comfortable and easy to maintain."
+  "description": "Plain blue school shirt."
 },
   {
   "id": "shirt-sky-blue",
@@ -635,7 +635,7 @@
   ],
   "image": "./images/shirt-sky-blue.png",
   "featured": false,
-  "description": "Plain sky blue school shirt. Light, breathable and ideal for daily school use."
+  "description": "Plain sky blue school shirt. color on display might look different due to camera lighting."
 },
   {
   "id": "shirt-yellow",
@@ -650,7 +650,7 @@
   ],
   "image": "./images/shirt-yellow.png",
   "featured": false,
-  "description": "Plain yellow school shirt. Bright, comfortable and durable for school wear."
+  "description": "Plain yellow school shirt. Bright, comfortable and durable."
 },
   {
   "id": "shirt-green",
@@ -710,7 +710,7 @@
   ],
   "image": "./images/shirt-red-white-checked.png",
   "featured": false,
-  "description": "Red and white checked school shirt. Comfortable fabric with a neat, classic school pattern."
+  "description": "Red and white checked school shirt. Comfortable fabric with a neat, classic school pattern, picture looks dull due to camera lighting."
 },
   {
   "id": "shirt-blue-white-checked",
@@ -725,7 +725,7 @@
   ],
   "image": "./images/shirt-blue-white-checked.png",
   "featured": false,
-  "description": "Blue and white checked school shirt. Durable, breathable fabric with a smart school look."
+  "description": "Blue and white checked school shirt. Durable, breathable fabric, picture looks dull due to camera lighting."
 },
   {
   "id": "shirt-green-white-checked",
@@ -740,7 +740,7 @@
   ],
   "image": "./images/shirt-green-white-checked.png",
   "featured": false,
-  "description": "Green and white checked school shirt. Classic pattern with a comfortable everyday fit."
+  "description": "Green and white checked school shirt. Classic pattern, picture looks dull due to camera lighting."
 },
   {
   "id": "shirt-maroon-white-checked",
@@ -755,7 +755,7 @@
   ],
   "image": "./images/shirt-maroon-white-checked.png",
   "featured": false,
-  "description": "Maroon and white checked school shirt. Smart, durable and suitable for daily school wear."
+  "description": "Maroon and white checked school shirt. Smart, durable, picture looks dull due to camera lighting."
 },
   {
     "id": "red-checked-dress",

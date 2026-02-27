@@ -804,6 +804,36 @@
   "description": "Plain blue school marvin (beanie). Soft knit, warm and comfortable."
 },
   {
+  "id": "marvin-light-purple-striped-white",
+  "name": "Marvin – Light Purple Striped White",
+  "color": "Light Purple & White",
+  "type": "Marvin",
+  "pattern": "Striped",
+  "variants": [
+    { "size": "S", "price": 150 },
+    { "size": "M", "price": 150 },
+    { "size": "L", "price": 150 }
+  ],
+  "image": "./images/marvin-light-purple-striped-white.png",
+  "featured": false,
+  "description": "Light purple school marvin with white stripes. Comfortable knit fabric suitable for daily school wear."
+},
+  {
+  "id": "marvin-purple-striped-white",
+  "name": "Marvin – Purple Striped White",
+  "color": "Purple & White",
+  "type": "Marvin",
+  "pattern": "Striped",
+  "variants": [
+    { "size": "S", "price": 150 },
+    { "size": "M", "price": 150 },
+    { "size": "L", "price": 150 }
+  ],
+  "image": "./images/marvin-purple-striped-white.png",
+  "featured": false,
+  "description": "Purple school marvin with white stripes. Soft knit fabric designed for warmth and everyday school wear."
+},
+  {
   "id": "marvin-purple",
   "name": "Marvin – Purple",
   "color": "Purple",

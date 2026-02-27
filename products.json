@@ -698,6 +698,66 @@
   "description": "Plain dark grey school shirt. Durable fabric with a neat, comfortable fit for daily school wear."
 },
   {
+  "id": "shirt-red-white-checked",
+  "name": "Shirt – Red & White Checked",
+  "color": "Red & White",
+  "type": "Shirt",
+  "pattern": "Checked",
+  "variants": [
+    { "size": "S", "price": 250 },
+    { "size": "M", "price": 300 },
+    { "size": "L", "price": 350 }
+  ],
+  "image": "./images/shirt-red-white-checked.png",
+  "featured": false,
+  "description": "Red and white checked school shirt. Comfortable fabric with a neat, classic school pattern."
+},
+  {
+  "id": "shirt-blue-white-checked",
+  "name": "Shirt – Blue & White Checked",
+  "color": "Blue & White",
+  "type": "Shirt",
+  "pattern": "Checked",
+  "variants": [
+    { "size": "S", "price": 250 },
+    { "size": "M", "price": 300 },
+    { "size": "L", "price": 350 }
+  ],
+  "image": "./images/shirt-blue-white-checked.png",
+  "featured": false,
+  "description": "Blue and white checked school shirt. Durable, breathable fabric with a smart school look."
+},
+  {
+  "id": "shirt-green-white-checked",
+  "name": "Shirt – Green & White Checked",
+  "color": "Green & White",
+  "type": "Shirt",
+  "pattern": "Checked",
+  "variants": [
+    { "size": "S", "price": 250 },
+    { "size": "M", "price": 300 },
+    { "size": "L", "price": 350 }
+  ],
+  "image": "./images/shirt-green-white-checked.png",
+  "featured": false,
+  "description": "Green and white checked school shirt. Classic pattern with a comfortable everyday fit."
+},
+  {
+  "id": "shirt-maroon-white-checked",
+  "name": "Shirt – Maroon & White Checked",
+  "color": "Maroon & White",
+  "type": "Shirt",
+  "pattern": "Checked",
+  "variants": [
+    { "size": "S", "price": 250 },
+    { "size": "M", "price": 300 },
+    { "size": "L", "price": 350 }
+  ],
+  "image": "./images/shirt-maroon-white-checked.png",
+  "featured": false,
+  "description": "Maroon and white checked school shirt. Smart, durable and suitable for daily school wear."
+},
+  {
     "id": "red-checked-dress",
     "name": "Red Checked Dress",
     "color": "Red",

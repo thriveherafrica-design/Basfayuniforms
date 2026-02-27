@@ -395,6 +395,81 @@
     ]
   },
   {
+  "id": "pe-shirt-yellow",
+  "name": "PE Shirt – Yellow",
+  "color": "Yellow",
+  "type": "PE Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 350 },
+    { "size": "M", "price": 400 },
+    { "size": "L", "price": 450 }
+  ],
+  "image": "./images/pe-shirt-yellow.png",
+  "featured": false,
+  "description": "Yellow PE shirt. Lightweight, breathable and suitable for sports and physical education activities."
+},
+  {
+  "id": "pe-shirt-red",
+  "name": "PE Shirt – Red",
+  "color": "Red",
+  "type": "PE Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 350 },
+    { "size": "M", "price": 400 },
+    { "size": "L", "price": 450 }
+  ],
+  "image": "./images/pe-shirt-red.png",
+  "featured": false,
+  "description": "Red PE shirt. Comfortable, breathable fabric designed for active school use."
+},
+  {
+  "id": "pe-shirt-navy",
+  "name": "PE Shirt – Navy",
+  "color": "Navy",
+  "type": "PE Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 350 },
+    { "size": "M", "price": 400 },
+    { "size": "L", "price": 450 }
+  ],
+  "image": "./images/pe-shirt-navy.png",
+  "featured": false,
+  "description": "Navy PE shirt. Durable, breathable and ideal for school sports activities."
+},
+  {
+  "id": "pe-shirt-blue",
+  "name": "PE Shirt – Blue",
+  "color": "Blue",
+  "type": "PE Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 350 },
+    { "size": "M", "price": 400 },
+    { "size": "L", "price": 450 }
+  ],
+  "image": "./images/pe-shirt-blue.png",
+  "featured": false,
+  "description": "Blue PE shirt. Comfortable fit with breathable fabric for daily sports activities."
+},
+  {
+  "id": "pe-shirt-maroon",
+  "name": "PE Shirt – Maroon",
+  "color": "Maroon",
+  "type": "PE Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 350 },
+    { "size": "M", "price": 400 },
+    { "size": "L", "price": 450 }
+  ],
+  "image": "./images/pe-shirt-maroon.png",
+  "featured": false,
+  "description": "Maroon PE shirt. comfortable, durable and designed for school physical activities."
+},
+  {
     "id": "socks-grey-blue-white-001",
     "name": "Grey Socks - Blue & White Stripes",
     "color": "Grey",

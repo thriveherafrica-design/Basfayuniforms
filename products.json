@@ -683,6 +683,21 @@
   "description": "Plain light yellow school shirt. Soft tone, breathable fabric and comfortable for everyday school wear."
 },
   {
+  "id": "shirt-dark-grey",
+  "name": "Shirt – Dark Grey",
+  "color": "Dark Grey",
+  "type": "Shirt",
+  "pattern": "Plain",
+  "variants": [
+    { "size": "S", "price": 250 },
+    { "size": "M", "price": 300 },
+    { "size": "L", "price": 350 }
+  ],
+  "image": "./images/shirt-dark-grey.png",
+  "featured": false,
+  "description": "Plain dark grey school shirt. Durable fabric with a neat, comfortable fit for daily school wear."
+},
+  {
     "id": "red-checked-dress",
     "name": "Red Checked Dress",
     "color": "Red",

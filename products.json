@@ -545,6 +545,36 @@
   "description": "Blue PE shirt with white V-neck detail. Comfortable fit designed for daily school sports."
 },
   {
+  "id": "pe-cotton-tshirt-white",
+  "name": "PE Cotton T-Shirt – White",
+  "color": "White",
+  "type": "PE Shirt",
+  "pattern": "Cotton",
+  "variants": [
+    { "size": "S", "price": 350 },
+    { "size": "M", "price": 400 },
+    { "size": "L", "price": 450 }
+  ],
+  "image": "./images/pe-cotton-tshirt-white.png",
+  "featured": false,
+  "description": "White PE cotton T-shirt. Soft, breathable cotton fabric suitable for school sports and daily physical activities."
+},
+  {
+  "id": "pe-cotton-tshirt-yellow",
+  "name": "PE Cotton T-Shirt – Yellow",
+  "color": "Yellow",
+  "type": "PE Shirt",
+  "pattern": "Cotton",
+  "variants": [
+    { "size": "S", "price": 350 },
+    { "size": "M", "price": 400 },
+    { "size": "L", "price": 450 }
+  ],
+  "image": "./images/pe-cotton-tshirt-yellow.png",
+  "featured": false,
+  "description": "Yellow PE cotton T-shirt. Comfortable, lightweight cotton material designed for active school use."
+},
+  {
     "id": "socks-grey-blue-white-001",
     "name": "Grey Socks - Blue & White Stripes",
     "color": "Grey",

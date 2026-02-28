@@ -1,17 +1,16 @@
 /* ============================
    BASFAY Catalog Site (Clean UI)
    Cart + Two-step Checkout (Cash vs Till)
-   (FULL VERSION — keeps your full catalog, filters, modal, drawer)
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (FULL + CART DISPLAY FIX)");
+console.log("✅ BASFAY app.js LOADED (FULL + FIXED)");
 
 const CONFIG = {
   currency: "KES",
   pickup: "Kangemi",
   whatsappNumber: "254119667836",
   businessName: "BASFAY Uniforms",
-  tillNumberPlaceholder: "XXXX", // replace with real till later
+  tillNumberPlaceholder: "XXXX",
 };
 
 const FUTURE_CATEGORIES = [
@@ -46,20 +45,18 @@ const els = {
   cartEmpty: document.getElementById("cartEmpty"),
   clearCart: document.getElementById("clearCart"),
 
-  // ✅ HTML CTA is checkoutBtn
   checkoutBtn: document.getElementById("checkoutBtn"),
-
   customerPhone: document.getElementById("customerPhone"),
+
   payRadios: document.querySelectorAll('input[name="payMethod"]'),
 
-  // ✅ Mpesa UI
+  // Optional Mpesa UI (only works if these IDs exist in HTML)
   tillNumberUI: document.getElementById("tillNumberUI"),
   mpesaBox: document.getElementById("mpesaBox"),
   copyTillBtn: document.getElementById("copyTillBtn"),
   copyAmountBtn: document.getElementById("copyAmountBtn"),
   mpesaCode: document.getElementById("mpesaCode"),
 
-  // Modal
   modal: document.getElementById("modal"),
   modalBackdrop: document.getElementById("modalBackdrop"),
   closeModal: document.getElementById("closeModal"),
@@ -128,7 +125,7 @@ async function copyToClipboard(text){
   }
 }
 
-/* ============ Checkout state ============ */
+/* ============ Checkout step ============ */
 function getCheckoutStep(){
   const s = safeText(localStorage.getItem(CHECKOUT_STEP_KEY));
   return s === "checkout" ? "checkout" : "cart";
@@ -201,7 +198,7 @@ function getSelectedPayMethodLabel(){
   return `M-Pesa Buy Goods (Till: ${CONFIG.tillNumberPlaceholder})`;
 }
 function getTotalAmount(){
-  return calcSubtotal(); // delivery fee confirmed later
+  return calcSubtotal();
 }
 
 function buildCheckoutWhatsAppMessage(){
@@ -225,6 +222,7 @@ function buildCheckoutWhatsAppMessage(){
   lines.push("");
 
   cart.forEach((item)=>{
+    // ✅ Never drop items if PRODUCT lookup fails
     const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
     const name = p?.name || `Item (${safeText(item.id)})`;
 
@@ -441,7 +439,7 @@ function productCard(p){
   return wrap;
 }
 
-/* ============ Drawer / Cart UI (FIXED DISPLAY) ============ */
+/* ============ Drawer / Cart UI ============ */
 function updateCartUI(){
   const cart = getCart();
   refreshCartCount();
@@ -449,128 +447,61 @@ function updateCartUI(){
   if(!els.cartItems) return;
   els.cartItems.innerHTML = "";
 
-  // ✅ force container visible
-  els.cartItems.style.display = "block";
-  els.cartItems.style.minHeight = "10px";
-
   if(!cart.length){
     if(els.cartEmpty) els.cartEmpty.hidden = false;
     setCheckoutStep("cart");
-
     if(els.checkoutBtn){
-      els.checkoutBtn.textContent = "Proceed";
-      els.checkoutBtn.classList.add("is-hidden");
-      els.checkoutBtn.setAttribute("aria-hidden","true");
+      els.checkoutBtn.textContent = "Proceed to checkout";
       els.checkoutBtn.href = "#";
     }
     return;
   }
-
   if(els.cartEmpty) els.cartEmpty.hidden = true;
 
-  if(els.checkoutBtn){
-    els.checkoutBtn.classList.remove("is-hidden");
-    els.checkoutBtn.setAttribute("aria-hidden","false");
-    els.checkoutBtn.href = "#";
-
-    const method = getPayMethod();
-    if(method.toLowerCase().includes("cash")){
-      els.checkoutBtn.textContent = "Order on WhatsApp";
-    }else{
-      els.checkoutBtn.textContent = getCheckoutStep()==="cart" ? "Proceed" : "Send Payment Confirmation";
-    }
-  }
-
   cart.forEach(item=>{
-    // ✅ tolerate id mismatch, never skip
     const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
+    const name = p?.name || `Item (${safeText(item.id)})`;
 
     const row = document.createElement("div");
-    row.className = "cart-item";
-
-    // ✅ inline layout so it can’t “vanish”
-    row.style.display = "flex";
-    row.style.alignItems = "center";
-    row.style.justifyContent = "space-between";
-    row.style.gap = "12px";
-    row.style.padding = "10px 0";
-    row.style.borderBottom = "1px solid rgba(0,0,0,.10)";
+    row.className="cart-item";
 
     const left = document.createElement("div");
-    left.style.flex = "1";
-    left.style.minWidth = "0";
-
     const title = document.createElement("h4");
-    title.style.margin = "0 0 6px 0";
-    title.style.fontSize = "14px";
-    title.style.fontWeight = "900";
-    title.style.wordBreak = "break-word";
-
-    const displayName = p?.name || `Item (${safeText(item.id)})`;
     title.textContent = item.size && item.size !== "-"
-      ? `${displayName} (Size ${item.size})`
-      : displayName;
+      ? `${name} (Size ${item.size})`
+      : name;
 
     const meta = document.createElement("div");
-    meta.className = "meta";
-    meta.style.display = "flex";
-    meta.style.gap = "8px";
-    meta.style.flexWrap = "wrap";
-    meta.style.fontSize = "12px";
-    meta.style.opacity = "0.9";
-
-    const chip = (txt)=>{
-      const s = document.createElement("span");
-      s.textContent = txt;
-      s.style.padding = "3px 8px";
-      s.style.borderRadius = "999px";
-      s.style.background = "rgba(0,0,0,.06)";
-      s.style.border = "1px solid rgba(0,0,0,.08)";
-      return s;
-    };
-
-    meta.appendChild(chip(safeText(p?.color || "Item")));
-    meta.appendChild(chip(formatMoney(item.price)));
+    meta.className="meta";
+    meta.innerHTML = `<span class="chip">${safeText(p?.color)||"Item"}</span><span class="chip">${formatMoney(item.price)}</span>`;
 
     left.appendChild(title);
     left.appendChild(meta);
 
     const right = document.createElement("div");
     const controls = document.createElement("div");
-    controls.className = "cart-controls";
-    controls.style.display = "flex";
-    controls.style.alignItems = "center";
-    controls.style.gap = "8px";
+    controls.className="cart-controls";
 
-    const makeBtn = (txt)=>{
-      const b = document.createElement("button");
-      b.type = "button";
-      b.textContent = txt;
-      b.style.width = "34px";
-      b.style.height = "34px";
-      b.style.borderRadius = "10px";
-      b.style.border = "1px solid rgba(0,0,0,.18)";
-      b.style.background = "#fff";
-      b.style.cursor = "pointer";
-      b.style.fontWeight = "900";
-      b.style.lineHeight = "1";
-      return b;
-    };
-
-    const minus = makeBtn("−");
-    minus.addEventListener("click", ()=>setQty(item.key, (Number(item.qty)||1) - 1));
+    const minus = document.createElement("button");
+    minus.className="qty-btn";
+    minus.type="button";
+    minus.textContent="−";
+    minus.addEventListener("click", ()=>setQty(item.key, item.qty-1));
 
     const qty = document.createElement("div");
-    qty.className = "qty";
-    qty.textContent = String(item.qty);
-    qty.style.minWidth = "22px";
-    qty.style.textAlign = "center";
-    qty.style.fontWeight = "900";
+    qty.className="qty";
+    qty.textContent=String(item.qty);
 
-    const plus = makeBtn("+");
-    plus.addEventListener("click", ()=>setQty(item.key, (Number(item.qty)||1) + 1));
+    const plus = document.createElement("button");
+    plus.className="qty-btn";
+    plus.type="button";
+    plus.textContent="+";
+    plus.addEventListener("click", ()=>setQty(item.key, item.qty+1));
 
-    const del = makeBtn("🗑");
+    const del = document.createElement("button");
+    del.className="qty-btn";
+    del.type="button";
+    del.textContent="🗑";
     del.addEventListener("click", ()=>removeFromCart(item.key));
 
     controls.appendChild(minus);
@@ -579,7 +510,6 @@ function updateCartUI(){
     controls.appendChild(del);
 
     right.appendChild(controls);
-
     row.appendChild(left);
     row.appendChild(right);
 
@@ -595,7 +525,6 @@ function bindModal(){
   els.closeModal?.addEventListener("click", closeModal);
   els.modalBackdrop?.addEventListener("click", closeModal);
 }
-
 function openModal(productId){
   const p = PRODUCTS.find(x => normalize(x.id) === normalize(productId));
   if(!p || !els.modal) return;
@@ -734,13 +663,8 @@ function bindCart(){
 
   togglePaymentUI();
 
-  els.copyTillBtn?.addEventListener("click", ()=>{
-    copyToClipboard(CONFIG.tillNumberPlaceholder);
-  });
-
-  els.copyAmountBtn?.addEventListener("click", ()=>{
-    copyToClipboard(String(getTotalAmount()));
-  });
+  els.copyTillBtn?.addEventListener("click", ()=>copyToClipboard(CONFIG.tillNumberPlaceholder));
+  els.copyAmountBtn?.addEventListener("click", ()=>copyToClipboard(String(getTotalAmount())));
 
   (els.payRadios||[]).forEach(r=>{
     r.addEventListener("change", ()=>{
@@ -750,31 +674,33 @@ function bindCart(){
     });
   });
 
-  // ✅ Cash: WhatsApp directly
-  // ✅ Till: Step 1 proceed -> Step 2 require mpesa code -> WhatsApp confirmation
+  // ✅ Laptop-safe WhatsApp opening
   els.checkoutBtn?.addEventListener("click", (e)=>{
+    e.preventDefault();
+
     const cart = getCart();
-    if(!cart.length) return;
+    if(!cart.length){
+      toast("No items in cart.");
+      return;
+    }
 
     const method = getPayMethod();
 
-    // CASH
+    // Cash => WhatsApp immediately
     if(method.toLowerCase().includes("cash")){
       const phone = cleanPhone(els.customerPhone?.value);
       if(!phone || phone.length < 9){
-        e.preventDefault();
         els.customerPhone?.focus?.();
         alert("Please enter a valid phone number.");
         return;
       }
       const msg = buildCheckoutWhatsAppMessage();
-      els.checkoutBtn.href = buildWhatsAppLink(msg);
+      window.open(buildWhatsAppLink(msg), "_blank", "noopener,noreferrer");
       return;
     }
 
-    // TILL: step 1
+    // Till => Step 1: proceed
     if(getCheckoutStep()==="cart"){
-      e.preventDefault();
       setCheckoutStep("checkout");
       updateCartUI();
       toast("Copy Till + Amount, pay, then paste M-Pesa code.");
@@ -782,10 +708,9 @@ function bindCart(){
       return;
     }
 
-    // TILL: step 2 validation
+    // Till => Step 2 validations
     const phone = cleanPhone(els.customerPhone?.value);
     if(!phone || phone.length < 9){
-      e.preventDefault();
       els.customerPhone?.focus?.();
       alert("Please enter a valid phone number.");
       return;
@@ -793,14 +718,13 @@ function bindCart(){
 
     const mpesaCode = safeText(els.mpesaCode?.value);
     if(!mpesaCode || mpesaCode.length < 6){
-      e.preventDefault();
       els.mpesaCode?.focus?.();
       alert("Please paste your M-Pesa confirmation code.");
       return;
     }
 
     const msg = buildCheckoutWhatsAppMessage();
-    els.checkoutBtn.href = buildWhatsAppLink(msg);
+    window.open(buildWhatsAppLink(msg), "_blank", "noopener,noreferrer");
   });
 }
 

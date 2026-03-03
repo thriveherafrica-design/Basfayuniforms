@@ -104,6 +104,16 @@
         border:2px solid #fff;
       }
 
+      <!-- ORDER ITEMS (must exist for JS to render) -->
+<div id="orderItems" class="order-items"></div>
+
+<div class="order-summary">
+  <div class="row">
+    <span>Subtotal</span>
+    <strong id="orderSubtotal">KES 0</strong>
+  </div>
+</div>
+
       /* Payment section in drawer */
       .pay-card{ margin-top: 10px; padding: 12px; }
       .pay-title{ font-weight: 900; margin-bottom: 8px; }
@@ -111,6 +121,11 @@
       .pay-opt{ display:flex; gap:10px; align-items:center; cursor:pointer; user-select:none; }
       .pay-opt input{ transform: translateY(1px); }
       .pay-help{ margin-top: 8px; font-size: 13px; }
+
+      <!-- STICKY FOOTER (keeps proceed visible on PC) -->
+<div class="order-footer">
+  <button id="proceedBtn" class="btn primary w-full">Proceed</button>
+</div>
 
       /* ✅ NEW: phone input styling (minimal, matches your style) */
       .checkout-field{ margin-top:12px; }

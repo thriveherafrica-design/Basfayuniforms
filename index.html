@@ -104,16 +104,6 @@
         border:2px solid #fff;
       }
 
-      <!-- ORDER ITEMS (must exist for JS to render) -->
-<div id="orderItems" class="order-items"></div>
-
-<div class="order-summary">
-  <div class="row">
-    <span>Subtotal</span>
-    <strong id="orderSubtotal">KES 0</strong>
-  </div>
-</div>
-
       /* Payment section in drawer */
       .pay-card{ margin-top: 10px; padding: 12px; }
       .pay-title{ font-weight: 900; margin-bottom: 8px; }
@@ -122,12 +112,7 @@
       .pay-opt input{ transform: translateY(1px); }
       .pay-help{ margin-top: 8px; font-size: 13px; }
 
-      <!-- STICKY FOOTER (keeps proceed visible on PC) -->
-<div class="order-footer">
-  <button id="proceedBtn" class="btn primary w-full">Proceed</button>
-</div>
-
-      /* ✅ NEW: phone input styling (minimal, matches your style) */
+      /* Phone input styling */
       .checkout-field{ margin-top:12px; }
       .checkout-field label{ display:block; font-weight:800; margin-bottom:6px; }
       .checkout-field input{
@@ -148,6 +133,69 @@
         border:1px solid rgba(0,0,0,.18);
         background:#fff;
         font-size:.95rem;
+      }
+
+      /* =========================
+         DESKTOP FIX: drawer scroll + sticky footer
+         ========================= */
+      .drawer-panel{
+        height: 100vh;
+        max-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .drawer-body{
+        flex: 1 1 auto;
+        overflow-y: auto;
+        padding-bottom: 16px;
+      }
+      .drawer-foot{
+        flex: 0 0 auto;
+        position: sticky;
+        bottom: 0;
+        background: #fff;
+        z-index: 10;
+        border-top: 1px solid rgba(0,0,0,0.08);
+      }
+
+      /* =========================
+         "YOUR ORDER" LIST STYLES
+         ========================= */
+      .order-items{
+        display: grid;
+        gap: 10px;
+        margin: 6px 0 12px;
+      }
+      .order-item{
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        padding: 10px;
+        border: 1px solid rgba(0,0,0,.08);
+        border-radius: 12px;
+        background: #fff;
+      }
+      .order-item small{ opacity: .75; }
+      .order-item .actions{
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .order-item .remove{
+        border: 1px solid rgba(0,0,0,.15);
+        background: #fff;
+        padding: 8px 10px;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      .order-summary .row{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+        padding: 10px 2px;
       }
     </style>
   </head>
@@ -340,19 +388,31 @@
     <!-- Order Drawer -->
     <div class="drawer" id="drawer" aria-hidden="true">
       <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
       <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Order list">
         <div class="drawer-head">
           <h3>Your order</h3>
           <button class="icon-btn" id="closeDrawer" aria-label="Close order list">✕</button>
         </div>
 
+        <!-- ✅ BODY NOW CONTAINS "YOUR ORDER" LIST + SUBTOTAL -->
         <div class="drawer-body">
-          <div id="cartItems"></div>
+          <div id="orderItems" class="order-items"></div>
+
+          <div class="order-summary">
+            <div class="row">
+              <span>Subtotal</span>
+              <strong id="orderSubtotal">KES 0</strong>
+            </div>
+          </div>
 
           <div class="cart-empty" id="cartEmpty" hidden>
             <p><strong>No items yet.</strong></p>
             <p class="muted">Add products from the catalog.</p>
           </div>
+
+          <!-- Keep this hidden container so JS doesn't crash if it still references it -->
+          <div id="cartItems" class="is-hidden" aria-hidden="true"></div>
         </div>
 
         <div class="drawer-foot">
@@ -409,7 +469,7 @@
             </div>
           </div>
 
-          <!-- ✅ UPDATED CTA (kept your original ID) -->
+          <!-- ✅ CTA (kept your original ID) -->
           <a class="btn primary full" id="checkoutBtn" href="#" rel="noopener">Proceed</a>
 
           <button class="btn ghost full" id="clearCart" type="button">Clear</button>

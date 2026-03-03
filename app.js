@@ -57,6 +57,10 @@ const els = {
   copyAmountBtn: document.getElementById("copyAmountBtn"),
   mpesaCode: document.getElementById("mpesaCode"),
 
+  // OPTIONAL "Your order" panel IDs (must exist in HTML for it to show)
+  orderItems: document.getElementById("orderItems"),
+  orderSubtotal: document.getElementById("orderSubtotal"),
+
   modal: document.getElementById("modal"),
   modalBackdrop: document.getElementById("modalBackdrop"),
   closeModal: document.getElementById("closeModal"),
@@ -79,13 +83,19 @@ const CHECKOUT_STEP_KEY = "basfay_checkout_step_v1"; // "cart" | "checkout"
 /* ============ Helpers ============ */
 function safeText(s){ return String(s ?? "").trim(); }
 function normalize(s){ return safeText(s).toLowerCase(); }
+
 function formatMoney(amount){
   if (amount == null || Number.isNaN(Number(amount))) return "";
   return `${CONFIG.currency} ${Number(amount).toLocaleString("en-KE")}`;
 }
+function money(n){
+  return `${CONFIG.currency} ${Number(n || 0).toLocaleString("en-KE")}`;
+}
+
 function toTypeClass(type){
   return "type-" + normalize(type).replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
 }
+
 function toast(msg){
   const t = document.createElement("div");
   t.textContent = msg;
@@ -104,12 +114,15 @@ function toast(msg){
   document.body.appendChild(t);
   setTimeout(()=>t.remove(),900);
 }
+
 function cleanPhone(raw){
   return safeText(raw).replace(/[^\d+]/g, "");
 }
+
 function buildWhatsAppLink(message){
   return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
+
 async function copyToClipboard(text){
   try{
     await navigator.clipboard.writeText(String(text));
@@ -143,18 +156,67 @@ function getCart(){
     return Array.isArray(parsed) ? parsed : [];
   }catch{ return []; }
 }
-function setCart(items){
-  localStorage.setItem(CART_KEY, JSON.stringify(items));
-  updateCartUI();
-}
+
 function cartCountTotal(){
   return getCart().reduce((sum,i)=>sum + (Number(i.qty)||0),0);
 }
+
 function calcSubtotal(){
   return getCart().reduce((sum,i)=>sum + (Number(i.price)||0)*(Number(i.qty)||0),0);
 }
+
 function refreshCartCount(){
   if (els.cartCount) els.cartCount.textContent = String(cartCountTotal());
+}
+
+/* ============ "Your order" panel renderer ============ */
+function renderOrderPanel(){
+  if(!els.orderItems || !els.orderSubtotal) return;
+
+  const cart = getCart();
+
+  if(!cart.length){
+    els.orderItems.innerHTML = `<div style="opacity:.7;padding:8px 0;">No items yet.</div>`;
+    els.orderSubtotal.textContent = money(0);
+    return;
+  }
+
+  let subtotal = 0;
+
+  els.orderItems.innerHTML = cart.map(item=>{
+    const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
+    const name = p?.name || `Item (${safeText(item.id)})`;
+
+    const line = (Number(item.price)||0) * (Number(item.qty)||0);
+    subtotal += line;
+
+    return `
+      <div class="order-item">
+        <div>
+          <div><strong>${name}</strong></div>
+          <small>Size: ${item.size || "—"} • Qty: ${item.qty}</small><br/>
+          <small>${money(item.price)} each</small>
+        </div>
+        <div class="actions">
+          <strong>${money(line)}</strong>
+          <button class="remove" type="button" data-remove="${item.key}">Remove</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  els.orderSubtotal.textContent = money(subtotal);
+
+  els.orderItems.querySelectorAll("[data-remove]").forEach(btn=>{
+    btn.addEventListener("click", ()=>removeFromCart(btn.dataset.remove));
+  });
+}
+
+/* ============ Unified cart setter (updates ALL UIs) ============ */
+function setCart(items){
+  localStorage.setItem(CART_KEY, JSON.stringify(items));
+  updateCartUI();
+  renderOrderPanel();
 }
 
 /* ============ Cart actions ============ */
@@ -171,9 +233,11 @@ function addToCart(productId,size,price,qty=1){
   const p = PRODUCTS.find(x => normalize(x.id) === normalize(productId));
   toast(`${p?.name || "Item"} added to cart`);
 }
+
 function removeFromCart(key){
   setCart(getCart().filter(i=>i.key!==key));
 }
+
 function setQty(key,qty){
   const cart = getCart();
   const item = cart.find(i=>i.key===key);
@@ -187,16 +251,19 @@ function getPayMethod(){
   const checked = [...(els.payRadios||[])].find(r=>r.checked);
   return checked?.value || "Till";
 }
+
 function togglePaymentUI(){
   const method = getPayMethod();
   const isTill = method.toLowerCase().includes("till");
   if (els.mpesaBox) els.mpesaBox.classList.toggle("is-hidden", !isTill);
 }
+
 function getSelectedPayMethodLabel(){
   const v = getPayMethod();
   if (v.toLowerCase().includes("cash")) return "Cash";
   return `M-Pesa Buy Goods (Till: ${CONFIG.tillNumberPlaceholder})`;
 }
+
 function getTotalAmount(){
   return calcSubtotal();
 }
@@ -222,7 +289,6 @@ function buildCheckoutWhatsAppMessage(){
   lines.push("");
 
   cart.forEach((item)=>{
-    // ✅ Never drop items if PRODUCT lookup fails
     const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
     const name = p?.name || `Item (${safeText(item.id)})`;
 
@@ -438,91 +504,6 @@ function productCard(p){
 
   return wrap;
 }
-/* =========================
-   BASFAY Cart -> Order Panel
-   ========================= */
-const CART_KEY = "basfay_cart_v1";
-
-function getCart() {
-  try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
-  catch { return []; }
-}
-function saveCart(cart) {
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
-}
-function makeKey(id, size) {
-  return `${id}__${size || ""}`;
-}
-function money(n) {
-  return `KES ${Number(n || 0).toLocaleString()}`;
-}
-
-function addToCart(product, size, price, qty = 1) {
-  const cart = getCart();
-  const key = makeKey(product.id, size);
-
-  const found = cart.find(x => x.key === key);
-  if (found) found.qty += qty;
-  else cart.push({
-    key,
-    id: product.id,
-    name: product.name,
-    size: size || "",
-    price: Number(price) || 0,
-    qty: Number(qty) || 1
-  });
-
-  saveCart(cart);
-  renderOrderPanel();
-}
-
-function removeFromCart(key) {
-  const cart = getCart().filter(x => x.key !== key);
-  saveCart(cart);
-  renderOrderPanel();
-}
-
-function renderOrderPanel() {
-  const itemsEl = document.getElementById("orderItems");
-  const subtotalEl = document.getElementById("orderSubtotal");
-  if (!itemsEl || !subtotalEl) return; // HTML IDs must exist
-
-  const cart = getCart();
-  if (!cart.length) {
-    itemsEl.innerHTML = `<div style="opacity:.7;padding:8px 0;">No items yet.</div>`;
-    subtotalEl.textContent = money(0);
-    return;
-  }
-
-  let subtotal = 0;
-
-  itemsEl.innerHTML = cart.map(item => {
-    const line = (Number(item.price) || 0) * (Number(item.qty) || 1);
-    subtotal += line;
-
-    return `
-      <div class="order-item">
-        <div>
-          <div><strong>${item.name}</strong></div>
-          <small>Size: ${item.size || "—"} • Qty: ${item.qty}</small><br/>
-          <small>${money(item.price)} each</small>
-        </div>
-        <div class="actions">
-          <strong>${money(line)}</strong>
-          <button class="remove" data-remove="${item.key}">Remove</button>
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  subtotalEl.textContent = money(subtotal);
-
-  itemsEl.querySelectorAll("[data-remove]").forEach(btn => {
-    btn.addEventListener("click", () => removeFromCart(btn.dataset.remove));
-  });
-}
-
-document.addEventListener("DOMContentLoaded", renderOrderPanel);
 
 /* ============ Drawer / Cart UI ============ */
 function updateCartUI(){
@@ -610,6 +591,7 @@ function bindModal(){
   els.closeModal?.addEventListener("click", closeModal);
   els.modalBackdrop?.addEventListener("click", closeModal);
 }
+
 function openModal(productId){
   const p = PRODUCTS.find(x => normalize(x.id) === normalize(productId));
   if(!p || !els.modal) return;
@@ -734,6 +716,7 @@ function bindFilters(){
 function bindCart(){
   els.openCart?.addEventListener("click", ()=>{
     updateCartUI();
+    renderOrderPanel();
     openDrawer();
   });
   els.closeDrawer?.addEventListener("click", closeDrawer);
@@ -756,6 +739,7 @@ function bindCart(){
       togglePaymentUI();
       setCheckoutStep("cart");
       updateCartUI();
+      renderOrderPanel();
     });
   });
 
@@ -788,6 +772,7 @@ function bindCart(){
     if(getCheckoutStep()==="cart"){
       setCheckoutStep("checkout");
       updateCartUI();
+      renderOrderPanel();
       toast("Copy Till + Amount, pay, then paste M-Pesa code.");
       els.mpesaCode?.focus?.();
       return;
@@ -857,6 +842,7 @@ async function loadProducts(){
 
     refreshCartCount();
     updateCartUI();
+    renderOrderPanel();
     renderProducts();
 
     if(!getCart().length) setCheckoutStep("cart");

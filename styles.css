@@ -697,16 +697,17 @@ input:focus,select:focus{
 /* Keep media clean for themed cards */
 .product[class*="type-"] .media{ background:#ffffff !important; }
 
-/* Make footer more compact */
-.drawer-foot{
-  padding: 10px !important;
+/* More space for "Your order" on desktop */
+@media (min-width: 880px){
+  .drawer-panel{
+    width: 560px !important;   /* was ~440px */
+    max-width: 560px !important;
+  }
 }
 
-.pay-card{
-  padding: 10px !important;
-}
-
-.btn.full{
-  padding: 10px 12px !important;
-  border-radius: 12px !important;
+/* Let order list take more space and scroll nicely */
+.order-items{
+  max-height: 46vh;          /* adjust: 40vh–55vh */
+  overflow-y: auto;
+  padding-right: 6px;
 }

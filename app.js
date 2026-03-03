@@ -8,7 +8,7 @@ console.log("✅ BASFAY app.js LOADED (FULL + FIXED)");
 const CONFIG = {
   currency: "KES",
   pickup: "Kangemi",
-  whatsappNumber: "254119667836",
+  whatsappNumber: "254718985676",
   businessName: "BASFAY Uniforms",
   tillNumberPlaceholder: "XXXX",
 };
@@ -438,6 +438,91 @@ function productCard(p){
 
   return wrap;
 }
+/* =========================
+   BASFAY Cart -> Order Panel
+   ========================= */
+const CART_KEY = "basfay_cart_v1";
+
+function getCart() {
+  try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
+  catch { return []; }
+}
+function saveCart(cart) {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+}
+function makeKey(id, size) {
+  return `${id}__${size || ""}`;
+}
+function money(n) {
+  return `KES ${Number(n || 0).toLocaleString()}`;
+}
+
+function addToCart(product, size, price, qty = 1) {
+  const cart = getCart();
+  const key = makeKey(product.id, size);
+
+  const found = cart.find(x => x.key === key);
+  if (found) found.qty += qty;
+  else cart.push({
+    key,
+    id: product.id,
+    name: product.name,
+    size: size || "",
+    price: Number(price) || 0,
+    qty: Number(qty) || 1
+  });
+
+  saveCart(cart);
+  renderOrderPanel();
+}
+
+function removeFromCart(key) {
+  const cart = getCart().filter(x => x.key !== key);
+  saveCart(cart);
+  renderOrderPanel();
+}
+
+function renderOrderPanel() {
+  const itemsEl = document.getElementById("orderItems");
+  const subtotalEl = document.getElementById("orderSubtotal");
+  if (!itemsEl || !subtotalEl) return; // HTML IDs must exist
+
+  const cart = getCart();
+  if (!cart.length) {
+    itemsEl.innerHTML = `<div style="opacity:.7;padding:8px 0;">No items yet.</div>`;
+    subtotalEl.textContent = money(0);
+    return;
+  }
+
+  let subtotal = 0;
+
+  itemsEl.innerHTML = cart.map(item => {
+    const line = (Number(item.price) || 0) * (Number(item.qty) || 1);
+    subtotal += line;
+
+    return `
+      <div class="order-item">
+        <div>
+          <div><strong>${item.name}</strong></div>
+          <small>Size: ${item.size || "—"} • Qty: ${item.qty}</small><br/>
+          <small>${money(item.price)} each</small>
+        </div>
+        <div class="actions">
+          <strong>${money(line)}</strong>
+          <button class="remove" data-remove="${item.key}">Remove</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  subtotalEl.textContent = money(subtotal);
+
+  itemsEl.querySelectorAll("[data-remove]").forEach(btn => {
+    btn.addEventListener("click", () => removeFromCart(btn.dataset.remove));
+  });
+}
+
+document.addEventListener("DOMContentLoaded", renderOrderPanel);
 
 /* ============ Drawer / Cart UI ============ */
 function updateCartUI(){

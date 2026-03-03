@@ -968,3 +968,58 @@ input:focus, select:focus {
   display: none !important;
 }
 
+/* Make the drawer usable on desktop: scroll content, don't clip it */
+.drawer-content,
+.order-panel-content,
+#orderDrawer .drawer-content,
+.cart-drawer .drawer-content {
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: 90px; /* space for sticky footer */
+}
+
+/* Keep Proceed visible */
+.order-footer {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding: 12px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  z-index: 10;
+}
+
+/* Cart items */
+.order-items {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.order-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.order-item small { opacity: 0.75; }
+
+.order-item .actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.order-item .remove {
+  border: 1px solid rgba(0,0,0,0.15);
+  background: #fff;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+

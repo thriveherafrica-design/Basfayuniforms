@@ -1,18 +1,14 @@
-<!-- index.html (FULL UPDATED) -->
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>BASFAY Uniforms — Shop</title>
-    <meta
-      name="description"
-      content="BASFAY Uniforms — Quality & Affordable. Browse items, add to order."
-    />
+    <meta name="description" content="BASFAY Uniforms — Quality & Affordable. Browse items, add to order." />
     <meta name="theme-color" content="#1E88E5" />
 
     <!-- bump version to bust cache -->
-    <link rel="stylesheet" href="./styles.css?v=20260228-7" />
+    <link rel="stylesheet" href="./styles.css?v=20260228-300" />
   </head>
 
   <body>
@@ -28,23 +24,6 @@
             <span class="brand-sub">Quality &amp; Affordable</span>
           </span>
         </a>
-
-        <!-- keep structure but hide top nav -->
-        <nav class="nav is-hidden" aria-label="Primary navigation" aria-hidden="true">
-          <a class="nav-link" href="#shop">Shop</a>
-        </nav>
-
-        <div class="header-actions">
-          <a
-            class="btn primary is-hidden"
-            id="headerWhatsApp"
-            href="https://wa.me/254718985676"
-            rel="noopener"
-            target="_blank"
-            aria-hidden="true"
-            >Order on WhatsApp</a
-          >
-        </div>
       </div>
     </header>
 
@@ -82,11 +61,10 @@
             <p class="muted">Select size, add to order.</p>
           </div>
 
-          <!-- Top toolbar (Category + Color + Sort ONLY) -->
+          <!-- Top toolbar -->
           <div class="card soft" style="margin-bottom: 16px;">
             <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:end; justify-content:space-between;">
               <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:end;">
-
                 <div class="field" style="min-width:220px;">
                   <label for="categoryDropdown">Category</label>
                   <select id="categoryDropdown">
@@ -111,18 +89,17 @@
                     <option value="price_desc">Price (High–Low)</option>
                   </select>
                 </div>
-
               </div>
 
-              <div class="sidebar-meta" style="display:flex; gap:14px; align-items:center; justify-content:flex-end;">
+              <div style="display:flex; gap:14px; align-items:center; justify-content:flex-end;">
                 <div><strong id="resultsCount">0</strong> items</div>
                 <div class="muted">KES</div>
               </div>
             </div>
           </div>
 
+          <!-- ✅ Shop layout + RIGHT SIDE "Your Cart" -->
           <div class="shop-layout">
-            <!-- Catalog -->
             <div class="catalog" id="catalog" aria-label="Product catalog">
               <div class="grid" id="productGrid" aria-live="polite"></div>
 
@@ -132,9 +109,13 @@
               </div>
             </div>
 
-            <!-- ✅ Amazon-style cart preview (Desktop only) -->
-            <aside class="cart-preview" id="cartPreview" aria-label="Cart preview">
+            <!-- ✅ WORKING cart preview -->
+            <div class="cart-preview" id="cartPreview">
               <h3>Your Cart</h3>
+
+              <div class="muted" style="margin-bottom:8px;">
+                <strong id="cartPreviewCount">0</strong> items
+              </div>
 
               <div class="cart-preview-items" id="cartPreviewItems">No items yet</div>
 
@@ -146,7 +127,7 @@
               <button class="btn primary full" id="openCartPreview" type="button">
                 Go to Cart
               </button>
-            </aside>
+            </div>
           </div>
         </div>
       </section>
@@ -165,10 +146,6 @@
           </div>
           <p class="muted">Quality &amp; Affordable</p>
         </div>
-
-        <div class="footer-right">
-          <a class="footer-link" href="#shop">Shop</a>
-        </div>
       </div>
 
       <div class="container footer-bottom">
@@ -176,14 +153,14 @@
       </div>
     </footer>
 
-    <!-- Order Drawer -->
+    <!-- Drawer -->
     <div class="drawer" id="drawer" aria-hidden="true">
       <div class="drawer-backdrop" id="drawerBackdrop"></div>
 
       <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Order list">
         <div class="drawer-head">
           <h3>Your order</h3>
-          <button class="icon-btn" id="closeDrawer" aria-label="Close order list" type="button">✕</button>
+          <button class="icon-btn" id="closeDrawer" aria-label="Close order list">✕</button>
         </div>
 
         <div class="drawer-body">
@@ -200,9 +177,6 @@
             <p><strong>No items yet.</strong></p>
             <p class="muted">Add products from the catalog.</p>
           </div>
-
-          <!-- Keep hidden container so JS never breaks -->
-          <div id="cartItems" class="is-hidden" aria-hidden="true"></div>
         </div>
 
         <div class="drawer-foot">
@@ -234,28 +208,15 @@
               <button class="btn ghost full" id="copyAmountBtn" type="button">Copy Amount</button>
 
               <label for="mpesaCode" style="margin-top:10px; display:block; font-weight:800;">M-Pesa Confirmation Code</label>
-              <input
-                type="text"
-                id="mpesaCode"
-                placeholder="e.g. QFT3XYZ123"
-                autocomplete="off"
-              />
+              <input type="text" id="mpesaCode" placeholder="e.g. QFT3XYZ123" autocomplete="off" />
             </div>
 
             <div class="checkout-field">
               <label for="customerPhone">Phone Number</label>
-              <input
-                type="tel"
-                id="customerPhone"
-                placeholder="07XXXXXXXX"
-                inputmode="tel"
-                autocomplete="tel"
-              />
+              <input type="tel" id="customerPhone" placeholder="07XXXXXXXX" inputmode="tel" autocomplete="tel" />
             </div>
 
-            <div class="muted pay-help">
-              We confirm delivery fee before payment.
-            </div>
+            <div class="muted pay-help">We confirm delivery fee before payment.</div>
           </div>
 
           <a class="btn primary full" id="checkoutBtn" href="#" rel="noopener">Proceed</a>
@@ -264,13 +225,13 @@
       </div>
     </div>
 
-    <!-- Product Modal -->
+    <!-- Modal -->
     <div class="modal" id="modal" aria-hidden="true">
       <div class="modal-backdrop" id="modalBackdrop"></div>
       <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Product details">
         <div class="modal-head">
           <h3 id="modalTitle">Product</h3>
-          <button class="icon-btn" id="closeModal" aria-label="Close product details" type="button">✕</button>
+          <button class="icon-btn" id="closeModal" aria-label="Close product details">✕</button>
         </div>
 
         <div class="modal-body">
@@ -289,16 +250,14 @@
 
             <div class="modal-actions">
               <button class="btn primary" id="modalAdd" type="button">Add</button>
-              <button class="btn ghost is-hidden" id="modalOrderNow" type="button" aria-hidden="true">
-                WhatsApp
-              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <script src="./app.js?v=20260228-7" defer></script>
+    <!-- bump JS version -->
+    <script src="./app.js?v=20260228-8" defer></script>
     <script>
       document.getElementById("year").textContent = new Date().getFullYear();
     </script>

@@ -43,10 +43,13 @@ const els = {
 
   payRadios: document.querySelectorAll('input[name="payMethod"]'),
 
+  // ✅ NEW: needed for Cash/Till behavior
+  mpesaBox: document.getElementById("mpesaBox"),
+  mpesaCodeWrap: document.getElementById("mpesaCodeWrap"), // wrapped in HTML now
+
   tillNumberUI: document.getElementById("tillNumberUI"),
   copyTillBtn: document.getElementById("copyTillBtn"),
   copyAmountBtn: document.getElementById("copyAmountBtn"),
-  mpesaCode: document.getElementById("mpesaCode"),
 
   orderItems: document.getElementById("orderItems"),
   orderSubtotal: document.getElementById("orderSubtotal"),
@@ -197,10 +200,16 @@ function getPayMethod(){
   const checked = [...(els.payRadios||[])].find(r=>r.checked);
   return checked?.value || "Till";
 }
+
 function togglePaymentUI(){
-  const method = getPayMethod();
-  const isTill = method.toLowerCase().includes("till");
+  const method = String(getPayMethod()).toLowerCase();
+  const isTill = method === "till";
+
+  // ✅ Cash hides Mpesa box
   if (els.mpesaBox) els.mpesaBox.classList.toggle("is-hidden", !isTill);
+
+  // ✅ Always hide confirmation code wrap (you want it removed)
+  if (els.mpesaCodeWrap) els.mpesaCodeWrap.classList.add("is-hidden");
 }
 
 function buildWhatsAppLink(message){
@@ -212,7 +221,6 @@ function buildCheckoutWhatsAppMessage(){
   const phone = cleanPhone(els.customerPhone?.value);
   const subtotal = calcSubtotal();
   const method = getPayMethod();
-  const mpesaCode = safeText(els.mpesaCode?.value);
 
   const lines = [];
   lines.push(`Hi ${CONFIG.businessName}, I would like to place an order.`);
@@ -221,7 +229,7 @@ function buildCheckoutWhatsAppMessage(){
 
   if (!method.toLowerCase().includes("cash")) {
     lines.push(`Amount Paid: ${money(subtotal)} (delivery fee to be confirmed)`);
-    if (mpesaCode) lines.push(`M-Pesa Code: ${mpesaCode}`);
+    lines.push(`I will forward/attach the M-Pesa confirmation in this chat.`);
   }
 
   lines.push("");
@@ -614,6 +622,8 @@ function bindCart(){
   });
 
   if (els.tillNumberUI) els.tillNumberUI.textContent = CONFIG.tillNumberPlaceholder;
+
+  // ✅ Ensure correct UI on load
   togglePaymentUI();
 
   els.copyTillBtn?.addEventListener("click", ()=>copyToClipboard(CONFIG.tillNumberPlaceholder));
@@ -637,6 +647,7 @@ function bindCart(){
 
     const method = getPayMethod();
 
+    // ✅ Cash => WhatsApp immediately
     if(method.toLowerCase().includes("cash")){
       const phone = cleanPhone(els.customerPhone?.value);
       if(!phone || phone.length < 9){
@@ -647,22 +658,17 @@ function bindCart(){
       return;
     }
 
+    // ✅ Till => Step 1: show guidance (no code required)
     if(getCheckoutStep()==="cart"){
       setCheckoutStep("checkout");
-      toast("Copy Till + Amount, pay, then paste M-Pesa code.");
-      els.mpesaCode?.focus?.();
+      toast("Copy Till + Amount, pay, then tap Proceed to open WhatsApp.");
       return;
     }
 
+    // ✅ Till => Step 2: just validate phone, then WhatsApp
     const phone = cleanPhone(els.customerPhone?.value);
     if(!phone || phone.length < 9){
       alert("Please enter a valid phone number.");
-      return;
-    }
-
-    const mpesaCode = safeText(els.mpesaCode?.value);
-    if(!mpesaCode || mpesaCode.length < 6){
-      alert("Please paste your M-Pesa confirmation code.");
       return;
     }
 

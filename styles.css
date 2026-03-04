@@ -746,3 +746,54 @@ input:focus,select:focus{
 
 /* Absolute guarantee: cart badge NEVER hidden */
 #cartCount{ display:flex !important; }
+
+/* =========================
+   AMAZON STYLE CART SIDEBAR
+   ========================= */
+
+.shop-layout{
+  display:grid;
+  grid-template-columns: 1fr 260px;
+  gap:20px;
+}
+
+.cart-preview{
+  position:sticky;
+  top:100px;
+  height:fit-content;
+  background:#fff;
+  border:1px solid rgba(0,0,0,0.08);
+  border-radius:14px;
+  padding:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+.cart-preview h3{
+  margin:0 0 10px;
+  font-size:16px;
+}
+
+.cart-preview-items{
+  font-size:13px;
+  margin-bottom:10px;
+  max-height:200px;
+  overflow:auto;
+}
+
+.cart-preview-total{
+  display:flex;
+  justify-content:space-between;
+  margin:10px 0;
+  font-weight:900;
+}
+
+/* hide sidebar on mobile */
+@media (max-width: 880px){
+  .shop-layout{
+    grid-template-columns:1fr;
+  }
+
+  .cart-preview{
+    display:none;
+  }
+}

@@ -1,10 +1,12 @@
+/* app.js (FULL UPDATED) */
 /* ============================
    BASFAY Catalog Site (Clean UI)
    Cart + Two-step Checkout (Cash vs Till)
    + Amazon-style Mobile Cart Bar
+   + Amazon-style Desktop Cart Preview
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (FULL + UPDATED + CART BAR)");
+console.log("✅ BASFAY app.js LOADED (FULL + UPDATED + CART BAR + CART PREVIEW)");
 
 const CONFIG = {
   currency: "KES",
@@ -27,13 +29,6 @@ const els = {
   sortByTop: document.getElementById("sortByTop"),
   resultsCount: document.getElementById("resultsCount"),
 
-  q2: document.getElementById("q2"),
-  colorFilter2: document.getElementById("colorFilter2"),
-  sortBy2: document.getElementById("sortBy2"),
-  clearFilters2: document.getElementById("clearFilters2"),
-  scrollToCatalog: document.getElementById("scrollToCatalog"),
-  resultsCountSidebar: document.getElementById("resultsCountSidebar"),
-
   productGrid: document.getElementById("productGrid"),
   emptyState: document.getElementById("emptyState"),
 
@@ -51,16 +46,19 @@ const els = {
 
   payRadios: document.querySelectorAll('input[name="payMethod"]'),
 
-  // Optional Mpesa UI (only works if these IDs exist in HTML)
   tillNumberUI: document.getElementById("tillNumberUI"),
   mpesaBox: document.getElementById("mpesaBox"),
   copyTillBtn: document.getElementById("copyTillBtn"),
   copyAmountBtn: document.getElementById("copyAmountBtn"),
   mpesaCode: document.getElementById("mpesaCode"),
 
-  // OPTIONAL "Your order" panel IDs (must exist in HTML for it to show)
   orderItems: document.getElementById("orderItems"),
   orderSubtotal: document.getElementById("orderSubtotal"),
+
+  // ✅ Cart preview box (Amazon-style desktop)
+  cartPreviewItems: document.getElementById("cartPreviewItems"),
+  cartPreviewSubtotal: document.getElementById("cartPreviewSubtotal"),
+  openCartPreview: document.getElementById("openCartPreview"),
 
   modal: document.getElementById("modal"),
   modalBackdrop: document.getElementById("modalBackdrop"),
@@ -167,8 +165,7 @@ function calcSubtotal(){
 }
 
 /* =========================
-   Amazon-style Mobile Cart Bar
-   (Injected via JS so you don’t hunt HTML)
+   Amazon-style Mobile Cart Bar (Injected)
    ========================= */
 function ensureCartBar(){
   if (document.getElementById("cartBar")) return;
@@ -177,14 +174,13 @@ function ensureCartBar(){
   bar.id = "cartBar";
   bar.type = "button";
   bar.setAttribute("aria-label", "View cart");
-  bar.style.display = "none"; // JS controls this
   bar.innerHTML = `
     <div class="cartbar-left">
       <strong id="cartBarCount">0</strong>
       <span>items</span>
     </div>
     <div class="cartbar-mid">
-      <span class="muted">Subtotal</span>
+      <span class="muted" style="color:rgba(255,255,255,0.75)">Subtotal</span>
       <strong id="cartBarTotal">KES 0</strong>
     </div>
     <div class="cartbar-right">
@@ -215,13 +211,52 @@ function updateCartBar(){
   if (countEl) countEl.textContent = String(count);
   if (totalEl) totalEl.textContent = money(total);
 
+  // show only on mobile; CSS hides on desktop
   if (bar) bar.style.display = count > 0 ? "flex" : "none";
 }
 
-/* ✅ MUST ALWAYS UPDATE BADGE + CART BAR */
+/* =========================
+   Amazon-style Desktop Cart Preview
+   ========================= */
+function renderCartPreview(){
+  if(!els.cartPreviewItems || !els.cartPreviewSubtotal) return;
+
+  const cart = getCart();
+  const subtotal = calcSubtotal();
+
+  if(!cart.length){
+    els.cartPreviewItems.textContent = "No items yet";
+    els.cartPreviewSubtotal.textContent = money(0);
+    return;
+  }
+
+  els.cartPreviewItems.innerHTML = cart.slice(0, 8).map(item=>{
+    const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
+    const name = p?.name || "Item";
+    const sizeTxt = item.size && item.size !== "-" ? ` • ${item.size}` : "";
+    const line = (Number(item.price)||0)*(Number(item.qty)||0);
+
+    return `
+      <div style="display:flex; justify-content:space-between; gap:10px; margin:8px 0;">
+        <span style="font-weight:900; min-width:34px;">${item.qty}×</span>
+        <span style="flex:1; opacity:.92;">${name}${sizeTxt}</span>
+        <span style="font-weight:900;">${money(line)}</span>
+      </div>
+    `;
+  }).join("");
+
+  if(cart.length > 8){
+    els.cartPreviewItems.innerHTML += `<div style="opacity:.7; margin-top:10px;">+ ${cart.length - 8} more item(s)</div>`;
+  }
+
+  els.cartPreviewSubtotal.textContent = money(subtotal);
+}
+
+/* ✅ MUST ALWAYS UPDATE BADGE + BAR + PREVIEW */
 function refreshCartCount(){
   if (els.cartCount) els.cartCount.textContent = String(cartCountTotal());
   updateCartBar();
+  renderCartPreview();
 }
 
 /* ============ "Your order" panel renderer ============ */
@@ -267,14 +302,10 @@ function renderOrderPanel(){
   });
 }
 
-/* ✅ THE ONE TRUE CART SETTER (updates everything) */
+/* ✅ THE ONE TRUE CART SETTER */
 function setCart(items){
   localStorage.setItem(CART_KEY, JSON.stringify(items));
-
-  // Always update counts first
   refreshCartCount();
-
-  // Update both UIs
   updateCartUI();
   renderOrderPanel();
 }
@@ -323,10 +354,6 @@ function getSelectedPayMethodLabel(){
   const v = getPayMethod();
   if (v.toLowerCase().includes("cash")) return "Cash";
   return `M-Pesa Buy Goods (Till: ${CONFIG.tillNumberPlaceholder})`;
-}
-
-function getTotalAmount(){
-  return calcSubtotal();
 }
 
 function buildCheckoutWhatsAppMessage(){
@@ -394,7 +421,6 @@ function hydrateFiltersOptions(){
   };
 
   fillSelect(els.colorFilterTop, colorList, "All");
-  fillSelect(els.colorFilter2, colorList, "All");
   fillSelect(els.categoryDropdown, typeList, "All");
 }
 
@@ -447,7 +473,6 @@ function renderProducts(){
   const sorted = applySort(filtered);
 
   if(els.resultsCount) els.resultsCount.textContent = String(sorted.length);
-  if(els.resultsCountSidebar) els.resultsCountSidebar.textContent = String(sorted.length);
 
   els.productGrid.innerHTML = "";
   if(els.emptyState) els.emptyState.hidden = sorted.length !== 0;
@@ -459,8 +484,6 @@ function productCard(p){
   const wrap = document.createElement("article");
   wrap.className = "product";
   wrap.classList.add(toTypeClass(p.type));
-  if(p.type==="Tracksuit") wrap.classList.add("product-tracksuit");
-  if(p.type==="Socks") wrap.classList.add("product-socks");
 
   const media = document.createElement("div");
   media.className = "media";
@@ -578,70 +601,12 @@ function updateCartUI(){
     if(els.cartEmpty) els.cartEmpty.hidden = false;
     setCheckoutStep("cart");
     if(els.checkoutBtn){
-      els.checkoutBtn.textContent = "Proceed to checkout";
+      els.checkoutBtn.textContent = "Proceed";
       els.checkoutBtn.href = "#";
     }
     return;
   }
   if(els.cartEmpty) els.cartEmpty.hidden = true;
-
-  cart.forEach(item=>{
-    const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
-    const name = p?.name || `Item (${safeText(item.id)})`;
-
-    const row = document.createElement("div");
-    row.className="cart-item";
-
-    const left = document.createElement("div");
-    const title = document.createElement("h4");
-    title.textContent = item.size && item.size !== "-"
-      ? `${name} (Size ${item.size})`
-      : name;
-
-    const meta = document.createElement("div");
-    meta.className="meta";
-    meta.innerHTML = `<span class="chip">${safeText(p?.color)||"Item"}</span><span class="chip">${formatMoney(item.price)}</span>`;
-
-    left.appendChild(title);
-    left.appendChild(meta);
-
-    const right = document.createElement("div");
-    const controls = document.createElement("div");
-    controls.className="cart-controls";
-
-    const minus = document.createElement("button");
-    minus.className="qty-btn";
-    minus.type="button";
-    minus.textContent="−";
-    minus.addEventListener("click", ()=>setQty(item.key, item.qty-1));
-
-    const qty = document.createElement("div");
-    qty.className="qty";
-    qty.textContent=String(item.qty);
-
-    const plus = document.createElement("button");
-    plus.className="qty-btn";
-    plus.type="button";
-    plus.textContent="+";
-    plus.addEventListener("click", ()=>setQty(item.key, item.qty+1));
-
-    const del = document.createElement("button");
-    del.className="qty-btn";
-    del.type="button";
-    del.textContent="🗑";
-    del.addEventListener("click", ()=>removeFromCart(item.key));
-
-    controls.appendChild(minus);
-    controls.appendChild(qty);
-    controls.appendChild(plus);
-    controls.appendChild(del);
-
-    right.appendChild(controls);
-    row.appendChild(left);
-    row.appendChild(right);
-
-    els.cartItems.appendChild(row);
-  });
 }
 
 function openDrawer(){ els.drawer?.setAttribute("aria-hidden","false"); }
@@ -728,51 +693,6 @@ function openModal(productId){
 }
 function closeModal(){ els.modal?.setAttribute("aria-hidden","true"); }
 
-/* ============ Bind filters ============ */
-function bindFilters(){
-  els.categoryDropdown?.addEventListener("change", ()=>{
-    state.type = els.categoryDropdown.value || "";
-    renderProducts();
-  });
-  els.colorFilterTop?.addEventListener("change", ()=>{
-    state.color = els.colorFilterTop.value || "";
-    if(els.colorFilter2) els.colorFilter2.value = state.color;
-    renderProducts();
-  });
-  els.sortByTop?.addEventListener("change", ()=>{
-    state.sort = els.sortByTop.value || "featured";
-    if(els.sortBy2) els.sortBy2.value = state.sort;
-    renderProducts();
-  });
-  els.q2?.addEventListener("input", ()=>{
-    state.q = els.q2.value || "";
-    renderProducts();
-  });
-  els.colorFilter2?.addEventListener("change", ()=>{
-    state.color = els.colorFilter2.value || "";
-    if(els.colorFilterTop) els.colorFilterTop.value = state.color;
-    renderProducts();
-  });
-  els.sortBy2?.addEventListener("change", ()=>{
-    state.sort = els.sortBy2.value || "featured";
-    if(els.sortByTop) els.sortByTop.value = state.sort;
-    renderProducts();
-  });
-  els.clearFilters2?.addEventListener("click", ()=>{
-    state = { q:"", color:"", type:"", sort:"featured" };
-    if(els.q2) els.q2.value="";
-    if(els.colorFilter2) els.colorFilter2.value="";
-    if(els.colorFilterTop) els.colorFilterTop.value="";
-    if(els.categoryDropdown) els.categoryDropdown.value="";
-    if(els.sortBy2) els.sortBy2.value="featured";
-    if(els.sortByTop) els.sortByTop.value="featured";
-    renderProducts();
-  });
-  els.scrollToCatalog?.addEventListener("click", ()=>{
-    document.getElementById("catalog")?.scrollIntoView({behavior:"smooth", block:"start"});
-  });
-}
-
 /* ============ Bind cart + checkout ============ */
 function bindCart(){
   els.openCart?.addEventListener("click", ()=>{
@@ -781,6 +701,14 @@ function bindCart(){
     renderOrderPanel();
     openDrawer();
   });
+
+  els.openCartPreview?.addEventListener("click", ()=>{
+    refreshCartCount();
+    updateCartUI();
+    renderOrderPanel();
+    openDrawer();
+  });
+
   els.closeDrawer?.addEventListener("click", closeDrawer);
   els.drawerBackdrop?.addEventListener("click", closeDrawer);
 
@@ -794,15 +722,14 @@ function bindCart(){
   togglePaymentUI();
 
   els.copyTillBtn?.addEventListener("click", ()=>copyToClipboard(CONFIG.tillNumberPlaceholder));
-  els.copyAmountBtn?.addEventListener("click", ()=>copyToClipboard(String(getTotalAmount())));
+  els.copyAmountBtn?.addEventListener("click", ()=>copyToClipboard(String(calcSubtotal())));
 
   (els.payRadios||[]).forEach(r=>{
     r.addEventListener("change", ()=>{
       togglePaymentUI();
       setCheckoutStep("cart");
-      updateCartUI();
-      renderOrderPanel();
       refreshCartCount();
+      renderOrderPanel();
     });
   });
 
@@ -817,6 +744,7 @@ function bindCart(){
 
     const method = getPayMethod();
 
+    // Cash => WhatsApp immediately
     if(method.toLowerCase().includes("cash")){
       const phone = cleanPhone(els.customerPhone?.value);
       if(!phone || phone.length < 9){
@@ -829,16 +757,15 @@ function bindCart(){
       return;
     }
 
+    // Till => Step 1: proceed
     if(getCheckoutStep()==="cart"){
       setCheckoutStep("checkout");
-      updateCartUI();
-      renderOrderPanel();
-      refreshCartCount();
       toast("Copy Till + Amount, pay, then paste M-Pesa code.");
       els.mpesaCode?.focus?.();
       return;
     }
 
+    // Till => Step 2 validations
     const phone = cleanPhone(els.customerPhone?.value);
     if(!phone || phone.length < 9){
       els.customerPhone?.focus?.();
@@ -896,15 +823,14 @@ async function loadProducts(){
 
     await loadProducts();
 
-    bindFilters();
     bindCart();
     bindModal();
 
-    // ✅ Ensure UI reflects stored cart immediately on load
-    refreshCartCount();
-    updateCartUI();
-    renderOrderPanel();
+    // render initial
     renderProducts();
+    refreshCartCount();
+    renderOrderPanel();
+    renderCartPreview();
 
     if(!getCart().length) setCheckoutStep("cart");
   }catch(err){

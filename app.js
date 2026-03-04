@@ -1,9 +1,10 @@
 /* ============================
    BASFAY Catalog Site (Clean UI)
    Cart + Two-step Checkout (Cash vs Till)
+   + Amazon-style Mobile Cart Bar
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (FULL + UPDATED)");
+console.log("✅ BASFAY app.js LOADED (FULL + UPDATED + CART BAR)");
 
 const CONFIG = {
   currency: "KES",
@@ -165,10 +166,62 @@ function calcSubtotal(){
   return getCart().reduce((sum,i)=>sum + (Number(i.price)||0)*(Number(i.qty)||0),0);
 }
 
-/* ✅ MUST ALWAYS UPDATE BADGE */
+/* =========================
+   Amazon-style Mobile Cart Bar
+   (Injected via JS so you don’t hunt HTML)
+   ========================= */
+function ensureCartBar(){
+  if (document.getElementById("cartBar")) return;
+
+  const bar = document.createElement("button");
+  bar.id = "cartBar";
+  bar.type = "button";
+  bar.setAttribute("aria-label", "View cart");
+  bar.style.display = "none"; // JS controls this
+  bar.innerHTML = `
+    <div class="cartbar-left">
+      <strong id="cartBarCount">0</strong>
+      <span>items</span>
+    </div>
+    <div class="cartbar-mid">
+      <span class="muted">Subtotal</span>
+      <strong id="cartBarTotal">KES 0</strong>
+    </div>
+    <div class="cartbar-right">
+      <span>View cart</span>
+      <span aria-hidden="true">›</span>
+    </div>
+  `;
+
+  bar.addEventListener("click", ()=>{
+    updateCartUI();
+    renderOrderPanel();
+    openDrawer();
+  });
+
+  document.body.appendChild(bar);
+}
+
+function updateCartBar(){
+  ensureCartBar();
+
+  const bar = document.getElementById("cartBar");
+  const countEl = document.getElementById("cartBarCount");
+  const totalEl = document.getElementById("cartBarTotal");
+
+  const count = cartCountTotal();
+  const total = calcSubtotal();
+
+  if (countEl) countEl.textContent = String(count);
+  if (totalEl) totalEl.textContent = money(total);
+
+  if (bar) bar.style.display = count > 0 ? "flex" : "none";
+}
+
+/* ✅ MUST ALWAYS UPDATE BADGE + CART BAR */
 function refreshCartCount(){
-  if (!els.cartCount) return;
-  els.cartCount.textContent = String(cartCountTotal());
+  if (els.cartCount) els.cartCount.textContent = String(cartCountTotal());
+  updateCartBar();
 }
 
 /* ============ "Your order" panel renderer ============ */
@@ -218,7 +271,7 @@ function renderOrderPanel(){
 function setCart(items){
   localStorage.setItem(CART_KEY, JSON.stringify(items));
 
-  // Always update badge first (so it never "lags")
+  // Always update counts first
   refreshCartCount();
 
   // Update both UIs
@@ -723,7 +776,6 @@ function bindFilters(){
 /* ============ Bind cart + checkout ============ */
 function bindCart(){
   els.openCart?.addEventListener("click", ()=>{
-    // Always refresh everything before opening
     refreshCartCount();
     updateCartUI();
     renderOrderPanel();
@@ -754,7 +806,6 @@ function bindCart(){
     });
   });
 
-  // ✅ Laptop-safe WhatsApp opening
   els.checkoutBtn?.addEventListener("click", (e)=>{
     e.preventDefault();
 
@@ -766,7 +817,6 @@ function bindCart(){
 
     const method = getPayMethod();
 
-    // Cash => WhatsApp immediately
     if(method.toLowerCase().includes("cash")){
       const phone = cleanPhone(els.customerPhone?.value);
       if(!phone || phone.length < 9){
@@ -779,7 +829,6 @@ function bindCart(){
       return;
     }
 
-    // Till => Step 1: proceed
     if(getCheckoutStep()==="cart"){
       setCheckoutStep("checkout");
       updateCartUI();
@@ -790,7 +839,6 @@ function bindCart(){
       return;
     }
 
-    // Till => Step 2 validations
     const phone = cleanPhone(els.customerPhone?.value);
     if(!phone || phone.length < 9){
       els.customerPhone?.focus?.();

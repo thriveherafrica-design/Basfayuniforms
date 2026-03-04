@@ -66,103 +66,120 @@
     <header class="header">
       <div class="container header-inner">
         <a class="brand" href="#main" aria-label="BASFAY home">
-          <span class="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false">
-              <!-- rounded badge -->
-              <rect
-                x="2.25"
-                y="2.25"
-                width="27.5"
-                height="27.5"
-                rx="8"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              />
-              <!-- needle -->
-              <path
-                d="M23.5 8.2 L14.2 25.2"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.2"
-                stroke-linecap="round"
-              />
-              <!-- needle eye -->
-              <circle
-                cx="24"
-                cy="8"
-                r="2.1"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              />
-              <!-- thread swoosh (stitched) -->
-              <path
-                d="M10.6 22.2 C13.8 25.1 18.3 25.1 21.6 22.2"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-dasharray="1.2 2.2"
-              />
-            </svg>
-          </span>
+          <span class="brand-mark" aria-hidden="true">B</span>
 
           <span class="brand-text">
-            <span class="brand-name" style="display:block;">
+            <span class="brand-name" style="display:block; line-height:1;">
+              <!-- Embroidered/thread-style wordmark (no external fonts, no CSS changes needed) -->
               <svg
-                viewBox="0 0 280 46"
-                height="22"
-                aria-hidden="true"
-                focusable="false"
-                style="display:block;"
+                viewBox="0 0 430 60"
+                aria-label="BASFAY Uniforms"
+                role="img"
+                style="height:22px; width:auto; display:block;"
               >
-                <!-- Embroidered/stitched effect using layered SVG text -->
-                <text
-                  x="0"
-                  y="30"
-                  font-family="system-ui, -apple-system, Segoe UI, Arial, sans-serif"
-                  font-size="26"
-                  font-weight="900"
-                  letter-spacing="3"
-                  fill="currentColor"
-                  opacity="0.92"
-                >
-                  BASFAY
-                </text>
-
-                <!-- stitched outline -->
-                <text
-                  x="0"
-                  y="30"
-                  font-family="system-ui, -apple-system, Segoe UI, Arial, sans-serif"
-                  font-size="26"
-                  font-weight="900"
-                  letter-spacing="3"
+                <!-- base thread stroke -->
+                <g
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="1.25"
+                  stroke-width="4.2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  stroke-dasharray="1.2 2.2"
-                  opacity="0.9"
                 >
-                  BASFAY
-                </text>
+                  <!-- B -->
+                  <path d="M10 52V10" />
+                  <path d="M10 10H30Q44 10 44 22Q44 34 30 34H10" />
+                  <path d="M10 34H30Q48 34 48 44Q48 52 30 52H10" />
+                  <!-- A -->
+                  <path d="M62 52L74 10L86 52" />
+                  <path d="M66 34H82" />
+                  <!-- S -->
+                  <path d="M126 16Q108 8 104 22Q100 36 122 36Q146 36 142 48Q138 60 112 50" />
+                  <!-- F -->
+                  <path d="M162 10V52" />
+                  <path d="M162 10H190" />
+                  <path d="M162 32H184" />
+                  <!-- A -->
+                  <path d="M208 52L220 10L232 52" />
+                  <path d="M212 34H228" />
+                  <!-- Y -->
+                  <path d="M252 10L267 30L282 10" />
+                  <path d="M267 30V52" />
+                </g>
 
-                <!-- “UNIFORMS” as thread label -->
+                <!-- stitch texture overlay (subtle) -->
+                <g
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-dasharray="1 7"
+                  opacity="0.45"
+                >
+                  <path d="M10 52V10" />
+                  <path d="M10 10H30Q44 10 44 22Q44 34 30 34H10" />
+                  <path d="M10 34H30Q48 34 48 44Q48 52 30 52H10" />
+                  <path d="M62 52L74 10L86 52" />
+                  <path d="M66 34H82" />
+                  <path d="M126 16Q108 8 104 22Q100 36 122 36Q146 36 142 48Q138 60 112 50" />
+                  <path d="M162 10V52" />
+                  <path d="M162 10H190" />
+                  <path d="M162 32H184" />
+                  <path d="M208 52L220 10L232 52" />
+                  <path d="M212 34H228" />
+                  <path d="M252 10L267 30L282 10" />
+                  <path d="M267 30V52" />
+                </g>
+
+                <!-- UNIFORMS (compact, still clean) -->
                 <text
-                  x="0"
-                  y="44"
+                  x="300"
+                  y="39"
                   font-family="system-ui, -apple-system, Segoe UI, Arial, sans-serif"
-                  font-size="11"
+                  font-size="12"
                   font-weight="800"
                   letter-spacing="3"
                   fill="currentColor"
-                  opacity="0.75"
+                  opacity="0.82"
                 >
                   UNIFORMS
                 </text>
+
+                <!-- tiny thread underline + needle cue (very subtle, not busy) -->
+                <path
+                  d="M10 56H260"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-dasharray="2 6"
+                  opacity="0.35"
+                />
+                <path
+                  d="M260 56C278 56 286 54 294 50"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  opacity="0.35"
+                />
+                <path
+                  d="M294 50l10-10"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  opacity="0.35"
+                />
+                <circle
+                  cx="305"
+                  cy="39"
+                  r="3"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  opacity="0.35"
+                />
               </svg>
             </span>
 

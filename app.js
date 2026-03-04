@@ -1,14 +1,10 @@
 /* ============================
    BASFAY Catalog Site (Clean UI)
    Cart + Two-step Checkout (Cash vs Till)
-   - Restored product themes (lavender default, tracksuit lime, socks emerald)
-   - Restored category filtering
-   - Desktop cart preview (Amazon-ish) with +/- + trash
-   - Drawer "Your order" (phone) with Amazon stepper
-   - Mobile cart bar (FIXED: no blank white bar)
+   + Desktop "Your Cart" preview (working)
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (CLEAN + FIXED BAR)");
+console.log("✅ BASFAY app.js LOADED (WORKING CART PREVIEW)");
 
 const CONFIG = {
   currency: "KES",
@@ -53,11 +49,10 @@ const els = {
   copyAmountBtn: document.getElementById("copyAmountBtn"),
   mpesaCode: document.getElementById("mpesaCode"),
 
-  // Drawer order list
   orderItems: document.getElementById("orderItems"),
   orderSubtotal: document.getElementById("orderSubtotal"),
 
-  // Desktop cart preview (right side)
+  // ✅ RIGHT "Your Cart"
   cartPreviewCount: document.getElementById("cartPreviewCount"),
   cartPreviewItems: document.getElementById("cartPreviewItems"),
   cartPreviewSubtotal: document.getElementById("cartPreviewSubtotal"),
@@ -83,21 +78,18 @@ let state = { color: "", type: "", sort: "featured" };
 const CART_KEY = "basfay_cart_v1";
 const CHECKOUT_STEP_KEY = "basfay_checkout_step_v1";
 
-/* ===================== Helpers ===================== */
+/* Helpers */
 function safeText(s){ return String(s ?? "").trim(); }
 function normalize(s){ return safeText(s).toLowerCase(); }
-
-function money(n){
-  return `${CONFIG.currency} ${Number(n || 0).toLocaleString("en-KE")}`;
-}
+function money(n){ return `${CONFIG.currency} ${Number(n || 0).toLocaleString("en-KE")}`; }
 function formatMoney(amount){
   if (amount == null || Number.isNaN(Number(amount))) return "";
   return money(Number(amount));
 }
-
 function toTypeClass(type){
   return "type-" + normalize(type).replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
 }
+function cleanPhone(raw){ return safeText(raw).replace(/[^\d+]/g, ""); }
 
 function toast(msg){
   const t = document.createElement("div");
@@ -118,12 +110,6 @@ function toast(msg){
   setTimeout(()=>t.remove(),900);
 }
 
-function cleanPhone(raw){ return safeText(raw).replace(/[^\d+]/g, ""); }
-
-function buildWhatsAppLink(message){
-  return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
-}
-
 async function copyToClipboard(text){
   try{
     await navigator.clipboard.writeText(String(text));
@@ -139,7 +125,7 @@ async function copyToClipboard(text){
   }
 }
 
-/* ===================== Checkout step ===================== */
+/* Checkout step */
 function getCheckoutStep(){
   const s = safeText(localStorage.getItem(CHECKOUT_STEP_KEY));
   return s === "checkout" ? "checkout" : "cart";
@@ -148,7 +134,7 @@ function setCheckoutStep(step){
   localStorage.setItem(CHECKOUT_STEP_KEY, step === "checkout" ? "checkout" : "cart");
 }
 
-/* ===================== Cart storage ===================== */
+/* Cart store */
 function getCart(){
   try{
     const raw = localStorage.getItem(CART_KEY);
@@ -166,17 +152,15 @@ function calcSubtotal(){
   return getCart().reduce((sum,i)=>sum + (Number(i.price)||0)*(Number(i.qty)||0),0);
 }
 
-/* ✅ ONE TRUE SETTER */
+/* ✅ One setter: updates EVERYTHING */
 function setCart(items){
   localStorage.setItem(CART_KEY, JSON.stringify(items));
   refreshAllCartUIs();
 }
 
-/* ===================== Cart actions ===================== */
 function addToCart(productId,size,price,qty=1){
   const cart = getCart();
   const key = `${productId}__${size}`;
-
   const found = cart.find(i=>i.key===key);
   if(found) found.qty = (Number(found.qty)||0) + (Number(qty)||1);
   else cart.push({ key, id: productId, size: String(size), price: Number(price), qty: Number(qty)||1 });
@@ -209,7 +193,7 @@ function decQty(key){
   else { it.qty = next; setCart(cart); }
 }
 
-/* ===================== Payment helpers ===================== */
+/* Payment helpers */
 function getPayMethod(){
   const checked = [...(els.payRadios||[])].find(r=>r.checked);
   return checked?.value || "Till";
@@ -220,7 +204,10 @@ function togglePaymentUI(){
   if (els.mpesaBox) els.mpesaBox.classList.toggle("is-hidden", !isTill);
 }
 
-/* ===================== WhatsApp message ===================== */
+function buildWhatsAppLink(message){
+  return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+}
+
 function buildCheckoutWhatsAppMessage(){
   const cart = getCart();
   const phone = cleanPhone(els.customerPhone?.value);
@@ -254,76 +241,7 @@ function buildCheckoutWhatsAppMessage(){
   return lines.join("\n");
 }
 
-/* =====================
-   Mobile Cart Bar (FIXED)
-   ===================== */
-function ensureCartBar(){
-  if (document.getElementById("cartBar")) return;
-
-  const bar = document.createElement("button");
-  bar.id = "cartBar";
-  bar.type = "button";
-  bar.setAttribute("aria-label", "View cart");
-
-  // Explicit styling so it never becomes a blank white slab
-  bar.style.position = "fixed";
-  bar.style.left = "12px";
-  bar.style.right = "12px";
-  bar.style.bottom = "12px";
-  bar.style.zIndex = "1200";
-  bar.style.border = "1px solid rgba(0,0,0,0.12)";
-  bar.style.borderRadius = "16px";
-  bar.style.padding = "12px 14px";
-  bar.style.background = "#ffffff";
-  bar.style.color = "#111827";
-  bar.style.boxShadow = "0 18px 40px rgba(0,0,0,0.14)";
-  bar.style.display = "none";
-  bar.style.alignItems = "center";
-  bar.style.justifyContent = "space-between";
-  bar.style.gap = "12px";
-
-  bar.innerHTML = `
-    <div style="display:flex;align-items:baseline;gap:8px;">
-      <strong id="cartBarCount">0</strong><span style="opacity:.75;">items</span>
-    </div>
-    <div style="text-align:right;">
-      <div style="opacity:.75;font-size:12px;">Subtotal</div>
-      <strong id="cartBarTotal">KES 0</strong>
-    </div>
-  `;
-
-  bar.addEventListener("click", ()=>{
-    renderOrderPanel();
-    openDrawer();
-  });
-
-  document.body.appendChild(bar);
-}
-
-function updateCartBar(){
-  ensureCartBar();
-  const bar = document.getElementById("cartBar");
-  const countEl = document.getElementById("cartBarCount");
-  const totalEl = document.getElementById("cartBarTotal");
-
-  const count = cartCountTotal();
-  const total = calcSubtotal();
-
-  if(countEl) countEl.textContent = String(count);
-  if(totalEl) totalEl.textContent = money(total);
-
-  const isPhone = window.matchMedia("(max-width: 880px)").matches;
-
-  // ✅ only show when there are items, AND only on phone
-  if(bar) bar.style.display = (isPhone && count > 0) ? "flex" : "none";
-
-  // ✅ prevent bar from overlapping page content
-  document.body.style.paddingBottom = (isPhone && count > 0) ? "90px" : "";
-}
-
-/* =====================
-   Drawer "Your order" (PHONE) Amazon stepper
-   ===================== */
+/* Drawer "Your order" list + Amazon stepper */
 function renderOrderPanel(){
   if(!els.orderItems || !els.orderSubtotal) return;
 
@@ -347,7 +265,6 @@ function renderOrderPanel(){
     const unit = Number(item.price)||0;
     const line = unit * qty;
     subtotal += line;
-
     const sizeTxt = item.size && item.size !== "-" ? item.size : "—";
 
     return `
@@ -357,15 +274,13 @@ function renderOrderPanel(){
           <small>Size: ${sizeTxt}</small><br/>
           <small>${money(unit)} each</small>
         </div>
-
         <div class="actions">
           <strong>${money(line)}</strong>
-
-          <div class="mob-stepper" aria-label="Quantity controls">
-            <button class="mob-trash" type="button" data-rm="${item.key}" aria-label="Remove item">🗑</button>
-            <button class="mob-btn" type="button" data-dec="${item.key}" aria-label="Decrease quantity">−</button>
-            <span class="mob-qty" aria-live="polite">${qty}</span>
-            <button class="mob-btn" type="button" data-inc="${item.key}" aria-label="Increase quantity">+</button>
+          <div class="mob-stepper">
+            <button class="mob-trash" type="button" data-rm="${item.key}">🗑</button>
+            <button class="mob-btn" type="button" data-dec="${item.key}">−</button>
+            <span class="mob-qty">${qty}</span>
+            <button class="mob-btn" type="button" data-inc="${item.key}">+</button>
           </div>
         </div>
       </div>
@@ -374,26 +289,21 @@ function renderOrderPanel(){
 
   els.orderSubtotal.textContent = money(subtotal);
 
-  els.orderItems.querySelectorAll("[data-rm]").forEach(btn=>{
-    btn.addEventListener("click", ()=>removeFromCart(btn.dataset.rm));
-  });
-  els.orderItems.querySelectorAll("[data-inc]").forEach(btn=>{
-    btn.addEventListener("click", ()=>incQty(btn.dataset.inc));
-  });
-  els.orderItems.querySelectorAll("[data-dec]").forEach(btn=>{
-    btn.addEventListener("click", ()=>decQty(btn.dataset.dec));
-  });
+  els.orderItems.querySelectorAll("[data-rm]").forEach(btn=>btn.addEventListener("click", ()=>removeFromCart(btn.dataset.rm)));
+  els.orderItems.querySelectorAll("[data-inc]").forEach(btn=>btn.addEventListener("click", ()=>incQty(btn.dataset.inc)));
+  els.orderItems.querySelectorAll("[data-dec]").forEach(btn=>btn.addEventListener("click", ()=>decQty(btn.dataset.dec)));
 }
 
-/* =====================
-   Desktop "Your Cart" preview with stepper
-   ===================== */
+/* ✅ RIGHT SIDE "Your Cart" (WORKING) */
 function renderCartPreview(){
   if(!els.cartPreviewItems || !els.cartPreviewSubtotal || !els.cartPreviewCount) return;
 
   const cart = getCart();
-  els.cartPreviewCount.textContent = String(cartCountTotal());
-  els.cartPreviewSubtotal.textContent = money(calcSubtotal());
+  const totalQty = cartCountTotal();
+  const subtotal = calcSubtotal();
+
+  els.cartPreviewCount.textContent = String(totalQty);
+  els.cartPreviewSubtotal.textContent = money(subtotal);
 
   if(!cart.length){
     els.cartPreviewItems.textContent = "No items yet";
@@ -403,42 +313,21 @@ function renderCartPreview(){
   els.cartPreviewItems.innerHTML = cart.map(item=>{
     const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
     const name = p?.name || `Item (${safeText(item.id)})`;
-    const sizeTxt = item.size && item.size !== "-" ? `• ${item.size}` : "";
     const qty = Number(item.qty)||1;
     const unit = Number(item.price)||0;
     const line = unit * qty;
+    const sizeTxt = item.size && item.size !== "-" ? `• ${item.size}` : "";
 
     return `
-      <div style="display:grid;gap:10px;padding:10px;border:1px solid rgba(0,0,0,0.08);border-radius:12px;margin-bottom:10px;background:#fff;">
-        <div style="display:flex;justify-content:space-between;gap:10px;font-weight:900;">
-          <span>${qty}× ${name} ${sizeTxt}</span>
-          <span>${money(line)}</span>
-        </div>
-
-        <div class="mob-stepper" style="border-color: rgba(0,0,0,0.10);">
-          <button class="mob-trash" type="button" data-rm="${item.key}" aria-label="Remove item">🗑</button>
-          <button class="mob-btn" type="button" data-dec="${item.key}" aria-label="Decrease quantity">−</button>
-          <span class="mob-qty">${qty}</span>
-          <button class="mob-btn" type="button" data-inc="${item.key}" aria-label="Increase quantity">+</button>
-        </div>
+      <div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.08);">
+        <div style="font-weight:800;">${qty}× ${name} ${sizeTxt}</div>
+        <div style="font-weight:900;">${money(line)}</div>
       </div>
     `;
   }).join("");
-
-  els.cartPreviewItems.querySelectorAll("[data-rm]").forEach(btn=>{
-    btn.addEventListener("click", ()=>removeFromCart(btn.dataset.rm));
-  });
-  els.cartPreviewItems.querySelectorAll("[data-inc]").forEach(btn=>{
-    btn.addEventListener("click", ()=>incQty(btn.dataset.inc));
-  });
-  els.cartPreviewItems.querySelectorAll("[data-dec]").forEach(btn=>{
-    btn.addEventListener("click", ()=>decQty(btn.dataset.dec));
-  });
 }
 
-/* =====================
-   Badge + refresh all cart UIs
-   ===================== */
+/* Badge */
 function refreshCartBadge(){
   if(!els.cartCount) return;
   els.cartCount.textContent = String(cartCountTotal());
@@ -448,45 +337,31 @@ function refreshAllCartUIs(){
   refreshCartBadge();
   renderOrderPanel();
   renderCartPreview();
-  updateCartBar();
 }
 
-/* =====================
-   Filters
-   ===================== */
-function hydrateFiltersOptions(){
-  const colors = new Set();
-  const types = new Set();
+/* Render products */
+function renderProducts(){
+  if(!els.productGrid) return;
 
-  PRODUCTS.forEach(p=>{
-    if(p.color) colors.add(p.color);
-    if(p.type) types.add(p.type);
+  const filtered = PRODUCTS.filter(p=>{
+    if(state.color && p.color !== state.color) return false;
+    if(state.type && normalize(p.type) !== normalize(state.type)) return false;
+    return true;
   });
 
-  const colorList = ["", ...Array.from(colors).sort()];
-  const existing = Array.from(types).filter(Boolean);
-  const extras = existing.filter(c=>!FUTURE_CATEGORIES.includes(c)).sort();
-  const typeList = ["", ...FUTURE_CATEGORIES, ...extras];
+  const sorted = applySort(filtered);
 
-  const fillSelect = (selectEl, options, allLabel="All")=>{
-    if(!selectEl) return;
-    const cur = selectEl.value;
-    selectEl.innerHTML = "";
-    options.forEach(v=>{
-      const o = document.createElement("option");
-      o.value = v;
-      o.textContent = v==="" ? allLabel : v;
-      selectEl.appendChild(o);
-    });
-    if(options.includes(cur)) selectEl.value = cur;
-  };
+  if(els.resultsCount) els.resultsCount.textContent = String(sorted.length);
 
-  fillSelect(els.colorFilterTop, colorList, "All");
-  fillSelect(els.categoryDropdown, typeList, "All");
+  els.productGrid.innerHTML = "";
+  if(els.emptyState) els.emptyState.hidden = sorted.length !== 0;
+
+  sorted.forEach(p=>els.productGrid.appendChild(productCard(p)));
 }
 
 function applySort(list){
   const sort = state.sort;
+
   const byNameAsc = (a,b)=>safeText(a.name).localeCompare(safeText(b.name));
   const byNameDesc = (a,b)=>safeText(b.name).localeCompare(safeText(a.name));
 
@@ -508,38 +383,12 @@ function applySort(list){
   return [...list].sort((a,b)=>featuredScore(b)-featuredScore(a) || byNameAsc(a,b));
 }
 
-function matchesFilters(p){
-  if(state.color && p.color !== state.color) return false;
-  if(state.type && normalize(p.type) !== normalize(state.type)) return false;
-  return true;
-}
-
-/* =====================
-   Render products
-   ===================== */
-function renderProducts(){
-  if(!els.productGrid) return;
-
-  const filtered = PRODUCTS.filter(matchesFilters);
-  const sorted = applySort(filtered);
-
-  if(els.resultsCount) els.resultsCount.textContent = String(sorted.length);
-
-  els.productGrid.innerHTML = "";
-  if(els.emptyState) els.emptyState.hidden = sorted.length !== 0;
-
-  sorted.forEach(p=>els.productGrid.appendChild(productCard(p)));
-}
-
-/* ✅ Product card (restores your theme hooks) */
 function productCard(p){
   const wrap = document.createElement("article");
   wrap.className = "product";
 
-  // CSS theme driver: .type-<normalized-type>
+  // theme hooks for CSS
   wrap.classList.add(toTypeClass(p.type));
-
-  // Special hooks used by your CSS for lime/emerald
   if (normalize(p.type) === "tracksuit") wrap.classList.add("product-tracksuit");
   if (normalize(p.type) === "socks") wrap.classList.add("product-socks");
 
@@ -638,15 +487,10 @@ function productCard(p){
   return wrap;
 }
 
-/* =====================
-   Drawer open/close
-   ===================== */
+/* Drawer / modal */
 function openDrawer(){ els.drawer?.setAttribute("aria-hidden","false"); }
 function closeDrawer(){ els.drawer?.setAttribute("aria-hidden","true"); }
 
-/* =====================
-   Modal
-   ===================== */
 function bindModal(){
   els.closeModal?.addEventListener("click", ()=>els.modal?.setAttribute("aria-hidden","true"));
   els.modalBackdrop?.addEventListener("click", ()=>els.modal?.setAttribute("aria-hidden","true"));
@@ -707,9 +551,35 @@ function openModal(productId){
   els.modal.setAttribute("aria-hidden","false");
 }
 
-/* =====================
-   Bind filters
-   ===================== */
+function hydrateFiltersOptions(){
+  const colors = new Set();
+  const types = new Set();
+
+  PRODUCTS.forEach(p=>{
+    if(p.color) colors.add(p.color);
+    if(p.type) types.add(p.type);
+  });
+
+  const colorList = ["", ...Array.from(colors).sort()];
+  const existing = Array.from(types).filter(Boolean);
+  const extras = existing.filter(c=>!FUTURE_CATEGORIES.includes(c)).sort();
+  const typeList = ["", ...FUTURE_CATEGORIES, ...extras];
+
+  const fillSelect = (selectEl, options, allLabel="All")=>{
+    if(!selectEl) return;
+    selectEl.innerHTML = "";
+    options.forEach(v=>{
+      const o = document.createElement("option");
+      o.value = v;
+      o.textContent = v==="" ? allLabel : v;
+      selectEl.appendChild(o);
+    });
+  };
+
+  fillSelect(els.colorFilterTop, colorList, "All");
+  fillSelect(els.categoryDropdown, typeList, "All");
+}
+
 function bindFilters(){
   els.categoryDropdown?.addEventListener("change", ()=>{
     state.type = els.categoryDropdown.value || "";
@@ -725,9 +595,6 @@ function bindFilters(){
   });
 }
 
-/* =====================
-   Bind cart + checkout
-   ===================== */
 function bindCart(){
   els.openCart?.addEventListener("click", ()=>{
     renderOrderPanel();
@@ -748,7 +615,6 @@ function bindCart(){
   });
 
   if (els.tillNumberUI) els.tillNumberUI.textContent = CONFIG.tillNumberPlaceholder;
-
   togglePaymentUI();
 
   els.copyTillBtn?.addEventListener("click", ()=>copyToClipboard(CONFIG.tillNumberPlaceholder));
@@ -805,9 +671,6 @@ function bindCart(){
   });
 }
 
-/* =====================
-   Load products
-   ===================== */
 async function loadProducts(){
   const res = await fetch("./products.json", { cache:"no-store" });
   if(!res.ok) throw new Error("Could not load products.json");
@@ -825,7 +688,6 @@ async function loadProducts(){
       name: safeText(p.name),
       color: safeText(p.color),
       type: safeText(p.type),
-      pattern: safeText(p.pattern),
       price: p.price==null ? null : Number(p.price),
       variants,
       image: safeText(p.image),
@@ -838,40 +700,11 @@ async function loadProducts(){
   hydrateFiltersOptions();
 }
 
-/* =====================
-   Stepper CSS safety
-   ===================== */
-function ensureStepperCSS(){
-  if(document.getElementById("basfay-stepper-css")) return;
-  const style = document.createElement("style");
-  style.id = "basfay-stepper-css";
-  style.textContent = `
-    .mob-stepper{
-      display:flex;align-items:center;gap:10px;
-      padding:8px 10px;border:2px solid rgba(245,158,11,0.65);
-      border-radius:999px;background:#fff;
-    }
-    .mob-trash{
-      width:34px;height:34px;border-radius:999px;border:0;background:transparent;
-      cursor:pointer;font-size:16px;line-height:1;
-    }
-    .mob-btn{
-      width:36px;height:36px;border-radius:999px;border:0;background:#fff;
-      cursor:pointer;font-weight:950;font-size:18px;line-height:1;
-    }
-    .mob-qty{ min-width:18px;text-align:center;font-weight:950; }
-  `;
-  document.head.appendChild(style);
-}
-
-/* =====================
-   MAIN
-   ===================== */
+/* Init */
 (async function main(){
   try{
     if (els.year) els.year.textContent = String(new Date().getFullYear());
 
-    ensureStepperCSS();
     await loadProducts();
 
     bindFilters();
@@ -880,9 +713,6 @@ function ensureStepperCSS(){
 
     renderProducts();
     refreshAllCartUIs();
-
-    // keep the cart bar correct on resize/orientation
-    window.addEventListener("resize", updateCartBar);
 
     if(!getCart().length) setCheckoutStep("cart");
   }catch(err){

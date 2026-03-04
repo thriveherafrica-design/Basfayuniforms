@@ -1,14 +1,14 @@
 /* ============================
    BASFAY Catalog Site (Clean UI)
    Cart + Two-step Checkout (Cash vs Till)
-   - Restored category filtering (Sweater shows only sweaters)
-   - Restored product theme hooks (lavender default, tracksuit lime, socks emerald)
-   - Desktop "Your Cart" preview (Amazon-ish) with + / − / trash
-   - Drawer "Your order" (phone) with Amazon-style stepper
-   - Mobile bottom cart bar
+   - Restored product themes (lavender default, tracksuit lime, socks emerald)
+   - Restored category filtering
+   - Desktop cart preview (Amazon-ish) with +/- + trash
+   - Drawer "Your order" (phone) with Amazon stepper
+   - Mobile cart bar (FIXED: no blank white bar)
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (FINAL CLEAN BUILD)");
+console.log("✅ BASFAY app.js LOADED (CLEAN + FIXED BAR)");
 
 const CONFIG = {
   currency: "KES",
@@ -39,7 +39,6 @@ const els = {
   drawer: document.getElementById("drawer"),
   drawerBackdrop: document.getElementById("drawerBackdrop"),
   cartCount: document.getElementById("cartCount"),
-  cartItems: document.getElementById("cartItems"), // kept hidden in HTML (safe)
   cartEmpty: document.getElementById("cartEmpty"),
   clearCart: document.getElementById("clearCart"),
 
@@ -97,9 +96,7 @@ function formatMoney(amount){
 }
 
 function toTypeClass(type){
-  return "type-" + normalize(type)
-    .replace(/[^a-z0-9]+/g,"-")
-    .replace(/(^-|-$)/g,"");
+  return "type-" + normalize(type).replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
 }
 
 function toast(msg){
@@ -172,7 +169,7 @@ function calcSubtotal(){
 /* ✅ ONE TRUE SETTER */
 function setCart(items){
   localStorage.setItem(CART_KEY, JSON.stringify(items));
-  refreshAllCartUIs(); // <- ALWAYS
+  refreshAllCartUIs();
 }
 
 /* ===================== Cart actions ===================== */
@@ -181,7 +178,7 @@ function addToCart(productId,size,price,qty=1){
   const key = `${productId}__${size}`;
 
   const found = cart.find(i=>i.key===key);
-  if(found) found.qty = (Number(found.qty)||0) + qty;
+  if(found) found.qty = (Number(found.qty)||0) + (Number(qty)||1);
   else cart.push({ key, id: productId, size: String(size), price: Number(price), qty: Number(qty)||1 });
 
   setCheckoutStep("cart");
@@ -258,7 +255,7 @@ function buildCheckoutWhatsAppMessage(){
 }
 
 /* =====================
-   MOBILE bottom cart bar
+   Mobile Cart Bar (FIXED)
    ===================== */
 function ensureCartBar(){
   if (document.getElementById("cartBar")) return;
@@ -267,7 +264,8 @@ function ensureCartBar(){
   bar.id = "cartBar";
   bar.type = "button";
   bar.setAttribute("aria-label", "View cart");
-  bar.style.display = "none";
+
+  // Explicit styling so it never becomes a blank white slab
   bar.style.position = "fixed";
   bar.style.left = "12px";
   bar.style.right = "12px";
@@ -276,7 +274,8 @@ function ensureCartBar(){
   bar.style.border = "1px solid rgba(0,0,0,0.12)";
   bar.style.borderRadius = "16px";
   bar.style.padding = "12px 14px";
-  bar.style.background = "#fff";
+  bar.style.background = "#ffffff";
+  bar.style.color = "#111827";
   bar.style.boxShadow = "0 18px 40px rgba(0,0,0,0.14)";
   bar.style.display = "none";
   bar.style.alignItems = "center";
@@ -313,13 +312,17 @@ function updateCartBar(){
   if(countEl) countEl.textContent = String(count);
   if(totalEl) totalEl.textContent = money(total);
 
-  // only show on small screens (phone)
   const isPhone = window.matchMedia("(max-width: 880px)").matches;
+
+  // ✅ only show when there are items, AND only on phone
   if(bar) bar.style.display = (isPhone && count > 0) ? "flex" : "none";
+
+  // ✅ prevent bar from overlapping page content
+  document.body.style.paddingBottom = (isPhone && count > 0) ? "90px" : "";
 }
 
 /* =====================
-   Drawer "Your order" (PHONE) with Amazon stepper
+   Drawer "Your order" (PHONE) Amazon stepper
    ===================== */
 function renderOrderPanel(){
   if(!els.orderItems || !els.orderSubtotal) return;
@@ -340,7 +343,6 @@ function renderOrderPanel(){
   els.orderItems.innerHTML = cart.map(item=>{
     const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
     const name = p?.name || `Item (${safeText(item.id)})`;
-
     const qty = Number(item.qty)||1;
     const unit = Number(item.price)||0;
     const line = unit * qty;
@@ -372,7 +374,6 @@ function renderOrderPanel(){
 
   els.orderSubtotal.textContent = money(subtotal);
 
-  // bind stepper
   els.orderItems.querySelectorAll("[data-rm]").forEach(btn=>{
     btn.addEventListener("click", ()=>removeFromCart(btn.dataset.rm));
   });
@@ -385,7 +386,7 @@ function renderOrderPanel(){
 }
 
 /* =====================
-   Desktop "Your Cart" preview (RIGHT SIDE) with +/−/trash
+   Desktop "Your Cart" preview with stepper
    ===================== */
 function renderCartPreview(){
   if(!els.cartPreviewItems || !els.cartPreviewSubtotal || !els.cartPreviewCount) return;
@@ -408,19 +409,17 @@ function renderCartPreview(){
     const line = unit * qty;
 
     return `
-      <div class="cp-line" style="display:grid;gap:10px;padding:10px;border:1px solid rgba(0,0,0,0.08);border-radius:12px;margin-bottom:10px;background:#fff;">
+      <div style="display:grid;gap:10px;padding:10px;border:1px solid rgba(0,0,0,0.08);border-radius:12px;margin-bottom:10px;background:#fff;">
         <div style="display:flex;justify-content:space-between;gap:10px;font-weight:900;">
           <span>${qty}× ${name} ${sizeTxt}</span>
           <span>${money(line)}</span>
         </div>
 
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
-          <div class="mob-stepper" style="border-color: rgba(0,0,0,0.10);">
-            <button class="mob-trash" type="button" data-rm="${item.key}" aria-label="Remove item">🗑</button>
-            <button class="mob-btn" type="button" data-dec="${item.key}" aria-label="Decrease quantity">−</button>
-            <span class="mob-qty">${qty}</span>
-            <button class="mob-btn" type="button" data-inc="${item.key}" aria-label="Increase quantity">+</button>
-          </div>
+        <div class="mob-stepper" style="border-color: rgba(0,0,0,0.10);">
+          <button class="mob-trash" type="button" data-rm="${item.key}" aria-label="Remove item">🗑</button>
+          <button class="mob-btn" type="button" data-dec="${item.key}" aria-label="Decrease quantity">−</button>
+          <span class="mob-qty">${qty}</span>
+          <button class="mob-btn" type="button" data-inc="${item.key}" aria-label="Increase quantity">+</button>
         </div>
       </div>
     `;
@@ -438,7 +437,7 @@ function renderCartPreview(){
 }
 
 /* =====================
-   Badge + all cart UIs
+   Badge + refresh all cart UIs
    ===================== */
 function refreshCartBadge(){
   if(!els.cartCount) return;
@@ -447,9 +446,9 @@ function refreshCartBadge(){
 
 function refreshAllCartUIs(){
   refreshCartBadge();
-  updateCartBar();
   renderOrderPanel();
   renderCartPreview();
+  updateCartBar();
 }
 
 /* =====================
@@ -488,7 +487,6 @@ function hydrateFiltersOptions(){
 
 function applySort(list){
   const sort = state.sort;
-
   const byNameAsc = (a,b)=>safeText(a.name).localeCompare(safeText(b.name));
   const byNameDesc = (a,b)=>safeText(b.name).localeCompare(safeText(a.name));
 
@@ -510,7 +508,6 @@ function applySort(list){
   return [...list].sort((a,b)=>featuredScore(b)-featuredScore(a) || byNameAsc(a,b));
 }
 
-/* ✅ category filter restored */
 function matchesFilters(p){
   if(state.color && p.color !== state.color) return false;
   if(state.type && normalize(p.type) !== normalize(state.type)) return false;
@@ -534,15 +531,15 @@ function renderProducts(){
   sorted.forEach(p=>els.productGrid.appendChild(productCard(p)));
 }
 
-/* ✅ PRODUCT CARD: restores your theme hooks */
+/* ✅ Product card (restores your theme hooks) */
 function productCard(p){
   const wrap = document.createElement("article");
   wrap.className = "product";
 
-  // needed for your CSS themes (.type-tracksuit, .type-pe-shirt, etc.)
+  // CSS theme driver: .type-<normalized-type>
   wrap.classList.add(toTypeClass(p.type));
 
-  // needed for your special lime/emerald hooks
+  // Special hooks used by your CSS for lime/emerald
   if (normalize(p.type) === "tracksuit") wrap.classList.add("product-tracksuit");
   if (normalize(p.type) === "socks") wrap.classList.add("product-socks");
 
@@ -775,7 +772,6 @@ function bindCart(){
 
     const method = getPayMethod();
 
-    // Cash => WhatsApp immediately
     if(method.toLowerCase().includes("cash")){
       const phone = cleanPhone(els.customerPhone?.value);
       if(!phone || phone.length < 9){
@@ -786,7 +782,6 @@ function bindCart(){
       return;
     }
 
-    // Till => step 1
     if(getCheckoutStep()==="cart"){
       setCheckoutStep("checkout");
       toast("Copy Till + Amount, pay, then paste M-Pesa code.");
@@ -794,7 +789,6 @@ function bindCart(){
       return;
     }
 
-    // Till => step 2
     const phone = cleanPhone(els.customerPhone?.value);
     if(!phone || phone.length < 9){
       alert("Please enter a valid phone number.");
@@ -845,10 +839,9 @@ async function loadProducts(){
 }
 
 /* =====================
-   Init
+   Stepper CSS safety
    ===================== */
 function ensureStepperCSS(){
-  // If your styles.css already includes these, fine. This is a safety net.
   if(document.getElementById("basfay-stepper-css")) return;
   const style = document.createElement("style");
   style.id = "basfay-stepper-css";
@@ -871,6 +864,9 @@ function ensureStepperCSS(){
   document.head.appendChild(style);
 }
 
+/* =====================
+   MAIN
+   ===================== */
 (async function main(){
   try{
     if (els.year) els.year.textContent = String(new Date().getFullYear());
@@ -882,11 +878,10 @@ function ensureStepperCSS(){
     bindCart();
     bindModal();
 
-    // initial render
     renderProducts();
     refreshAllCartUIs();
 
-    // keep mobile bar accurate on resize
+    // keep the cart bar correct on resize/orientation
     window.addEventListener("resize", updateCartBar);
 
     if(!getCart().length) setCheckoutStep("cart");

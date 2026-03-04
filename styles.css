@@ -657,3 +657,175 @@ input:focus,select:focus{
   cursor:pointer;
   font-weight:900;
 }
+/* =========================================================
+   BASFAY – FORCE ALL PRODUCT CARD THEMES (FINAL OVERRIDE)
+   Paste at the VERY END of styles.css
+   ========================================================= */
+
+/* Default card theme (Sweaters + anything not themed) = Lavender */
+.product{
+  background: linear-gradient(180deg, var(--lilac-card), var(--lilac-card-2)) !important;
+  border: 1px solid rgba(80,70,120,0.16) !important;
+  box-shadow: 0 16px 40px rgba(15,28,43,0.08) !important;
+}
+
+/* Ensure media stays clean white for all */
+.product .media{ background:#fff !important; }
+
+/* =========================
+   Tracksuit = Lime
+   ========================= */
+.product.type-tracksuit,
+.product.product-tracksuit{
+  background: linear-gradient(180deg, rgba(217,249,157,0.85), rgba(190,242,100,0.70)) !important;
+  border: 1px solid rgba(54,83,20,0.18) !important;
+  box-shadow: 0 18px 45px rgba(132,204,22,0.18) !important;
+}
+.product.type-tracksuit .tag,
+.product.product-tracksuit .tag{
+  background: rgba(20,83,45,0.85) !important;
+}
+.product.type-tracksuit .price,
+.product.product-tracksuit .price{
+  color: #3F6212 !important;
+}
+
+/* =========================
+   Socks = Emerald
+   ========================= */
+.product.type-socks,
+.product.product-socks{
+  background: linear-gradient(180deg, rgba(16,185,129,0.22), rgba(5,150,105,0.16)) !important;
+  border: 1px solid rgba(6,95,70,0.22) !important;
+  box-shadow: 0 18px 45px rgba(6,78,59,0.22) !important;
+}
+.product.type-socks .tag,
+.product.product-socks .tag{
+  background: rgba(6,95,70,0.90) !important;
+}
+.product.type-socks .price,
+.product.product-socks .price{
+  color: #065F46 !important;
+}
+
+/* =========================
+   Marvin / Marvins = Orange
+   ========================= */
+.product.type-marvin,
+.product.type-marvins{
+  background: linear-gradient(180deg, rgba(251,146,60,0.32), rgba(234,88,12,0.18)) !important;
+  border: 1px solid rgba(234,88,12,0.25) !important;
+  box-shadow: 0 18px 45px rgba(234,88,12,0.18) !important;
+}
+.product.type-marvin .tag,
+.product.type-marvins .tag{
+  background: rgba(234,88,12,0.90) !important;
+}
+
+/* =========================
+   Shoes = Grey
+   ========================= */
+.product.type-shoes{
+  background: linear-gradient(180deg, rgba(156,163,175,0.28), rgba(107,114,128,0.16)) !important;
+  border: 1px solid rgba(107,114,128,0.22) !important;
+  box-shadow: 0 18px 45px rgba(107,114,128,0.16) !important;
+}
+.product.type-shoes .tag{ background: rgba(55,65,81,0.85) !important; }
+
+/* =========================
+   School Bag (Bags) = Dark Purple
+   JS makes: type-school-bag from "School Bag"
+   ========================= */
+.product.type-school-bag{
+  background: linear-gradient(180deg, rgba(88,28,135,0.22), rgba(67,20,108,0.14)) !important;
+  border: 1px solid rgba(88,28,135,0.22) !important;
+  box-shadow: 0 18px 45px rgba(88,28,135,0.18) !important;
+}
+.product.type-school-bag .tag{ background: rgba(67,20,108,0.90) !important; }
+
+/* =========================
+   Dress = Maroon
+   ========================= */
+.product.type-dress{
+  background: linear-gradient(180deg, rgba(127,29,29,0.26), rgba(69,10,10,0.14)) !important;
+  border: 1px solid rgba(127,29,29,0.22) !important;
+  box-shadow: 0 18px 45px rgba(127,29,29,0.16) !important;
+}
+.product.type-dress .tag{ background: rgba(127,29,29,0.90) !important; }
+
+/* =========================
+   Shirt = Soft Pink
+   ========================= */
+.product.type-shirt{
+  background: #F6E6EC !important;
+  border: 1px solid #E9CBD6 !important;
+  box-shadow: 0 16px 40px rgba(15,28,43,0.08) !important;
+}
+
+/* =========================
+   Gameskit = Teal
+   ========================= */
+.product.type-gameskit{
+  background: linear-gradient(180deg, rgba(20,184,166,0.24), rgba(13,148,136,0.14)) !important;
+  border: 1px solid rgba(13,148,136,0.20) !important;
+  box-shadow: 0 18px 45px rgba(13,148,136,0.16) !important;
+}
+.product.type-gameskit .tag{ background: rgba(13,148,136,0.90) !important; }
+
+/* =========================
+   PE Shirt = Sky Blue
+   JS makes: type-pe-shirt from "PE Shirt"
+   ========================= */
+.product.type-pe-shirt{
+  background: linear-gradient(180deg, rgba(56,189,248,0.22), rgba(14,165,233,0.14)) !important;
+  border: 1px solid rgba(14,165,233,0.18) !important;
+  box-shadow: 0 18px 45px rgba(14,165,233,0.14) !important;
+}
+.product.type-pe-shirt .tag{ background: rgba(2,132,199,0.90) !important; }
+
+/* =========================
+   Trousers = Slate
+   ========================= */
+.product.type-trousers{
+  background: linear-gradient(180deg, rgba(100,116,139,0.22), rgba(71,85,105,0.14)) !important;
+  border: 1px solid rgba(71,85,105,0.20) !important;
+  box-shadow: 0 18px 45px rgba(71,85,105,0.14) !important;
+}
+
+/* =========================
+   Blazer = Deep Navy
+   ========================= */
+.product.type-blazer{
+  background: linear-gradient(180deg, rgba(30,58,138,0.22), rgba(15,23,42,0.14)) !important;
+  border: 1px solid rgba(30,58,138,0.18) !important;
+  box-shadow: 0 18px 45px rgba(15,23,42,0.16) !important;
+}
+.product.type-blazer .tag{ background: rgba(30,58,138,0.90) !important; }
+
+/* =========================
+   Materials = Charcoal
+   ========================= */
+.product.type-materials{
+  background: linear-gradient(180deg, rgba(31,41,55,0.20), rgba(17,24,39,0.12)) !important;
+  border: 1px solid rgba(31,41,55,0.18) !important;
+  box-shadow: 0 18px 45px rgba(17,24,39,0.16) !important;
+}
+.product.type-materials .tag{ background: rgba(17,24,39,0.90) !important; }
+
+/* =========================
+   Cardigan (optional theme) = Soft Beige Grey
+   ========================= */
+.product.type-cardigan{
+  background: linear-gradient(180deg, rgba(226,232,240,0.50), rgba(203,213,225,0.30)) !important;
+  border: 1px solid rgba(100,116,139,0.16) !important;
+}
+
+/* =========================
+   Accessory = Yellow
+   ========================= */
+.product.type-accessory{
+  background: linear-gradient(180deg, rgba(253,224,71,0.36), rgba(245,158,11,0.18)) !important;
+  border: 1px solid rgba(245,158,11,0.22) !important;
+  box-shadow: 0 18px 45px rgba(245,158,11,0.14) !important;
+}
+.product.type-accessory .tag{ background: rgba(180,83,9,0.92) !important; }

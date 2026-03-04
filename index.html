@@ -3,56 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>BASFAY Uniforms Kenya | School Uniforms, Scrubs, Bags & Workwear (Nairobi)</title>
-    <meta
-      name="description"
-      content="BASFAY Uniforms Kenya — Quality & Affordable. Shop school uniforms, scrubs, workwear and school bags in Nairobi. Sweaters, tracksuits, PE kits, shirts, dresses, socks, blazers, trousers and more. Pickup Kangemi. Order via WhatsApp 0718985676."
-    />
-    <link rel="canonical" href="https://basfayuniforms.co.ke/" />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <title>BASFAY Uniforms — Shop</title>
+    <meta name="description" content="BASFAY Uniforms — Quality & Affordable. Browse items, add to order." />
     <meta name="theme-color" content="#1E88E5" />
-
-    <meta property="og:locale" content="en_KE" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="BASFAY Uniforms" />
-    <meta property="og:title" content="BASFAY Uniforms Kenya | Quality & Affordable" />
-    <meta
-      property="og:description"
-      content="Shop school uniforms, scrubs, workwear and school bags in Nairobi. Pickup Kangemi. Order via WhatsApp 0718985676."
-    />
-    <meta property="og:url" content="https://basfayuniforms.co.ke/" />
-
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="BASFAY Uniforms Kenya" />
-    <meta
-      name="twitter:description"
-      content="School uniforms, scrubs, workwear and school bags in Nairobi. Pickup Kangemi. WhatsApp 0718985676."
-    />
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "ClothingStore",
-        "name": "BASFAY Uniforms",
-        "url": "https://basfayuniforms.co.ke/",
-        "description": "Quality & affordable school uniforms, scrubs, workwear and school bags in Nairobi, Kenya. Pickup available in Kangemi. Order via WhatsApp.",
-        "telephone": "+254718985676",
-        "currenciesAccepted": "KES",
-        "areaServed": "KE",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Kangemi",
-          "addressRegion": "Nairobi County",
-          "addressCountry": "KE"
-        },
-        "sameAs": [
-          "https://www.instagram.com/basfayuniforms",
-          "https://www.tiktok.com/@basfayuniforms",
-          "https://www.facebook.com/basfayuniforms"
-        ]
-      }
-    </script>
 
     <!-- bump version to bust cache -->
     <link rel="stylesheet" href="./styles.css?v=20260228-301" />
@@ -64,251 +17,251 @@
     <!-- Header -->
     <header class="header">
       <div class="container header-inner">
-        <a class="brand" href="#main" aria-label="BASFAY Uniforms home">
-          <span class="brand-name">BASFAY Uniforms</span>
-          <span class="brand-tag">Quality & Affordable</span>
+        <a class="brand" href="#main" aria-label="BASFAY home">
+          <span class="brand-mark" aria-hidden="true">B</span>
+          <span class="brand-text">
+            <span class="brand-name">BASFAY Uniforms</span>
+            <span class="brand-sub">Quality &amp; Affordable</span>
+          </span>
         </a>
-
-        <nav class="header-actions" aria-label="Top actions">
-          <a class="btn ghost" href="#catalog">Shop</a>
-          <a class="btn ghost" href="#contact">Contact</a>
-
-          <button class="btn primary" id="openCartBtn" type="button" aria-controls="cartDrawer" aria-expanded="false">
-            Cart <span class="pill" id="cartCount">0</span>
-          </button>
-        </nav>
       </div>
     </header>
 
-    <!-- Main -->
     <main id="main">
-      <!-- Hero -->
-      <section class="hero">
-        <div class="container hero-inner">
-          <div class="hero-copy">
-            <h1>BASFAY Uniforms Kenya</h1>
-            <p class="muted">
-              School uniforms, scrubs, bags & workwear in Nairobi. Pickup in Kangemi. Order fast via WhatsApp.
-            </p>
-
-            <div class="hero-cta">
-              <a class="btn primary" href="#catalog">Browse Catalog</a>
-              <a
-                class="btn outline"
-                href="https://wa.me/254718985676"
-                target="_blank"
-                rel="noopener"
-                aria-label="Order on WhatsApp"
-              >
-                WhatsApp: 0718985676
-              </a>
+      <!-- Brand hero -->
+      <section class="brand-hero" aria-label="BASFAY brand banner">
+        <div class="container brand-hero-inner">
+          <div class="brand-badge">
+            <div class="brand-logo" aria-hidden="true">B</div>
+            <div class="brand-lines">
+              <h1>BASFAY Uniforms</h1>
+              <p class="muted">Quality &amp; Affordable</p>
             </div>
           </div>
 
-          <div class="hero-card" role="note" aria-label="Pickup and payment info">
-            <div class="hero-card-row">
-              <span class="k">Pickup</span>
-              <span class="v">Kangemi, Nairobi</span>
-            </div>
-            <div class="hero-card-row">
-              <span class="k">Payments</span>
-              <span class="v">M-Pesa / Cash</span>
-            </div>
-            <div class="hero-card-row">
-              <span class="k">Phone</span>
-              <span class="v">0718985676</span>
-            </div>
+          <div class="brand-right">
+            <button class="cart-btn" id="openCart" aria-label="Open order list" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2Zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2ZM6.2 6h14.6c.55 0 1 .45 1 1 0 .09-.01.18-.04.27l-2.1 7.35c-.24.83-1 1.38-1.86 1.38H8.1c-.86 0-1.62-.55-1.86-1.38L3.8 3H2c-.55 0-1-.45-1-1s.45-1 1-1h2.6c.46 0 .86.31.97.75L6.2 6Zm1.1 2 1.62 5.67c.06.2.25.33.46.33h9.7c.21 0 .4-.13.46-.33L21 8H7.3Z"
+                />
+              </svg>
+              <span class="cart-badge" id="cartCount" aria-live="polite">0</span>
+            </button>
           </div>
         </div>
       </section>
 
-      <!-- SEO Text (Google-readable) -->
-      <section class="seo-text">
+      <!-- Shop -->
+      <section class="section" id="shop">
         <div class="container">
-          <h2>School Uniforms, Scrubs & Workwear in Nairobi, Kenya</h2>
-          <p>
-            BASFAY Uniforms supplies quality, affordable uniforms in Kenya, including school sweaters, tracksuits, PE kits,
-            shirts, dresses, socks, trousers, blazers, school bags, scrubs and workwear. We offer pickup in Kangemi, Nairobi,
-            and you can place orders directly via WhatsApp.
-          </p>
-        </div>
-      </section>
-
-      <!-- Catalog -->
-      <section id="catalog" class="catalog">
-        <div class="container">
-          <div class="toolbar" aria-label="Catalog filters">
-            <div class="toolbar-left">
-              <label class="field">
-                <span class="label">Category</span>
-                <select id="categoryDropdown" aria-label="Category dropdown">
-                  <option value="All">All</option>
-                </select>
-              </label>
-
-              <label class="field">
-                <span class="label">Color</span>
-                <select id="colorFilterTop" aria-label="Color filter">
-                  <option value="All">All</option>
-                </select>
-              </label>
-
-              <label class="field">
-                <span class="label">Sort</span>
-                <select id="sortByTop" aria-label="Sort products">
-                  <option value="featured">Featured</option>
-                  <option value="priceLow">Price: Low to High</option>
-                  <option value="priceHigh">Price: High to Low</option>
-                  <option value="nameAZ">Name: A to Z</option>
-                </select>
-              </label>
-            </div>
-
-            <div class="toolbar-right">
-              <span class="muted">
-                Results: <strong id="resultsCount">0</strong>
-              </span>
-            </div>
+          <div class="section-head">
+            <h2>Catalog</h2>
+            <p class="muted">Select size, add to order.</p>
           </div>
 
-          <!-- Product Grid -->
-          <div id="productGrid" class="grid" aria-live="polite"></div>
-        </div>
-      </section>
-    </main>
-
-    <!-- Cart Drawer -->
-    <aside class="cart-drawer" id="cartDrawer" aria-label="Your cart" aria-hidden="true">
-      <div class="cart-head">
-        <h2>Your Cart</h2>
-        <button class="btn icon" id="closeCartBtn" type="button" aria-label="Close cart">✕</button>
-      </div>
-
-      <div class="cart-body">
-        <div id="cartItems" class="cart-items"></div>
-
-        <div class="cart-summary">
-          <div class="row">
-            <span>Total</span>
-            <strong id="cartTotal">KES 0</strong>
-          </div>
-          <p class="muted small">
-            Pickup: <span id="pickupText">Kangemi</span>
-          </p>
-        </div>
-      </div>
-
-      <div class="cart-actions">
-        <button class="btn ghost" id="clearCartBtn" type="button">Clear</button>
-        <button class="btn primary" id="checkoutBtn" type="button">Checkout</button>
-      </div>
-    </aside>
-
-    <!-- Checkout Modal -->
-    <div class="modal" id="checkoutModal" aria-hidden="true" role="dialog" aria-label="Checkout">
-      <div class="modal-card">
-        <div class="modal-head">
-          <h2>Checkout</h2>
-          <button class="btn icon" id="closeCheckoutBtn" type="button" aria-label="Close checkout">✕</button>
-        </div>
-
-        <div class="modal-body">
-          <div class="payment">
-            <h3>Payment method</h3>
-
-            <label class="radio">
-              <input type="radio" name="paymentMethod" value="cash" checked />
-              <span>Cash on pickup</span>
-            </label>
-
-            <label class="radio">
-              <input type="radio" name="paymentMethod" value="mpesa" />
-              <span>M-Pesa (Pay via Till/Buy Goods)</span>
-            </label>
-
-            <div class="mpesa-box" id="mpesaBox">
-              <p class="muted small">
-                Pay, then send the confirmation on WhatsApp.
-              </p>
-
-              <div class="copy-row">
-                <div class="copy-field">
-                  <span class="label">Till / Buy Goods</span>
-                  <strong id="tillNumber">XXXX</strong>
+          <!-- Top toolbar -->
+          <div class="card soft" style="margin-bottom: 16px;">
+            <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:end; justify-content:space-between;">
+              <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:end;">
+                <div class="field" style="min-width:220px;">
+                  <label for="categoryDropdown">Category</label>
+                  <select id="categoryDropdown">
+                    <option value="">All</option>
+                  </select>
                 </div>
-                <button class="btn outline" id="copyTillBtn" type="button">Copy</button>
+
+                <div class="field" style="min-width:170px;">
+                  <label for="colorFilterTop">Color</label>
+                  <select id="colorFilterTop">
+                    <option value="">All</option>
+                  </select>
+                </div>
+
+                <div class="field" style="min-width:170px;">
+                  <label for="sortByTop">Sort</label>
+                  <select id="sortByTop">
+                    <option value="featured">Featured</option>
+                    <option value="price_asc">Price (Low–High)</option>
+                    <option value="price_desc">Price (High–Low)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:14px; align-items:center; justify-content:flex-end;">
+                <div><strong id="resultsCount">0</strong> items</div>
+                <div class="muted">KES</div>
               </div>
             </div>
           </div>
 
-          <div class="order-review">
-            <h3>Order review</h3>
-            <div id="orderPreview" class="order-preview"></div>
+          <!-- ✅ Shop layout + RIGHT SIDE "Your Cart" -->
+          <div class="shop-layout">
+            <div class="catalog" id="catalog" aria-label="Product catalog">
+              <div class="grid" id="productGrid" aria-live="polite"></div>
 
-            <div class="row total">
-              <span>Total</span>
-              <strong id="checkoutTotal">KES 0</strong>
+              <div class="empty" id="emptyState" hidden>
+                <h3>No matches</h3>
+                <p class="muted">Reset filters or try a broader search.</p>
+              </div>
+            </div>
+
+            <!-- ✅ WORKING cart preview -->
+            <div class="cart-preview" id="cartPreview">
+              <h3>Your Cart</h3>
+
+              <div class="muted" style="margin-bottom:8px;">
+                <strong id="cartPreviewCount">0</strong> items
+              </div>
+
+              <div class="cart-preview-items" id="cartPreviewItems">No items yet</div>
+
+              <div class="cart-preview-total">
+                <span>Subtotal</span>
+                <strong id="cartPreviewSubtotal">KES 0</strong>
+              </div>
+
+              <button class="btn primary full" id="openCartPreview" type="button">
+                Go to Cart
+              </button>
             </div>
           </div>
         </div>
+      </section>
+    </main>
 
-        <div class="modal-actions">
-          <button class="btn ghost" id="backToCartBtn" type="button">Back</button>
-          <button class="btn primary" id="placeOrderBtn" type="button">Place Order</button>
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div class="footer-left">
+          <div class="brand tiny">
+            <span class="brand-mark" aria-hidden="true">B</span>
+            <span class="brand-text">
+              <span class="brand-name">BASFAY Uniforms</span>
+              <span class="brand-sub">Quality &amp; Affordable</span>
+            </span>
+          </div>
+          <p class="muted">Quality &amp; Affordable</p>
+        </div>
+      </div>
+
+      <div class="container footer-bottom">
+        <span class="muted">© <span id="year"></span> BASFAY Uniforms</span>
+      </div>
+    </footer>
+
+    <!-- Drawer -->
+    <div class="drawer" id="drawer" aria-hidden="true">
+      <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+      <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Order list">
+        <div class="drawer-head">
+          <h3>Your order</h3>
+          <button class="icon-btn" id="closeDrawer" aria-label="Close order list">✕</button>
+        </div>
+
+        <div class="drawer-body">
+          <div id="orderItems" class="order-items"></div>
+
+          <div class="order-summary">
+            <div class="row">
+              <span>Subtotal</span>
+              <strong id="orderSubtotal">KES 0</strong>
+            </div>
+          </div>
+
+          <div class="cart-empty" id="cartEmpty" hidden>
+            <p><strong>No items yet.</strong></p>
+            <p class="muted">Add products from the catalog.</p>
+          </div>
+        </div>
+
+        <div class="drawer-foot">
+          <div class="cart-note muted">Size included.</div>
+
+          <div class="card soft pay-card">
+            <div class="pay-title">Payment</div>
+
+            <div class="pay-options">
+              <label class="pay-opt">
+                <input type="radio" name="payMethod" value="Till" checked />
+                <span><strong>M-Pesa Buy Goods</strong> (Till: <span id="tillNumberUI">XXXX</span>)</span>
+              </label>
+
+              <label class="pay-opt">
+                <input type="radio" name="payMethod" value="Cash" />
+                <span><strong>Cash</strong> (On pickup / delivery)</span>
+              </label>
+            </div>
+
+            <div id="mpesaBox" class="checkout-field">
+              <div class="muted" style="margin-bottom:10px;">
+                1) Copy Till and Amount<br />
+                2) Pay via M-Pesa Buy Goods<br />
+                3) Tap <strong>Proceed</strong> to open WhatsApp<br />
+                4) Send the message and attach/forward your payment confirmation (screenshot or message)
+              </div>
+
+              <button class="btn ghost full" id="copyTillBtn" type="button">Copy Till Number</button>
+              <button class="btn ghost full" id="copyAmountBtn" type="button">Copy Amount</button>
+
+              <!-- ✅ Wrapped so JS can hide it cleanly -->
+              <div id="mpesaCodeWrap">
+                <label for="mpesaCode" style="margin-top:10px; display:block; font-weight:800;">M-Pesa Confirmation Code</label>
+                <input type="text" id="mpesaCode" placeholder="e.g. QFT3XYZ123" autocomplete="off" />
+              </div>
+            </div>
+
+            <div class="checkout-field">
+              <label for="customerPhone">Phone Number</label>
+              <input type="tel" id="customerPhone" placeholder="07XXXXXXXX" inputmode="tel" autocomplete="tel" />
+            </div>
+
+            <div class="muted pay-help">Confirm active phone number.</div>
+          </div>
+
+          <a class="btn primary full" id="checkoutBtn" href="#" rel="noopener">Proceed</a>
+          <button class="btn ghost full" id="clearCart" type="button">Clear</button>
         </div>
       </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer" id="contact">
-      <div class="container footer-inner">
-        <div class="footer-left">
-          <div class="brand-mini">BASFAY Uniforms</div>
-          <p class="muted">
-            Quality & Affordable. Pickup in Kangemi, Nairobi.
-          </p>
-          <p class="muted small">© <span id="year"></span> BASFAY Uniforms</p>
+    <!-- Modal -->
+    <div class="modal" id="modal" aria-hidden="true">
+      <div class="modal-backdrop" id="modalBackdrop"></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Product details">
+        <div class="modal-head">
+          <h3 id="modalTitle">Product</h3>
+          <button class="icon-btn" id="closeModal" aria-label="Close product details">✕</button>
         </div>
 
-        <div class="footer-mid">
-          <h3>Order / Support</h3>
-          <ul class="footer-links">
-            <li>
-              <a href="https://wa.me/254718985676" target="_blank" rel="noopener">WhatsApp: 0718985676</a>
-            </li>
-            <li>
-              <a href="tel:+254718985676">Call: +254 718 985 676</a>
-            </li>
-            <li>
-              <span class="muted">Pickup: Kangemi</span>
-            </li>
-          </ul>
-        </div>
+        <div class="modal-body">
+          <div class="modal-media" id="modalMedia"></div>
+          <div class="modal-info">
+            <div class="price" id="modalPrice"></div>
+            <div class="meta" id="modalMeta"></div>
+            <p class="muted" id="modalDesc"></p>
 
-        <div class="footer-right">
-          <h3>Socials</h3>
-          <ul class="footer-links">
-            <li>
-              <a href="https://www.instagram.com/basfayuniforms" target="_blank" rel="noopener">Instagram: @basfayuniforms</a>
-            </li>
-            <li>
-              <a href="https://www.tiktok.com/@basfayuniforms" target="_blank" rel="noopener">TikTok: @basfayuniforms</a>
-            </li>
-            <li>
-              <a href="https://www.facebook.com/basfayuniforms" target="_blank" rel="noopener">Facebook: basfayuniforms</a>
-            </li>
-          </ul>
+            <div id="modalSizeField" class="is-hidden" aria-hidden="true">
+              <label class="size-label" for="modalSize">Size</label>
+              <select class="size-select" id="modalSize" required>
+                <option value="" selected disabled>Select size</option>
+              </select>
+            </div>
+
+            <div class="modal-actions">
+              <button class="btn primary" id="modalAdd" type="button">Add</button>
+            </div>
+          </div>
         </div>
       </div>
-    </footer>
+    </div>
 
-    <noscript>
-      <div class="noscript">
-        This site needs JavaScript to load the catalog and cart.
-      </div>
-    </noscript>
-
-    <!-- bump version to bust cache -->
-    <script src="./app.js?v=20260228-301" defer></script>
+    <!-- bump JS version -->
+    <script src="./app.js?v=20260228-8" defer></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
   </body>
 </html>

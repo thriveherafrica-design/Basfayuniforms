@@ -44,7 +44,6 @@ const els = {
   payRadios: document.querySelectorAll('input[name="payMethod"]'),
 
   tillNumberUI: document.getElementById("tillNumberUI"),
-  mpesaBox: document.getElementById("mpesaBox"),
   copyTillBtn: document.getElementById("copyTillBtn"),
   copyAmountBtn: document.getElementById("copyAmountBtn"),
   mpesaCode: document.getElementById("mpesaCode"),

@@ -3,7 +3,7 @@
    Cart + Two-step Checkout (Cash vs Till)
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (FULL + FIXED)");
+console.log("✅ BASFAY app.js LOADED (FULL + UPDATED)");
 
 const CONFIG = {
   currency: "KES",
@@ -165,8 +165,10 @@ function calcSubtotal(){
   return getCart().reduce((sum,i)=>sum + (Number(i.price)||0)*(Number(i.qty)||0),0);
 }
 
+/* ✅ MUST ALWAYS UPDATE BADGE */
 function refreshCartCount(){
-  if (els.cartCount) els.cartCount.textContent = String(cartCountTotal());
+  if (!els.cartCount) return;
+  els.cartCount.textContent = String(cartCountTotal());
 }
 
 /* ============ "Your order" panel renderer ============ */
@@ -212,9 +214,14 @@ function renderOrderPanel(){
   });
 }
 
-/* ============ Unified cart setter (updates ALL UIs) ============ */
+/* ✅ THE ONE TRUE CART SETTER (updates everything) */
 function setCart(items){
   localStorage.setItem(CART_KEY, JSON.stringify(items));
+
+  // Always update badge first (so it never "lags")
+  refreshCartCount();
+
+  // Update both UIs
   updateCartUI();
   renderOrderPanel();
 }
@@ -223,6 +230,7 @@ function setCart(items){
 function addToCart(productId,size,price,qty=1){
   const cart = getCart();
   const key = `${productId}__${size}`;
+
   const found = cart.find(i=>i.key===key);
   if(found) found.qty += qty;
   else cart.push({ key, id: productId, size: String(size), price: Number(price), qty });
@@ -715,6 +723,8 @@ function bindFilters(){
 /* ============ Bind cart + checkout ============ */
 function bindCart(){
   els.openCart?.addEventListener("click", ()=>{
+    // Always refresh everything before opening
+    refreshCartCount();
     updateCartUI();
     renderOrderPanel();
     openDrawer();
@@ -740,6 +750,7 @@ function bindCart(){
       setCheckoutStep("cart");
       updateCartUI();
       renderOrderPanel();
+      refreshCartCount();
     });
   });
 
@@ -773,6 +784,7 @@ function bindCart(){
       setCheckoutStep("checkout");
       updateCartUI();
       renderOrderPanel();
+      refreshCartCount();
       toast("Copy Till + Amount, pay, then paste M-Pesa code.");
       els.mpesaCode?.focus?.();
       return;
@@ -840,6 +852,7 @@ async function loadProducts(){
     bindCart();
     bindModal();
 
+    // ✅ Ensure UI reflects stored cart immediately on load
     refreshCartCount();
     updateCartUI();
     renderOrderPanel();

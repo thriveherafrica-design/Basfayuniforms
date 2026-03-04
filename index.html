@@ -1,3 +1,4 @@
+<!-- index.html (FULL UPDATED) -->
 <!doctype html>
 <html lang="en">
   <head>
@@ -11,193 +12,7 @@
     <meta name="theme-color" content="#1E88E5" />
 
     <!-- bump version to bust cache -->
-    <link rel="stylesheet" href="./styles.css?v=20260228-1" />
-
-    <style>
-      .is-hidden { display: none !important; }
-
-      /* =========================
-         HERO FIX (logo + trolley)
-         ========================= */
-      .brand-hero{
-        padding: 14px 0 12px;
-        background:
-          radial-gradient(900px 420px at 15% 10%, rgba(30,136,229,.18), transparent 60%),
-          radial-gradient(700px 380px at 85% 30%, rgba(30,136,229,.12), transparent 60%);
-      }
-      .brand-hero-inner{
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap:16px;
-        flex-wrap:wrap;
-      }
-      .brand-badge{
-        display:flex;
-        align-items:center;
-        gap:12px;
-        min-width: 260px;
-      }
-      .brand-logo{
-        width:54px;
-        height:54px;
-        border-radius:16px;
-        display:grid;
-        place-items:center;
-        font-weight:900;
-        font-size:22px;
-        background: rgba(0,0,0,.12);
-        border: 1px solid rgba(0,0,0,.12);
-      }
-      .brand-lines h1{
-        margin:0;
-        line-height:1.1;
-        font-size: clamp(22px, 3vw, 34px);
-        letter-spacing:-0.4px;
-      }
-      .brand-lines p{ margin:6px 0 0; }
-      .brand-right{
-        display:flex;
-        align-items:center;
-        justify-content:flex-end;
-        gap:12px;
-        flex: 0 0 auto;
-      }
-      .brand-hero .cart-btn{
-        display:inline-flex;
-        align-items:center;
-        justify-content:center;
-        width:54px;
-        height:54px;
-        border-radius:16px;
-        background:#fff;
-        border:1px solid rgba(0,0,0,.14);
-        box-shadow: 0 10px 30px rgba(0,0,0,.10);
-        cursor:pointer;
-        position:relative;
-        padding:0;
-      }
-      .brand-hero .cart-btn:hover{
-        transform: translateY(-1px);
-        box-shadow: 0 14px 36px rgba(0,0,0,.12);
-      }
-      .brand-hero .cart-btn svg{
-        width:22px;
-        height:22px;
-        opacity:.92;
-      }
-      .brand-hero .cart-badge{
-        position:absolute;
-        top:-8px;
-        right:-8px;
-        min-width:22px;
-        height:22px;
-        padding: 0 6px;
-        border-radius:999px;
-        background:#111827;
-        color:#fff;
-        font-size:12px;
-        font-weight:800;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        border:2px solid #fff;
-      }
-
-      /* Payment section in drawer */
-      .pay-card{ margin-top: 10px; padding: 12px; }
-      .pay-title{ font-weight: 900; margin-bottom: 8px; }
-      .pay-options{ display:flex; flex-direction:column; gap:8px; }
-      .pay-opt{ display:flex; gap:10px; align-items:center; cursor:pointer; user-select:none; }
-      .pay-opt input{ transform: translateY(1px); }
-      .pay-help{ margin-top: 8px; font-size: 13px; }
-
-      /* Phone input styling */
-      .checkout-field{ margin-top:12px; }
-      .checkout-field label{ display:block; font-weight:800; margin-bottom:6px; }
-      .checkout-field input{
-        width:100%;
-        padding:10px 12px;
-        border-radius:12px;
-        border:1px solid rgba(0,0,0,.18);
-        background:#fff;
-        font-size:.95rem;
-      }
-
-      /* Size dropdown */
-      .size-label{ display:block; font-size:.85rem; margin:10px 0 6px; opacity:.85; }
-      .size-select{
-        width:100%;
-        padding:10px 12px;
-        border-radius:12px;
-        border:1px solid rgba(0,0,0,.18);
-        background:#fff;
-        font-size:.95rem;
-      }
-
-      /* =========================
-         DESKTOP FIX: drawer scroll + sticky footer
-         ========================= */
-      .drawer-panel{
-        height: 100vh;
-        max-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-      .drawer-body{
-        flex: 1 1 auto;
-        overflow-y: auto;
-        padding-bottom: 16px;
-      }
-      .drawer-foot{
-        flex: 0 0 auto;
-        position: sticky;
-        bottom: 0;
-        background: #fff;
-        z-index: 10;
-        border-top: 1px solid rgba(0,0,0,0.08);
-      }
-
-      /* =========================
-         "YOUR ORDER" LIST STYLES
-         ========================= */
-      .order-items{
-        display: grid;
-        gap: 10px;
-        margin: 6px 0 12px;
-      }
-      .order-item{
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 10px;
-        padding: 10px;
-        border: 1px solid rgba(0,0,0,.08);
-        border-radius: 12px;
-        background: #fff;
-      }
-      .order-item small{ opacity: .75; }
-      .order-item .actions{
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        justify-content: space-between;
-        gap: 8px;
-      }
-      .order-item .remove{
-        border: 1px solid rgba(0,0,0,.15);
-        background: #fff;
-        padding: 8px 10px;
-        border-radius: 10px;
-        cursor: pointer;
-      }
-      .order-summary .row{
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap:10px;
-        padding: 10px 2px;
-      }
-    </style>
+    <link rel="stylesheet" href="./styles.css?v=20260228-2" />
   </head>
 
   <body>
@@ -234,7 +49,7 @@
     </header>
 
     <main id="main">
-      <!-- Brand hero (PILLS REMOVED) -->
+      <!-- Brand hero -->
       <section class="brand-hero" aria-label="BASFAY brand banner">
         <div class="container brand-hero-inner">
           <div class="brand-badge">
@@ -307,72 +122,31 @@
           </div>
 
           <div class="shop-layout">
-            <aside class="sidebar" aria-label="Catalog filters">
-              <div class="card soft">
-                <h3>Filters</h3>
-
-                <div class="field">
-                  <label for="q2">Find</label>
-                  <input id="q2" type="search" placeholder="Search..." autocomplete="off" />
-                </div>
-
-                <div class="grid-2">
-                  <div class="field">
-                    <label for="colorFilter2">Color</label>
-                    <select id="colorFilter2">
-                      <option value="">All</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="field">
-                  <label for="sortBy2">Sort</label>
-                  <select id="sortBy2">
-                    <option value="featured">Featured</option>
-                    <option value="price_asc">Price (Low–High)</option>
-                    <option value="price_desc">Price (High–Low)</option>
-                  </select>
-                </div>
-
-                <div class="mini-actions">
-                  <button class="btn small" id="clearFilters2" type="button">Reset</button>
-                  <button class="btn small primary" id="scrollToCatalog" type="button">Products</button>
-                </div>
-
-                <hr class="sep" />
-
-                <div class="sidebar-meta">
-                  <div><strong id="resultsCountSidebar">0</strong> items</div>
-                  <div class="muted">KES</div>
-                </div>
-              </div>
-            </aside>
-
+            <!-- Catalog -->
             <div class="catalog" id="catalog" aria-label="Product catalog">
               <div class="grid" id="productGrid" aria-live="polite"></div>
-
-              <div class="cart-preview" id="cartPreview">
-  <h3>Your Cart</h3>
-
-  <div class="cart-preview-items" id="cartPreviewItems">
-    No items yet
-  </div>
-
-  <div class="cart-preview-total">
-    <span>Subtotal</span>
-    <strong id="cartPreviewSubtotal">KES 0</strong>
-  </div>
-
-  <button class="btn primary full" id="openCartPreview">
-    Go to Cart
-  </button>
-</div>
 
               <div class="empty" id="emptyState" hidden>
                 <h3>No matches</h3>
                 <p class="muted">Reset filters or try a broader search.</p>
               </div>
             </div>
+
+            <!-- ✅ Amazon-style cart preview (Desktop only) -->
+            <aside class="cart-preview" id="cartPreview" aria-label="Cart preview">
+              <h3>Your Cart</h3>
+
+              <div class="cart-preview-items" id="cartPreviewItems">No items yet</div>
+
+              <div class="cart-preview-total">
+                <span>Subtotal</span>
+                <strong id="cartPreviewSubtotal">KES 0</strong>
+              </div>
+
+              <button class="btn primary full" id="openCartPreview" type="button">
+                Go to Cart
+              </button>
+            </aside>
           </div>
         </div>
       </section>
@@ -409,10 +183,9 @@
       <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Order list">
         <div class="drawer-head">
           <h3>Your order</h3>
-          <button class="icon-btn" id="closeDrawer" aria-label="Close order list">✕</button>
+          <button class="icon-btn" id="closeDrawer" aria-label="Close order list" type="button">✕</button>
         </div>
 
-        <!-- ✅ BODY NOW CONTAINS "YOUR ORDER" LIST + SUBTOTAL -->
         <div class="drawer-body">
           <div id="orderItems" class="order-items"></div>
 
@@ -428,14 +201,13 @@
             <p class="muted">Add products from the catalog.</p>
           </div>
 
-          <!-- Keep this hidden container so JS doesn't crash if it still references it -->
+          <!-- Keep hidden container so JS never breaks -->
           <div id="cartItems" class="is-hidden" aria-hidden="true"></div>
         </div>
 
         <div class="drawer-foot">
           <div class="cart-note muted">Size included.</div>
 
-          <!-- ✅ UPDATED PAYMENT CARD (Till + Copy buttons + Mpesa code) -->
           <div class="card soft pay-card">
             <div class="pay-title">Payment</div>
 
@@ -486,9 +258,7 @@
             </div>
           </div>
 
-          <!-- ✅ CTA (kept your original ID) -->
           <a class="btn primary full" id="checkoutBtn" href="#" rel="noopener">Proceed</a>
-
           <button class="btn ghost full" id="clearCart" type="button">Clear</button>
         </div>
       </div>
@@ -500,7 +270,7 @@
       <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Product details">
         <div class="modal-head">
           <h3 id="modalTitle">Product</h3>
-          <button class="icon-btn" id="closeModal" aria-label="Close product details">✕</button>
+          <button class="icon-btn" id="closeModal" aria-label="Close product details" type="button">✕</button>
         </div>
 
         <div class="modal-body">
@@ -528,7 +298,7 @@
       </div>
     </div>
 
-    <script src="./app.js?v=20260228-1" defer></script>
+    <script src="./app.js?v=20260228-2" defer></script>
     <script>
       document.getElementById("year").textContent = new Date().getFullYear();
     </script>

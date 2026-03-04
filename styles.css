@@ -603,3 +603,57 @@ input:focus,select:focus{
 @media (min-width: 881px){
   #cartBar{ display:none !important; }
 }
+ /* Cart preview controls (plus/minus like Amazon) */
+.cp-line{
+  display:grid;
+  gap:10px;
+  padding:10px;
+  border:1px solid rgba(0,0,0,0.08);
+  border-radius:12px;
+  margin-bottom:10px;
+  background:#fff;
+}
+.cp-line-left{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  font-weight:800;
+}
+.cp-line-right{
+  display:flex;
+  justify-content:flex-end;
+  font-weight:900;
+}
+.cp-controls{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+.cp-stepper{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.cp-btn{
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  border:1px solid rgba(0,0,0,0.14);
+  background:#fff;
+  cursor:pointer;
+  font-weight:950;
+}
+.cp-qty{
+  min-width:22px;
+  text-align:center;
+  font-weight:950;
+}
+.cp-remove{
+  border:1px solid rgba(0,0,0,0.14);
+  background:#fff;
+  padding:8px 10px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:900;
+}

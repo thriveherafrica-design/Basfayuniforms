@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#1E88E5" />
 
     <!-- bump version to bust cache -->
-    <link rel="stylesheet" href="./styles.css?v=20260228-300" />
+    <link rel="stylesheet" href="./styles.css?v=20260228-301" />
   </head>
 
   <body>
@@ -199,15 +199,18 @@
               <div class="muted" style="margin-bottom:10px;">
                 1) Copy Till and Amount<br />
                 2) Pay via M-Pesa Buy Goods<br />
-                3) Paste the M-Pesa confirmation code below<br />
+                3) Tap <strong>Proceed</strong> to open WhatsApp<br />
                 4) Send the message and attach/forward your payment confirmation (screenshot or message)
               </div>
 
               <button class="btn ghost full" id="copyTillBtn" type="button">Copy Till Number</button>
               <button class="btn ghost full" id="copyAmountBtn" type="button">Copy Amount</button>
 
-              <label for="mpesaCode" style="margin-top:10px; display:block; font-weight:800;">M-Pesa Confirmation Code</label>
-              <input type="text" id="mpesaCode" placeholder="e.g. QFT3XYZ123" autocomplete="off" />
+              <!-- ✅ Wrapped so JS can hide it cleanly -->
+              <div id="mpesaCodeWrap">
+                <label for="mpesaCode" style="margin-top:10px; display:block; font-weight:800;">M-Pesa Confirmation Code</label>
+                <input type="text" id="mpesaCode" placeholder="e.g. QFT3XYZ123" autocomplete="off" />
+              </div>
             </div>
 
             <div class="checkout-field">

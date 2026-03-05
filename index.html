@@ -62,13 +62,14 @@
       }
     </script>
 
-    <!-- ✅ Brand font + Header mobile fit + nicer divider line -->
+    <!-- ✅ Brand fonts (Cinzel + Script for Basfay on hero) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Great+Vibes&display=swap"
       rel="stylesheet"
     />
+
     <style>
       /* classy font for top header text */
       .header .brand-title,
@@ -101,6 +102,39 @@
       .header-pill {
         background: rgba(30, 136, 229, 0.08) !important;
         border: 1px solid rgba(30, 136, 229, 0.22) !important;
+      }
+
+      /* ✅ HERO: Script ONLY for "Basfay" on the sky-blue banner (fits phone) */
+      .brand-hero .hero-title{
+        margin: 0;
+        line-height: 1;
+      }
+      .brand-hero .hero-script{
+        font-family: "Great Vibes", cursive !important;
+        font-weight: 400;
+        font-size: clamp(44px, 7vw, 84px);
+        color: #0F2F4A;
+        display: block;
+        text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+      }
+      .brand-hero .hero-caps{
+        font-family: "Cinzel", serif !important;
+        font-weight: 800;
+        font-size: clamp(18px, 3vw, 34px);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #0F2F4A;
+        display: block;
+        margin-top: 6px;
+      }
+
+      /* ✅ Hide Shop/Contact/Pickup on PHONE only (keeps them on laptop) */
+      @media (max-width: 768px) {
+        .header-nav a[href="#shop"],
+        .header-nav a[href="#contact"],
+        .header-nav .header-pill{
+          display: none !important;
+        }
       }
 
       /* mobile: prevent header from wrapping into 2 rows */
@@ -145,7 +179,7 @@
     </style>
 
     <!-- bump version to bust cache -->
-    <link rel="stylesheet" href="./styles.css?v=20260228-301" />
+    <link rel="stylesheet" href="./styles.css?v=20260305-01" />
   </head>
 
   <body>
@@ -256,7 +290,11 @@
           <div class="brand-badge">
             <div class="brand-logo" aria-hidden="true">B</div>
             <div class="brand-lines">
-              <h1>BASFAY Uniforms</h1>
+              <!-- ✅ UPDATED: Script "Basfay" on sky-blue hero -->
+              <h1 class="hero-title">
+                <span class="hero-script">Basfay</span>
+                <span class="hero-caps">Uniforms</span>
+              </h1>
               <p class="muted">Quality &amp; Affordable</p>
             </div>
           </div>
@@ -354,7 +392,7 @@
       </section>
     </main>
 
-    <!-- ✅ Footer (UPDATED: mobile friendly + icon links + less text) -->
+    <!-- ✅ Footer (UNCHANGED from your paste) -->
     <footer class="footer" id="contact">
       <style>
         .basfay-footer-grid{
@@ -443,7 +481,7 @@
             </div>
           </div>
 
-          <!-- Socials (icons + short labels, no handles) -->
+          <!-- Socials -->
           <div>
             <h3 class="basfay-footer-title">Socials</h3>
 

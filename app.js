@@ -2,6 +2,7 @@
    BASFAY Catalog Site (Clean UI)
    Cart + Two-step Checkout (Cash vs Till)
    + Desktop "Your Cart" preview (working)
+   ✅ Order-first checkout (Daraja-ready): saves order to DB before WhatsApp
    ============================ */
 
 console.log("✅ BASFAY app.js LOADED (WORKING CART PREVIEW)");
@@ -80,6 +81,9 @@ let state = { color: "", type: "", sort: "featured" };
 const CART_KEY = "basfay_cart_v1";
 const CHECKOUT_STEP_KEY = "basfay_checkout_step_v1";
 
+/* ✅ NEW: reuse same order across Till Step 1 -> Step 2 (avoid duplicates) */
+const PENDING_ORDER_ID_KEY = "basfay_pending_order_id_v1";
+
 /* Helpers */
 function safeText(s){ return String(s ?? "").trim(); }
 function normalize(s){ return safeText(s).toLowerCase(); }
@@ -154,9 +158,46 @@ function calcSubtotal(){
   return getCart().reduce((sum,i)=>sum + (Number(i.price)||0)*(Number(i.qty)||0),0);
 }
 
+/* ✅ NEW: Save order to DB (Daraja-ready). Never blocks checkout if it fails. */
+async function saveOrderToDB(payload){
+  try{
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type":"application/json" },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    return data.orderId || null;
+  }catch{
+    return null;
+  }
+}
+
+function buildOrderItemsPayload(){
+  const cart = getCart();
+  return cart.map(item=>{
+    const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
+    return {
+      id: item.id,
+      name: p?.name || safeText(item.id),
+      size: item.size,
+      qty: Number(item.qty)||1,
+      price: Number(item.price)||0
+    };
+  });
+}
+
 /* ✅ One setter: updates EVERYTHING */
 function setCart(items){
   localStorage.setItem(CART_KEY, JSON.stringify(items));
+
+  // Any cart change invalidates pending order (avoid mismatch)
+  localStorage.removeItem(PENDING_ORDER_ID_KEY);
+
+  // Any cart change should reset the step back to cart
+  setCheckoutStep("cart");
+
   refreshAllCartUIs();
 }
 
@@ -168,6 +209,7 @@ function addToCart(productId,size,price,qty=1){
   else cart.push({ key, id: productId, size: String(size), price: Number(price), qty: Number(qty)||1 });
 
   setCheckoutStep("cart");
+  localStorage.removeItem(PENDING_ORDER_ID_KEY);
   setCart(cart);
 
   const p = PRODUCTS.find(x => normalize(x.id) === normalize(productId));
@@ -617,6 +659,7 @@ function bindCart(){
   els.drawerBackdrop?.addEventListener("click", closeDrawer);
 
   els.clearCart?.addEventListener("click", ()=>{
+    localStorage.removeItem(PENDING_ORDER_ID_KEY);
     setCheckoutStep("cart");
     setCart([]);
   });
@@ -632,11 +675,13 @@ function bindCart(){
   (els.payRadios||[]).forEach(r=>{
     r.addEventListener("change", ()=>{
       togglePaymentUI();
+      localStorage.removeItem(PENDING_ORDER_ID_KEY);
       setCheckoutStep("cart");
     });
   });
 
-  els.checkoutBtn?.addEventListener("click", (e)=>{
+  // ✅ UPDATED: Order-first checkout (Daraja-ready)
+  els.checkoutBtn?.addEventListener("click", async (e)=>{
     e.preventDefault();
 
     const cart = getCart();
@@ -646,33 +691,63 @@ function bindCart(){
     }
 
     const method = getPayMethod();
+    const methodLower = String(method).toLowerCase();
 
-    // ✅ Cash => WhatsApp immediately
-    if(method.toLowerCase().includes("cash")){
-      const phone = cleanPhone(els.customerPhone?.value);
-      if(!phone || phone.length < 9){
-        alert("Please enter a valid phone number.");
-        return;
-      }
-      window.open(buildWhatsAppLink(buildCheckoutWhatsAppMessage()), "_blank", "noopener,noreferrer");
-      return;
-    }
-
-    // ✅ Till => Step 1: show guidance (no code required)
-    if(getCheckoutStep()==="cart"){
-      setCheckoutStep("checkout");
-      toast("Copy Till + Amount, pay, then tap Proceed to open WhatsApp.");
-      return;
-    }
-
-    // ✅ Till => Step 2: just validate phone, then WhatsApp
     const phone = cleanPhone(els.customerPhone?.value);
     if(!phone || phone.length < 9){
       alert("Please enter a valid phone number.");
       return;
     }
 
-    window.open(buildWhatsAppLink(buildCheckoutWhatsAppMessage()), "_blank", "noopener,noreferrer");
+    const subtotal = calcSubtotal();
+    const itemsPayload = buildOrderItemsPayload();
+
+    async function ensureOrderId(noteLabel){
+      let existing = safeText(localStorage.getItem(PENDING_ORDER_ID_KEY));
+      if(existing) return existing;
+
+      const orderId = await saveOrderToDB({
+        customer_name: "",
+        customer_phone: phone,
+        total_kes: Math.round(subtotal),
+        items: itemsPayload,
+        note: `Pickup: ${CONFIG.pickup} | ${noteLabel}`
+      });
+
+      if(orderId) localStorage.setItem(PENDING_ORDER_ID_KEY, orderId);
+      return orderId;
+    }
+
+    // ✅ Cash => save order, then WhatsApp immediately
+    if(methodLower.includes("cash")){
+      localStorage.removeItem(PENDING_ORDER_ID_KEY);
+      const orderId = await ensureOrderId("Payment: Cash");
+
+      let msg = buildCheckoutWhatsAppMessage();
+      if(orderId) msg += `\n\nOrder ID: ${orderId}`;
+
+      window.open(buildWhatsAppLink(msg), "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    // ✅ Till => Step 1: show guidance + create order (Daraja-ready)
+    if(getCheckoutStep()==="cart"){
+      const orderId = await ensureOrderId(`Payment: M-Pesa Till (${CONFIG.tillNumberPlaceholder})`);
+      setCheckoutStep("checkout");
+      toast(orderId
+        ? "Order created ✅ Copy Till + Amount, pay, then tap Proceed to open WhatsApp."
+        : "Copy Till + Amount, pay, then tap Proceed to open WhatsApp."
+      );
+      return;
+    }
+
+    // ✅ Till => Step 2: open WhatsApp for now (later: Daraja web payment)
+    const orderId = await ensureOrderId(`Payment: M-Pesa Till (${CONFIG.tillNumberPlaceholder})`);
+
+    let msg = buildCheckoutWhatsAppMessage();
+    if(orderId) msg += `\n\nOrder ID: ${orderId}`;
+
+    window.open(buildWhatsAppLink(msg), "_blank", "noopener,noreferrer");
   });
 }
 

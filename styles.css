@@ -967,3 +967,91 @@ input:focus,select:focus{
   color: rgba(15,47,74,0.75);
   margin-top: 8px;
 }
+
+/* =========================================================
+   BASFAY FINAL OVERRIDE (Hero + Mobile Header)
+   Paste at the VERY END of styles.css
+   ========================================================= */
+
+/* PHONE: hide Shop + Contact, but KEEP the pill */
+@media (max-width: 768px){
+  .header-nav a[href="#shop"],
+  .header-nav a[href="#contact"]{
+    display:none !important;
+  }
+
+  /* override earlier rule that hid the pill on mobile */
+  .header .header-pill{
+    display:inline-flex !important;
+    align-items:center !important;
+    gap:6px !important;
+  }
+
+  /* on phone show ONLY delivery text */
+  .header .header-pill .pill-pickup,
+  .header .header-pill .pill-sep{
+    display:none !important;
+  }
+}
+
+/* HERO: logo instead of “B” */
+.brand-hero .brand-logo{
+  background: rgba(255,255,255,0.55) !important;
+  border: 1px solid rgba(15,47,74,0.14) !important;
+  overflow:hidden !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+
+.brand-hero .brand-logo img{
+  width:86% !important;
+  height:86% !important;
+  object-fit:contain !important;
+  display:block !important;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.18)) !important;
+}
+
+/* HERO: one-line title, smaller, classy, phone-safe */
+.brand-hero .hero-inline{
+  margin:0 !important;
+  display:flex !important;
+  align-items:baseline !important;
+  gap:10px !important;
+  flex-wrap:nowrap !important;
+  line-height:1.05 !important;
+}
+
+.brand-hero .hero-name{
+  font-family:"Great Vibes", cursive !important;
+  font-weight:400 !important;
+  font-size: clamp(30px, 4.2vw, 52px) !important; /* reduced */
+  color:#0F2F4A !important;
+  text-shadow:0 1px 0 rgba(255,255,255,0.35) !important;
+}
+
+.brand-hero .hero-divider{
+  font-family:"Cinzel", serif !important;
+  font-weight:800 !important;
+  font-size: clamp(14px, 1.6vw, 18px) !important;
+  opacity:.55 !important;
+  color:#0F2F4A !important;
+}
+
+.brand-hero .hero-tagline{
+  font-family:"Cinzel", serif !important;
+  font-weight:700 !important;
+  font-size: clamp(12px, 1.6vw, 16px) !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase !important;
+  opacity:.72 !important;
+  color:#0F2F4A !important;
+}
+
+/* Allow wrap on small phones so it never overflows */
+@media (max-width: 520px){
+  .brand-hero .hero-inline{
+    flex-wrap:wrap !important;
+    gap:6px 10px !important;
+  }
+}

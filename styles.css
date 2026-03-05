@@ -886,3 +886,10 @@ input:focus,select:focus{
   border: 1px solid rgba(255,255,255,0.18) !important;
   color: #fff !important;
 }
+
+/* Hide only on phones */
+@media (max-width: 768px){
+  .header .desktop-only{
+    display: none !important;
+  }
+}

@@ -43,16 +43,14 @@ export async function onRequest(context) {
       }
     }
 
-    // AUTH
-    if (request.method === "POST" && endpoint === "register") return register(request, env);
-    if (request.method === "POST" && endpoint === "login") return login(request, env);
-    if (request.method === "POST" && endpoint === "logout") return logout(request, env);
-    if (request.method === "GET" && endpoint === "me") return me(request, env);
+if (request.method === "POST" && endpoint === "register") return await register(request, env);
+if (request.method === "POST" && endpoint === "login") return await login(request, env);
+if (request.method === "POST" && endpoint === "logout") return await logout(request, env);
+if (request.method === "GET"  && endpoint === "me") return await me(request, env);
 
-    // ORDERS
-    if (endpoint === "orders" && request.method === "POST") return createOrder(request, env);
-    if (endpoint === "orders" && request.method === "GET") return listOrders(request, env);
-
+if (endpoint === "orders" && request.method === "POST") return await createOrder(request, env);
+if (endpoint === "orders" && request.method === "GET")  return await listOrders(request, env);
+    
     return json({ error: "Not found" }, 404);
   } catch (err) {
     // Always JSON (no HTML error pages)

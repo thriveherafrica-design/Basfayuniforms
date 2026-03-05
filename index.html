@@ -15,8 +15,6 @@
     <meta name="theme-color" content="#1E88E5" />
 
     <!-- ✅ FAVICON / TAB ICON (like IG/GitHub) -->
-    <!-- Put these files in your project ROOT: /favicon.ico, /favicon-32.png, /apple-touch-icon.png -->
-    <!-- Change v=... any time you replace the icon (helps beat browser cache). -->
     <link rel="icon" href="/favicon.ico?v=20260305" sizes="any" />
     <link rel="icon" type="image/png" href="/favicon-32.png?v=20260305" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260305" />
@@ -62,7 +60,7 @@
       }
     </script>
 
-    <!-- ✅ Brand fonts (Cinzel + Script for Basfay on hero) -->
+    <!-- ✅ Brand fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -82,7 +80,7 @@
         border-bottom: 1px solid rgba(30, 136, 229, 0.22) !important;
       }
 
-      /* keep Shop/Contact/Pickup in one row on phone */
+      /* keep header items in one row (scroll if needed) */
       .header-nav {
         display: flex !important;
         align-items: center !important;
@@ -104,35 +102,72 @@
         border: 1px solid rgba(30, 136, 229, 0.22) !important;
       }
 
-      /* ✅ HERO: Script ONLY for "Basfay" on the sky-blue banner (fits phone) */
-      .brand-hero .hero-title{
-        margin: 0;
-        line-height: 1;
-      }
-      .brand-hero .hero-script{
-        font-family: "Great Vibes", cursive !important;
-        font-weight: 400;
-        font-size: clamp(44px, 7vw, 84px);
-        color: #0F2F4A;
-        display: block;
-        text-shadow: 0 1px 0 rgba(255,255,255,0.35);
-      }
-      .brand-hero .hero-caps{
-        font-family: "Cinzel", serif !important;
-        font-weight: 800;
-        font-size: clamp(18px, 3vw, 34px);
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: #0F2F4A;
-        display: block;
-        margin-top: 6px;
+      /* ✅ HERO: logo + one-line title */
+      .brand-hero .brand-logo {
+        width: 56px !important;
+        height: 56px !important;
+        border-radius: 16px !important;
+        background: rgba(255, 255, 255, 0.55) !important;
+        border: 1px solid rgba(15, 47, 74, 0.14) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        overflow: hidden !important;
       }
 
-      /* ✅ Hide Shop/Contact/Pickup on PHONE only (keeps them on laptop) */
+      .brand-hero .brand-logo img {
+        width: 86% !important;
+        height: 86% !important;
+        object-fit: contain !important;
+        display: block !important;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18)) !important;
+      }
+
+      .brand-hero .hero-inline {
+        margin: 0 !important;
+        display: flex !important;
+        align-items: baseline !important;
+        gap: 10px !important;
+        flex-wrap: nowrap !important; /* single line on desktop */
+        line-height: 1.05 !important;
+      }
+
+      .brand-hero .hero-name {
+        font-family: "Great Vibes", cursive !important;
+        font-weight: 400 !important;
+        font-size: clamp(30px, 4.2vw, 52px) !important; /* reduced */
+        color: #0F2F4A !important;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+      }
+
+      .brand-hero .hero-divider {
+        font-family: "Cinzel", serif !important;
+        font-weight: 800 !important;
+        font-size: clamp(14px, 1.6vw, 18px) !important;
+        opacity: 0.55 !important;
+        color: #0F2F4A !important;
+      }
+
+      .brand-hero .hero-tagline {
+        font-family: "Cinzel", serif !important;
+        font-weight: 700 !important;
+        font-size: clamp(12px, 1.6vw, 16px) !important;
+        letter-spacing: 0.10em !important;
+        text-transform: uppercase !important;
+        opacity: 0.72 !important;
+        color: #0F2F4A !important;
+      }
+
+      /* ✅ Phone: hide Shop/Contact ONLY (keep the delivery pill visible) */
       @media (max-width: 768px) {
         .header-nav a[href="#shop"],
-        .header-nav a[href="#contact"],
-        .header-nav .header-pill{
+        .header-nav a[href="#contact"] {
+          display: none !important;
+        }
+
+        /* show ONLY "Same day Nairobi delivery" on phone */
+        .header-pill .pill-pickup,
+        .header-pill .pill-sep {
           display: none !important;
         }
       }
@@ -148,7 +183,7 @@
         }
         .header-nav {
           flex: 0 0 auto !important;
-          max-width: 52% !important;
+          max-width: 56% !important;
         }
         .header-logo {
           height: 34px !important;
@@ -168,24 +203,27 @@
           text-overflow: ellipsis;
           white-space: nowrap;
         }
-        .header-nav a {
-          font-size: 12px !important;
-        }
         .header-pill {
           font-size: 11.5px !important;
           padding: 5px 8px !important;
+        }
+
+        /* hero: if the single line is too tight, allow wrap gracefully */
+        .brand-hero .hero-inline {
+          flex-wrap: wrap !important;
+          gap: 6px 10px !important;
         }
       }
     </style>
 
     <!-- bump version to bust cache -->
-    <link rel="stylesheet" href="./styles.css?v=20260305-01" />
+    <link rel="stylesheet" href="./styles.css?v=20260305-02" />
   </head>
 
   <body>
     <a class="skip" href="#main">Skip to content</a>
 
-    <!-- Header (✅ UPDATED: mobile fit + nicer divider + brand font classes) -->
+    <!-- Header -->
     <header
       class="header"
       style="
@@ -221,7 +259,6 @@
             min-width: max-content;
           "
         >
-          <!-- IMPORTANT: Put your logo at ./images/basfay-logo.png -->
           <img
             class="header-logo"
             src="./images/basfay-logo.png"
@@ -277,7 +314,9 @@
               white-space: nowrap;
             "
           >
-          Kangemi Pickup  • Same day Nairobi delivery
+            <span class="pill-pickup">Kangemi Pickup</span>
+            <span class="pill-sep"> • </span>
+            <span class="pill-delivery">Same day Nairobi delivery</span>
           </span>
         </div>
       </div>
@@ -288,19 +327,22 @@
       <section class="brand-hero" aria-label="BASFAY brand banner">
         <div class="container brand-hero-inner">
           <div class="brand-badge">
-            <div class="brand-logo" aria-hidden="true">B</div>
+            <!-- ✅ logo instead of B -->
+            <div class="brand-logo" aria-hidden="true">
+              <img src="./images/basfay-logo.png" alt="" loading="eager" decoding="async" />
+            </div>
+
             <div class="brand-lines">
-              <!-- ✅ UPDATED: Script "Basfay" on sky-blue hero -->
-              <h1 class="hero-title">
-                <span class="hero-script">Basfay</span>
-                <span class="hero-caps">Uniforms</span>
+              <!-- ✅ one line title -->
+              <h1 class="hero-inline">
+                <span class="hero-name">Basfay Uniforms</span>
+                <span class="hero-divider">|</span>
+                <span class="hero-tagline">Quality &amp; Affordable</span>
               </h1>
-              <p class="muted">Quality &amp; Affordable</p>
             </div>
           </div>
 
           <div class="brand-right">
-            <!-- ✅ untouched -->
             <button class="cart-btn" id="openCart" aria-label="Open order list" type="button">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path
@@ -450,7 +492,6 @@
 
       <div class="container footer-inner">
         <div class="basfay-footer-grid">
-          <!-- About -->
           <div>
             <div class="brand tiny">
               <span class="brand-mark" aria-hidden="true">B</span>
@@ -466,7 +507,6 @@
             </p>
           </div>
 
-          <!-- Store info -->
           <div>
             <h3 class="basfay-footer-title">Store Info</h3>
             <div class="muted" style="line-height:1.9;">
@@ -481,7 +521,6 @@
             </div>
           </div>
 
-          <!-- Socials -->
           <div>
             <h3 class="basfay-footer-title">Socials</h3>
 

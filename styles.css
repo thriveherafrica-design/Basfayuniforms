@@ -916,3 +916,21 @@ input:focus,select:focus{
     display: none !important;
   }
 }
+
+/* Force header color on phones too */
+@media (max-width: 768px){
+  .header{
+    background: #0F2F4A !important;
+  }
+
+  .header, .header a, .header *{
+    color: #fff !important;
+  }
+
+  /* (optional) keep the pickup pill readable if you still show it */
+  .header :is(.pill, .chip, .badge, .header-pill, .pickup-pill){
+    background: rgba(255,255,255,0.12) !important;
+    border: 1px solid rgba(255,255,255,0.18) !important;
+    color: #fff !important;
+  }
+}

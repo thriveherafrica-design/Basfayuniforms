@@ -18,6 +18,9 @@ export async function onRequest(context) {
       if (!isSameOrigin(request)) return json({ error: "Bad origin" }, 403);
     }
 
+    if (request.method === "GET" && endpoint === "ping") {
+  return json({ ok: true, message: "API is alive" }, 200);
+}
     if (request.method === "POST" && endpoint === "register") return register(request, env);
     if (request.method === "POST" && endpoint === "login") return login(request, env);
     if (request.method === "POST" && endpoint === "logout") return logout(request, env);

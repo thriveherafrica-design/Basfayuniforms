@@ -3,7 +3,7 @@
 
 const COOKIE_NAME = "basfay_session";
 const SESSION_TTL_DAYS = 30;
-const PBKDF2_ITERS = 210000;
+const PBKDF2_ITERS = 10000;
 
 export async function onRequest(context) {
   const { request, env, params } = context;

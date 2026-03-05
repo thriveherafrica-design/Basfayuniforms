@@ -8,7 +8,7 @@
     <title>BASFAY Uniforms Kenya | School Uniforms, Scrubs, Bags & Workwear (Nairobi)</title>
     <meta
       name="description"
-      content="BASFAY Uniforms Kenya — Quality & Affordable. Shop school uniforms, scrubs, workwear and school bags in Nairobi. Sweaters, tracksuits, PE kits, shirts, dresses, socks, blazers, trousers and more. Pickup Kangemi. Order via WhatsApp."
+      content="BASFAY Uniforms Kenya — Quality & Affordable. Shop school uniforms, scrubs, workwear and school bags in Nairobi. Sweaters, tracksuits, PE kits, shirts, dresses, socks, blazers, trousers and more. Pickup Kangemi. Order via WhatsApp 0119667836."
     />
     <link rel="canonical" href="https://basfayuniforms.co.ke/" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
@@ -25,7 +25,7 @@
     <meta property="og:title" content="BASFAY Uniforms Kenya | Quality & Affordable" />
     <meta
       property="og:description"
-      content="School uniforms, scrubs, workwear and school bags in Nairobi. Pickup Kangemi. Order via WhatsApp."
+      content="School uniforms, scrubs, workwear and school bags in Nairobi. Pickup Kangemi. Order via WhatsApp 0119667836."
     />
     <meta property="og:url" content="https://basfayuniforms.co.ke/" />
 
@@ -33,7 +33,7 @@
     <meta name="twitter:title" content="BASFAY Uniforms Kenya" />
     <meta
       name="twitter:description"
-      content="School uniforms, scrubs, workwear and school bags in Nairobi. Pickup Kangemi."
+      content="School uniforms, scrubs, workwear and school bags in Nairobi. Pickup Kangemi. WhatsApp 0119667836."
     />
 
     <script type="application/ld+json">
@@ -258,15 +258,15 @@
         }
       }
 
-      /* Auth modal small adjustments (uses your existing .modal styling) */
+      /* Auth modal adjustments */
       #authMsg{ font-size: 12px; opacity: .85; margin-top: 10px; }
       .auth-row{ display:flex; gap:10px; flex-wrap:wrap; }
       .auth-row .btn{ flex: 1 1 auto; }
-      #logoutBtn{ display:none; }
+      /* NOTE: do NOT permanently hide logout; JS will toggle it */
     </style>
 
     <!-- bump version to bust cache -->
-    <link rel="stylesheet" href="./styles.css?v=20260305-03" />
+    <link rel="stylesheet" href="./styles.css?v=20260306-01" />
   </head>
 
   <body>
@@ -377,8 +377,11 @@
                 <span class="hero-divider">|</span>
                 <span class="hero-tagline">Quality &amp; Affordable</span>
               </h1>
+              <p class="muted hero-subline">Kangemi Pickup • Same day Nairobi delivery</p>
+            </div>
+          </div>
 
-          <!-- ✅ removed cart here (now in header) -->
+          <!-- cart removed here (now in header) -->
           <div class="brand-right"></div>
         </div>
       </section>
@@ -461,7 +464,7 @@
       </section>
     </main>
 
-    <!-- ✅ Footer (UNCHANGED from your paste) -->
+    <!-- ✅ Footer -->
     <footer class="footer" id="contact">
       <style>
         .basfay-footer-grid{
@@ -539,7 +542,10 @@
             <div class="muted" style="line-height:1.9;">
               <div><strong>Pickup:</strong> Kangemi, Nairobi</div>
               <div><strong>Payments:</strong> M-Pesa / Cash</div>
-              <div><strong>Phone:</strong> <a href="tel:+254119667836" style="text-decoration:none; color:inherit;">+254 119 667 836</a></div>
+              <div>
+                <strong>Phone:</strong>
+                <a href="tel:+254119667836" style="text-decoration:none; color:inherit;">0119667836</a>
+              </div>
               <div style="margin-top:8px;">
                 <a href="tel:+254119667836" style="text-decoration:none; color:inherit; font-weight:800;">Call</a>
                 <span class="muted"> • </span>
@@ -596,7 +602,7 @@
       </div>
     </footer>
 
-    <!-- Drawer (✅ untouched) -->
+    <!-- Drawer (unchanged) -->
     <div class="drawer" id="drawer" aria-hidden="true">
       <div class="drawer-backdrop" id="drawerBackdrop"></div>
 
@@ -671,7 +677,7 @@
       </div>
     </div>
 
-    <!-- Product Modal (✅ untouched) -->
+    <!-- Product Modal (unchanged) -->
     <div class="modal" id="modal" aria-hidden="true">
       <div class="modal-backdrop" id="modalBackdrop"></div>
       <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Product details">
@@ -702,7 +708,7 @@
       </div>
     </div>
 
-    <!-- ✅ AUTH MODAL (NEW) -->
+    <!-- ✅ AUTH MODAL (UPDATED: email+password only + Google button) -->
     <div class="modal" id="authModal" aria-hidden="true">
       <div class="modal-backdrop" id="authBackdrop"></div>
       <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Account">
@@ -723,14 +729,10 @@
               <input id="authPassword" type="password" placeholder="8+ characters" autocomplete="current-password" />
             </div>
 
-            <div class="checkout-field">
-              <label for="authName">Name (only for signup)</label>
-              <input id="authName" type="text" placeholder="Your name" autocomplete="name" />
-            </div>
-
             <div class="auth-row" style="margin-top:12px;">
               <button class="btn primary" id="loginBtn" type="button">Login</button>
               <button class="btn ghost" id="signupBtn" type="button">Create account</button>
+              <button class="btn ghost" id="googleBtn" type="button">Continue with Google</button>
               <button class="btn ghost" id="logoutBtn" type="button">Logout</button>
             </div>
 
@@ -741,9 +743,9 @@
     </div>
 
     <!-- bump JS version -->
-    <script src="./app.js?v=20260305-03" defer></script>
+    <script src="./app.js?v=20260306-01" defer></script>
 
-    <!-- ✅ Auth logic (small + safe, doesn't touch cart code) -->
+    <!-- ✅ Auth logic (UPDATED: greeting + Google login + no name field) -->
     <script>
       (function () {
         const $ = (id) => document.getElementById(id);
@@ -755,15 +757,22 @@
 
         const authEmail = $("authEmail");
         const authPassword = $("authPassword");
-        const authName = $("authName");
 
         const loginBtn = $("loginBtn");
         const signupBtn = $("signupBtn");
+        const googleBtn = $("googleBtn");
         const logoutBtn = $("logoutBtn");
         const authMsg = $("authMsg");
 
         function openAuth() { authModal?.setAttribute("aria-hidden", "false"); }
         function closeAuth() { authModal?.setAttribute("aria-hidden", "true"); }
+
+        function firstFromEmail(email){
+          const local = String(email || "").split("@")[0] || "";
+          const first = local.split(/[._-]+/)[0] || local;
+          if (!first) return "there";
+          return first.charAt(0).toUpperCase() + first.slice(1);
+        }
 
         async function me() {
           try {
@@ -790,13 +799,14 @@
           const user = data?.user;
 
           if (user?.email) {
-            authBtn.textContent = "Account";
+            const first = firstFromEmail(user.email);
+            authBtn.textContent = `Hi, ${first}`;
             logoutBtn.style.display = "inline-block";
             authMsg.textContent = `Signed in as ${user.email}`;
           } else {
             authBtn.textContent = "Sign in";
             logoutBtn.style.display = "none";
-            authMsg.textContent = "Login to save your order history (optional).";
+            authMsg.textContent = "Login is optional. It saves your order history.";
           }
         }
 
@@ -824,8 +834,7 @@
           try {
             await post("/api/register", {
               email: authEmail.value,
-              password: authPassword.value,
-              name: authName.value
+              password: authPassword.value
             });
             authMsg.textContent = "Account created ✅";
             await refreshAuthUI();
@@ -833,6 +842,10 @@
           } catch (e) {
             authMsg.textContent = e.message;
           }
+        });
+
+        googleBtn?.addEventListener("click", () => {
+          window.location.href = "/api/auth/google/start";
         });
 
         logoutBtn?.addEventListener("click", async () => {

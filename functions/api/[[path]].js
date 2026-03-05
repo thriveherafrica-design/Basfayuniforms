@@ -8,8 +8,10 @@ const PBKDF2_ITERS = 210000;
 export async function onRequest(context) {
   const { request, env, params } = context;
 
-  // params.path is an array for [[path]].js, but we guard anyway
-  const segs = Array.isArray(params?.path) ? params.path : (params?.path ? [params.path] : []);
+  // [[path]].js -> params.path is usually an array of segments
+  const segs = Array.isArray(params?.path)
+    ? params.path
+    : (params?.path ? [params.path] : []);
   const endpoint = (segs[0] || "").toLowerCase();
 
   try {
@@ -18,21 +20,43 @@ export async function onRequest(context) {
       if (!isSameOrigin(request)) return json({ error: "Bad origin" }, 403);
     }
 
+    // ✅ Health check (routing test)
     if (request.method === "GET" && endpoint === "ping") {
-  return json({ ok: true, message: "API is alive" }, 200);
-}
+      return json({ ok: true, message: "API is alive" }, 200);
+    }
+
+    // ✅ DB sanity check (binding + D1 connectivity test)
+    if (request.method === "GET" && endpoint === "db") {
+      try {
+        const t = await env.DB.prepare("SELECT 1 as one").first();
+        return json({ ok: true, db: t.one }, 200);
+      } catch (e) {
+        return json(
+          {
+            ok: false,
+            error:
+              "DB not reachable. Check D1 binding name = DB and that you bound it in the correct environment (Production/Preview).",
+            detail: String(e?.message || e),
+          },
+          500
+        );
+      }
+    }
+
+    // AUTH
     if (request.method === "POST" && endpoint === "register") return register(request, env);
     if (request.method === "POST" && endpoint === "login") return login(request, env);
     if (request.method === "POST" && endpoint === "logout") return logout(request, env);
-    if (request.method === "GET"  && endpoint === "me") return me(request, env);
+    if (request.method === "GET" && endpoint === "me") return me(request, env);
 
+    // ORDERS
     if (endpoint === "orders" && request.method === "POST") return createOrder(request, env);
-    if (endpoint === "orders" && request.method === "GET")  return listOrders(request, env);
+    if (endpoint === "orders" && request.method === "GET") return listOrders(request, env);
 
     return json({ error: "Not found" }, 404);
   } catch (err) {
-    // Return JSON even on errors (so you don’t see HTML pages)
-    return json({ error: "Server error" }, 500);
+    // Always JSON (no HTML error pages)
+    return json({ error: "Server error", detail: String(err?.message || err) }, 500);
   }
 }
 
@@ -50,6 +74,9 @@ async function register(request, env) {
   if (!email || password.length < 8) {
     return json({ error: "Email required and password must be 8+ chars." }, 400);
   }
+
+  // Ensure DB binding exists
+  if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
 
   const existing = await env.DB
     .prepare("SELECT id FROM users WHERE email = ?")
@@ -84,6 +111,7 @@ async function login(request, env) {
   const password = String(body.password || "");
 
   if (!email || !password) return json({ error: "Email and password required." }, 400);
+  if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
 
   const user = await env.DB.prepare(`
     SELECT id, email, name, phone, password_salt, password_hash
@@ -99,6 +127,7 @@ async function login(request, env) {
   }
 
   const { cookie } = await createSession(env, user.id);
+
   return json(
     { ok: true, user: { id: user.id, email: user.email, name: user.name, phone: user.phone } },
     200,
@@ -107,6 +136,12 @@ async function login(request, env) {
 }
 
 async function logout(request, env) {
+  if (!env?.DB) {
+    // Still clear cookie even if DB binding missing
+    const cookie = `${COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
+    return json({ ok: true }, 200, { "Set-Cookie": cookie });
+  }
+
   const token = getCookie(request, COOKIE_NAME);
   if (token) {
     const tokenHash = await sha256B64(token);
@@ -141,6 +176,8 @@ async function createOrder(request, env) {
     return json({ error: "Invalid order payload." }, 400);
   }
 
+  if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
+
   const customerName = cleanText(body.customer_name, 80);
   const customerPhone = cleanText(body.customer_phone, 30);
   const note = cleanText(body.note, 300);
@@ -170,6 +207,7 @@ async function createOrder(request, env) {
 async function listOrders(request, env) {
   const user = await getAuthedUser(request, env);
   if (!user) return json({ error: "Login required." }, 401);
+  if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
 
   const rows = await env.DB.prepare(`
     SELECT id, total_kes, status, created_at, customer_name, customer_phone, items_json, note
@@ -179,7 +217,7 @@ async function listOrders(request, env) {
     LIMIT 50
   `).bind(user.id).all();
 
-  const orders = (rows.results || []).map(r => ({
+  const orders = (rows.results || []).map((r) => ({
     id: r.id,
     total_kes: r.total_kes,
     status: r.status,
@@ -187,7 +225,7 @@ async function listOrders(request, env) {
     customer_name: r.customer_name,
     customer_phone: r.customer_phone,
     items: safeParse(r.items_json),
-    note: r.note
+    note: r.note,
   }));
 
   return json({ ok: true, orders }, 200);
@@ -215,6 +253,8 @@ async function createSession(env, userId) {
 }
 
 async function getAuthedUser(request, env) {
+  if (!env?.DB) return null;
+
   const token = getCookie(request, COOKIE_NAME);
   if (!token) return null;
 
@@ -247,15 +287,19 @@ function json(data, status = 200, headers = {}) {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
-      ...headers
-    }
+      ...headers,
+    },
   });
 }
 
 async function safeJson(request) {
   const ct = request.headers.get("Content-Type") || "";
   if (!ct.includes("application/json")) return {};
-  try { return await request.json(); } catch { return {}; }
+  try {
+    return await request.json();
+  } catch {
+    return {};
+  }
 }
 
 function now() {
@@ -275,12 +319,16 @@ function cleanText(v, max) {
 }
 
 function safeParse(s) {
-  try { return JSON.parse(s); } catch { return []; }
+  try {
+    return JSON.parse(s);
+  } catch {
+    return [];
+  }
 }
 
 function getCookie(request, name) {
   const cookie = request.headers.get("Cookie") || "";
-  const parts = cookie.split(";").map(p => p.trim());
+  const parts = cookie.split(";").map((p) => p.trim());
   for (const p of parts) {
     if (p.startsWith(name + "=")) return p.slice(name.length + 1);
   }
@@ -289,7 +337,7 @@ function getCookie(request, name) {
 
 function isSameOrigin(request) {
   const origin = request.headers.get("Origin");
-  if (!origin) return true;
+  if (!origin) return true; // allow non-browser clients
   const url = new URL(request.url);
   return origin === `${url.protocol}//${url.host}`;
 }
@@ -301,7 +349,10 @@ function randomB64(bytesLen) {
 }
 
 function randomB64Url(bytesLen) {
-  return randomB64(bytesLen).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  return randomB64(bytesLen)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
 }
 
 async function sha256B64(text) {
@@ -321,7 +372,7 @@ async function pbkdf2Hash(password, saltB64) {
     ["deriveBits"]
   );
 
-  const saltBytes = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
+  const saltBytes = Uint8Array.from(atob(saltB64), (c) => c.charCodeAt(0));
 
   const bits = await crypto.subtle.deriveBits(
     { name: "PBKDF2", hash: "SHA-256", salt: saltBytes, iterations: PBKDF2_ITERS },

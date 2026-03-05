@@ -864,3 +864,25 @@ input:focus,select:focus{
   border: 1px solid rgba(255,255,255,0.22) !important;
   color: #fff !important;
 }
+
+:root{
+  --header-bg: #0F2F4A; /* ✅ best pick */
+}
+
+/* top strip */
+.header{
+  background: var(--header-bg) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* header text/icons */
+.header, .header a, .header *{
+  color: #fff !important;
+}
+
+/* pickup pill */
+.header :is(.pill, .chip, .badge, .header-pill, .pickup-pill){
+  background: rgba(255,255,255,0.12) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  color: #fff !important;
+}

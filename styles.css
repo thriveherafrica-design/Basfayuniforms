@@ -934,3 +934,36 @@ input:focus,select:focus{
     color: #fff !important;
   }
 }
+
+/* Hero brand styling (script only where it belongs) */
+.hero-title{
+  margin: 0;
+  line-height: 1;
+}
+
+.hero-script{
+  font-family: "Great Vibes", cursive;
+  font-weight: 400;
+  font-size: clamp(44px, 8vw, 82px); /* fits phone */
+  letter-spacing: 0;
+  display: block; /* stacks nicely on mobile */
+  color: #0F2F4A; /* matches your header tone */
+  text-shadow: 0 1px 0 rgba(255,255,255,0.35); /* subtle pop on sky blue */
+}
+
+.hero-caps{
+  font-family: "Cinzel", serif;
+  font-weight: 700;
+  font-size: clamp(18px, 3.2vw, 34px);
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  display: block;
+  color: #0F2F4A;
+  margin-top: 6px;
+}
+
+.hero-subtitle{
+  font-size: clamp(14px, 2.6vw, 18px);
+  color: rgba(15,47,74,0.75);
+  margin-top: 8px;
+}

@@ -77,6 +77,29 @@ a:hover{ opacity:0.9; }
   padding:14px 0;
 }
 
+/* ============================
+   Hide header links + pickup pill on PHONE only
+   (keeps them on laptop/desktop)
+   ============================ */
+
+@media (max-width: 768px){
+
+  /* Hide Shop + Contact links (works if they link to #shop/#contact or contain 'shop/contact' in URL) */
+  .header nav a[href="#shop"],
+  .header nav a[href$="#shop"],
+  .header nav a[href*="shop"],
+  .header nav a[href="#contact"],
+  .header nav a[href$="#contact"],
+  .header nav a[href*="contact"]{
+    display: none !important;
+  }
+
+  /* Hide the "Kangemi pickup • ..." pill (covers common class names) */
+  .header :is(.pill, .chip, .badge, .header-pill, .pickup-pill){
+    display: none !important;
+  }
+}
+
 .brand{
   display:inline-flex;
   align-items:center;

@@ -8,13 +8,13 @@
     <title>BASFAY Uniforms Kenya | School Uniforms, Scrubs, Bags & Workwear (Nairobi)</title>
     <meta
       name="description"
-      content="BASFAY Uniforms Kenya — Quality & Affordable. Shop school uniforms, scrubs, workwear and school bags in Nairobi. Sweaters, tracksuits, PE kits, shirts, dresses, socks, blazers, trousers and more. Pickup Kangemi. Order via WhatsApp 0119667836."
+      content="BASFAY Uniforms Kenya — Quality & Affordable. Shop school uniforms, scrubs, workwear and school bags in Nairobi. Sweaters, tracksuits, PE kits, shirts, dresses, socks, blazers, trousers and more. Pickup Kangemi. Order via WhatsApp."
     />
     <link rel="canonical" href="https://basfayuniforms.co.ke/" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="theme-color" content="#1E88E5" />
 
-    <!-- ✅ FAVICON / TAB ICON (like IG/GitHub) -->
+    <!-- ✅ FAVICON / TAB ICON -->
     <link rel="icon" href="/favicon.ico?v=20260305" sizes="any" />
     <link rel="icon" type="image/png" href="/favicon-32.png?v=20260305" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260305" />
@@ -25,7 +25,7 @@
     <meta property="og:title" content="BASFAY Uniforms Kenya | Quality & Affordable" />
     <meta
       property="og:description"
-      content="School uniforms, scrubs, workwear and school bags in Nairobi. Pickup Kangemi or same day delivery within Nairobi. Order via WhatsApp +254119667836."
+      content="School uniforms, scrubs, workwear and school bags in Nairobi. Pickup Kangemi. Order via WhatsApp."
     />
     <meta property="og:url" content="https://basfayuniforms.co.ke/" />
 
@@ -33,7 +33,7 @@
     <meta name="twitter:title" content="BASFAY Uniforms Kenya" />
     <meta
       name="twitter:description"
-      content="School uniforms, scrubs, workwear and school bags in Nairobi. Pickup Kangemi. WhatsApp +254119667836."
+      content="School uniforms, scrubs, workwear and school bags in Nairobi. Pickup Kangemi."
     />
 
     <script type="application/ld+json">
@@ -42,7 +42,7 @@
         "@type": "ClothingStore",
         "name": "BASFAY Uniforms",
         "url": "https://basfayuniforms.co.ke/",
-        "description": "Quality & affordable uniforms in Nairobi, Kenya. same day delivery within Nairobi Pickup available in Kangemi. Order via WhatsApp.",
+        "description": "Quality & affordable uniforms in Nairobi, Kenya. Pickup available in Kangemi.",
         "telephone": "+254119667836",
         "currenciesAccepted": "KES",
         "areaServed": "KE",
@@ -75,31 +75,80 @@
         font-family: "Cinzel", serif !important;
       }
 
-      /* complementing divider line */
       .header {
         border-bottom: 1px solid rgba(30, 136, 229, 0.22) !important;
       }
 
-      /* keep header items in one row (scroll if needed) */
-      .header-nav {
-        display: flex !important;
-        align-items: center !important;
-        gap: 12px !important;
-        flex-wrap: nowrap !important;
-        white-space: nowrap !important;
-        overflow-x: auto !important;
+      /* Amazon-ish single row header actions */
+      .header-actions{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        flex-wrap:nowrap;
+        white-space:nowrap;
+        overflow-x:auto;
         -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
+        scrollbar-width:none;
         max-width: 100%;
       }
-      .header-nav::-webkit-scrollbar {
-        display: none;
+      .header-actions::-webkit-scrollbar{ display:none; }
+
+      .header-link{
+        text-decoration:none;
+        font-weight:800;
+        font-size:13px;
+        opacity:.88;
+        color:inherit;
+        padding:6px 8px;
+        border-radius:10px;
+      }
+      .header-link:focus-visible{
+        outline: 3px solid rgba(30,136,229,0.25);
+        outline-offset: 2px;
       }
 
-      /* pill looks better than white-on-white */
-      .header-pill {
-        background: rgba(30, 136, 229, 0.08) !important;
-        border: 1px solid rgba(30, 136, 229, 0.22) !important;
+      /* Top auth button (looks like a pill) */
+      #authBtn{
+        border:1px solid rgba(30, 136, 229, 0.22);
+        background: rgba(30, 136, 229, 0.08);
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-weight: 900;
+        font-size: 12.5px;
+        cursor: pointer;
+        color: inherit;
+      }
+
+      /* Cart icon in header */
+      .header-cart{
+        position: relative;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        width: 40px;
+        height: 40px;
+        border-radius: 14px;
+        border: 1px solid rgba(30,136,229,0.22);
+        background: rgba(255,255,255,0.55);
+        cursor: pointer;
+      }
+      .header-cart svg{ width:20px; height:20px; }
+      .cart-badge{
+        position:absolute;
+        top:-6px;
+        right:-6px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 999px;
+        background: #0F2F4A;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 900;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border: 2px solid rgba(255,255,255,0.9);
       }
 
       /* ✅ HERO: logo + one-line title */
@@ -128,14 +177,14 @@
         display: flex !important;
         align-items: baseline !important;
         gap: 10px !important;
-        flex-wrap: nowrap !important; /* single line on desktop */
+        flex-wrap: nowrap !important;
         line-height: 1.05 !important;
       }
 
       .brand-hero .hero-name {
         font-family: "Great Vibes", cursive !important;
         font-weight: 400 !important;
-        font-size: clamp(30px, 4.2vw, 52px) !important; /* reduced */
+        font-size: clamp(30px, 4.2vw, 52px) !important;
         color: #0F2F4A !important;
         text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) !important;
       }
@@ -158,21 +207,21 @@
         color: #0F2F4A !important;
       }
 
-      /* ✅ Phone: hide Shop/Contact ONLY (keep the delivery pill visible) */
-      @media (max-width: 768px) {
-        .header-nav a[href="#shop"],
-        .header-nav a[href="#contact"] {
-          display: none !important;
-        }
+      .hero-subline{
+        margin: 8px 0 0;
+        font-size: 12.5px;
+        opacity: .78;
+      }
 
-        /* show ONLY "Same day Nairobi delivery" on phone */
-        .header-pill .pill-pickup,
-        .header-pill .pill-sep {
+      /* ✅ Phone: keep it clean: hide Shop/Contact, keep Account + Cart */
+      @media (max-width: 768px) {
+        .header-actions a[href="#shop"],
+        .header-actions a[href="#contact"] {
           display: none !important;
         }
       }
 
-      /* mobile: prevent header from wrapping into 2 rows */
+      /* mobile: keep header single row */
       @media (max-width: 520px) {
         .header-inner {
           flex-wrap: nowrap !important;
@@ -181,9 +230,9 @@
           min-width: 0 !important;
           flex: 1 1 auto !important;
         }
-        .header-nav {
+        .header-actions {
           flex: 0 0 auto !important;
-          max-width: 56% !important;
+          max-width: 58% !important;
         }
         .header-logo {
           height: 34px !important;
@@ -191,33 +240,33 @@
         .brand-title {
           font-size: 12px !important;
           letter-spacing: 0.08em !important;
-          max-width: 170px;
+          max-width: 160px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
         }
         .brand-tagline {
           font-size: 11px !important;
-          max-width: 170px;
+          max-width: 160px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
         }
-        .header-pill {
-          font-size: 11.5px !important;
-          padding: 5px 8px !important;
-        }
-
-        /* hero: if the single line is too tight, allow wrap gracefully */
-        .brand-hero .hero-inline {
-          flex-wrap: wrap !important;
-          gap: 6px 10px !important;
+        #authBtn{
+          font-size: 12px !important;
+          padding: 6px 9px !important;
         }
       }
+
+      /* Auth modal small adjustments (uses your existing .modal styling) */
+      #authMsg{ font-size: 12px; opacity: .85; margin-top: 10px; }
+      .auth-row{ display:flex; gap:10px; flex-wrap:wrap; }
+      .auth-row .btn{ flex: 1 1 auto; }
+      #logoutBtn{ display:none; }
     </style>
 
     <!-- bump version to bust cache -->
-    <link rel="stylesheet" href="./styles.css?v=20260305-02" />
+    <link rel="stylesheet" href="./styles.css?v=20260305-03" />
   </head>
 
   <body>
@@ -243,7 +292,7 @@
           justify-content: space-between;
           gap: 14px;
           padding: 10px 0;
-          flex-wrap: wrap;
+          flex-wrap: nowrap;
         "
       >
         <a
@@ -256,7 +305,7 @@
             gap: 12px;
             text-decoration: none;
             color: inherit;
-            min-width: max-content;
+            min-width: 0;
           "
         >
           <img
@@ -274,7 +323,7 @@
             "
           />
 
-          <span style="display: flex; flex-direction: column; line-height: 1.1;">
+          <span style="display: flex; flex-direction: column; line-height: 1.1; min-width:0;">
             <span
               class="brand-title"
               style="
@@ -292,32 +341,23 @@
           </span>
         </a>
 
-        <div
-          class="header-nav"
-          style="display:flex; align-items:center; gap:12px; flex-wrap:nowrap; justify-content:flex-end;"
-        >
-          <a href="#shop" style="text-decoration:none; font-weight:800; font-size:13px; opacity:.85; color:inherit;">
-            Shop
-          </a>
-          <a href="#contact" style="text-decoration:none; font-weight:800; font-size:13px; opacity:.85; color:inherit;">
-            Contact
-          </a>
+        <!-- ✅ Amazon-style header actions -->
+        <div class="header-actions" aria-label="Header actions">
+          <a class="header-link" href="#shop">Shop</a>
+          <a class="header-link" href="#contact">Contact</a>
 
-          <span
-            class="muted header-pill"
-            style="
-              font-size: 12px;
-              padding: 6px 10px;
-              border: 1px solid rgba(30, 136, 229, 0.22);
-              border-radius: 999px;
-              background: rgba(30, 136, 229, 0.08);
-              white-space: nowrap;
-            "
-          >
-            <span class="pill-pickup">Kangemi Pickup</span>
-            <span class="pill-sep"> • </span>
-            <span class="pill-delivery">Same day Nairobi delivery</span>
-          </span>
+          <button id="authBtn" type="button" aria-label="Account">Sign in</button>
+
+          <!-- cart moved to TOP (amazon style) -->
+          <button class="header-cart" id="openCart" aria-label="Open cart" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2Zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2ZM6.2 6h14.6c.55 0 1 .45 1 1 0 .09-.01.18-.04.27l-2.1 7.35c-.24.83-1 1.38-1.86 1.38H8.1c-.86 0-1.62-.55-1.86-1.38L3.8 3H2c-.55 0-1-.45-1-1s.45-1 1-1h2.6c.46 0 .86.31.97.75L6.2 6Zm1.1 2 1.62 5.67c.06.2.25.33.46.33h9.7c.21 0 .4-.13.46-.33L21 8H7.3Z"
+              />
+            </svg>
+            <span class="cart-badge" id="cartCount" aria-live="polite">0</span>
+          </button>
         </div>
       </div>
     </header>
@@ -327,32 +367,23 @@
       <section class="brand-hero" aria-label="BASFAY brand banner">
         <div class="container brand-hero-inner">
           <div class="brand-badge">
-            <!-- ✅ logo instead of B -->
             <div class="brand-logo" aria-hidden="true">
               <img src="./images/basfay-logo.png" alt="" loading="eager" decoding="async" />
             </div>
 
             <div class="brand-lines">
-              <!-- ✅ one line title -->
               <h1 class="hero-inline">
                 <span class="hero-name">Basfay Uniforms</span>
                 <span class="hero-divider">|</span>
                 <span class="hero-tagline">Quality &amp; Affordable</span>
               </h1>
+
+              <p class="muted hero-subline">Kangemi Pickup • Same day Nairobi delivery</p>
             </div>
           </div>
 
-          <div class="brand-right">
-            <button class="cart-btn" id="openCart" aria-label="Open order list" type="button">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  fill="currentColor"
-                  d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2Zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2ZM6.2 6h14.6c.55 0 1 .45 1 1 0 .09-.01.18-.04.27l-2.1 7.35c-.24.83-1 1.38-1.86 1.38H8.1c-.86 0-1.62-.55-1.86-1.38L3.8 3H2c-.55 0-1-.45-1-1s.45-1 1-1h2.6c.46 0 .86.31.97.75L6.2 6Zm1.1 2 1.62 5.67c.06.2.25.33.46.33h9.7c.21 0 .4-.13.46-.33L21 8H7.3Z"
-                />
-              </svg>
-              <span class="cart-badge" id="cartCount" aria-live="polite">0</span>
-            </button>
-          </div>
+          <!-- ✅ removed cart here (now in header) -->
+          <div class="brand-right"></div>
         </div>
       </section>
 
@@ -552,14 +583,6 @@
                 <span>Facebook Page</span>
               </a>
 
-              <a class="basfay-footer-link" href="https://www.youtube.com" target="_blank" rel="noopener" aria-label="YouTube">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M21 8.5a3 3 0 0 0-2.1-2.1C17 6 12 6 12 6s-5 0-6.9.4A3 3 0 0 0 3 8.5 31 31 0 0 0 3 12a31 31 0 0 0 .1 3.5A3 3 0 0 0 5.1 17.6C7 18 12 18 12 18s5 0 6.9-.4A3 3 0 0 0 21 15.5 31 31 0 0 0 21 12a31 31 0 0 0 0-3.5Z" fill="currentColor" opacity="0.95"/>
-                  <path d="M10.5 9.6v4.8L15 12l-4.5-2.4Z" fill="#0b1220"/>
-                </svg>
-                <span>YouTube</span>
-              </a>
-
               <a class="basfay-footer-link" href="mailto:basfayuniforms@gmail.com" aria-label="Email BASFAY Uniforms">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-9Z" stroke="currentColor" stroke-width="1.7"/>
@@ -652,7 +675,7 @@
       </div>
     </div>
 
-    <!-- Modal (✅ untouched) -->
+    <!-- Product Modal (✅ untouched) -->
     <div class="modal" id="modal" aria-hidden="true">
       <div class="modal-backdrop" id="modalBackdrop"></div>
       <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Product details">
@@ -683,8 +706,154 @@
       </div>
     </div>
 
+    <!-- ✅ AUTH MODAL (NEW) -->
+    <div class="modal" id="authModal" aria-hidden="true">
+      <div class="modal-backdrop" id="authBackdrop"></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Account">
+        <div class="modal-head">
+          <h3 id="authTitle">Account</h3>
+          <button class="icon-btn" id="authClose" aria-label="Close account">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-info" style="width:100%;">
+            <div class="checkout-field">
+              <label for="authEmail">Email</label>
+              <input id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" />
+            </div>
+
+            <div class="checkout-field">
+              <label for="authPassword">Password</label>
+              <input id="authPassword" type="password" placeholder="8+ characters" autocomplete="current-password" />
+            </div>
+
+            <div class="checkout-field">
+              <label for="authName">Name (only for signup)</label>
+              <input id="authName" type="text" placeholder="Your name" autocomplete="name" />
+            </div>
+
+            <div class="auth-row" style="margin-top:12px;">
+              <button class="btn primary" id="loginBtn" type="button">Login</button>
+              <button class="btn ghost" id="signupBtn" type="button">Create account</button>
+              <button class="btn ghost" id="logoutBtn" type="button">Logout</button>
+            </div>
+
+            <div id="authMsg" class="muted"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- bump JS version -->
-    <script src="./app.js?v=20260228-8" defer></script>
+    <script src="./app.js?v=20260305-03" defer></script>
+
+    <!-- ✅ Auth logic (small + safe, doesn't touch cart code) -->
+    <script>
+      (function () {
+        const $ = (id) => document.getElementById(id);
+
+        const authBtn = $("authBtn");
+        const authModal = $("authModal");
+        const authBackdrop = $("authBackdrop");
+        const authClose = $("authClose");
+
+        const authEmail = $("authEmail");
+        const authPassword = $("authPassword");
+        const authName = $("authName");
+
+        const loginBtn = $("loginBtn");
+        const signupBtn = $("signupBtn");
+        const logoutBtn = $("logoutBtn");
+        const authMsg = $("authMsg");
+
+        function openAuth() { authModal?.setAttribute("aria-hidden", "false"); }
+        function closeAuth() { authModal?.setAttribute("aria-hidden", "true"); }
+
+        async function me() {
+          try {
+            return await fetch("/api/me", { credentials: "include" }).then(r => r.json());
+          } catch {
+            return { ok: true, user: null };
+          }
+        }
+
+        async function post(url, payload) {
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(payload || {})
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || "Request failed");
+          return data;
+        }
+
+        async function refreshAuthUI() {
+          const data = await me();
+          const user = data?.user;
+
+          if (user?.email) {
+            authBtn.textContent = "Account";
+            logoutBtn.style.display = "inline-block";
+            authMsg.textContent = `Signed in as ${user.email}`;
+          } else {
+            authBtn.textContent = "Sign in";
+            logoutBtn.style.display = "none";
+            authMsg.textContent = "Login to save your order history (optional).";
+          }
+        }
+
+        authBtn?.addEventListener("click", openAuth);
+        authBackdrop?.addEventListener("click", closeAuth);
+        authClose?.addEventListener("click", closeAuth);
+
+        loginBtn?.addEventListener("click", async () => {
+          authMsg.textContent = "Signing in…";
+          try {
+            await post("/api/login", {
+              email: authEmail.value,
+              password: authPassword.value
+            });
+            authMsg.textContent = "Logged in ✅";
+            await refreshAuthUI();
+            setTimeout(closeAuth, 600);
+          } catch (e) {
+            authMsg.textContent = e.message;
+          }
+        });
+
+        signupBtn?.addEventListener("click", async () => {
+          authMsg.textContent = "Creating account…";
+          try {
+            await post("/api/register", {
+              email: authEmail.value,
+              password: authPassword.value,
+              name: authName.value
+            });
+            authMsg.textContent = "Account created ✅";
+            await refreshAuthUI();
+            setTimeout(closeAuth, 600);
+          } catch (e) {
+            authMsg.textContent = e.message;
+          }
+        });
+
+        logoutBtn?.addEventListener("click", async () => {
+          authMsg.textContent = "Logging out…";
+          try {
+            await post("/api/logout", {});
+            authMsg.textContent = "Logged out ✅";
+            await refreshAuthUI();
+          } catch (e) {
+            authMsg.textContent = e.message;
+          }
+        });
+
+        document.addEventListener("DOMContentLoaded", refreshAuthUI);
+      })();
+    </script>
+
     <script>
       document.getElementById("year").textContent = new Date().getFullYear();
     </script>

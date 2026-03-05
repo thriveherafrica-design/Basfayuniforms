@@ -844,42 +844,23 @@ input:focus,select:focus{
    ============================ */
 
 :root{
-  --basfay-olive: #556B2F;      /* olive green */
-  --basfay-olive-dark: #3F5321; /* darker olive for subtle borders */
+  --header-bg: #0B2545; /* change this color */
 }
 
-/* The top bar/header strip */
+/* top strip */
 .header{
-  background: var(--basfay-olive) !important;
+  background: var(--header-bg) !important;
   border-bottom: 1px solid rgba(0,0,0,0.12);
 }
 
-/* Make header text readable on olive */
-.header .brand,
-.header .brand * ,
-.header a{
+/* readable text/icons */
+.header, .header a, .header *{
   color: #fff !important;
 }
 
-/* Nav links */
-.header nav a,
-.header .nav a{
-  color: rgba(255,255,255,0.92) !important;
-}
-.header nav a:hover,
-.header .nav a:hover{
-  color: #fff !important;
-  opacity: 0.95;
-}
-
-/* The pickup/delivery pill (covers common class names) */
+/* pill */
 .header :is(.pill, .chip, .badge, .header-pill, .pickup-pill){
   background: rgba(255,255,255,0.14) !important;
-  color: #fff !important;
   border: 1px solid rgba(255,255,255,0.22) !important;
-}
-
-/* Optional: if you have an icon that turns invisible on olive */
-.header svg{
-  fill: currentColor;
+  color: #fff !important;
 }

@@ -376,6 +376,9 @@
                 <span class="hero-divider">|</span>
                 <span class="hero-tagline">Quality &amp; Affordable</span>
               </h1>
+              <p class="muted hero-subline">Kangemi Pickup • Same day Nairobi delivery</p>
+            </div>
+          </div>
 
           <div class="brand-right"></div>
         </div>
@@ -496,7 +499,7 @@
 
     <script src="./app.js?v=20260306-02" defer></script>
 
-    <!-- ✅ Auth logic (UPDATED: greeting = Hi, ONE name from email) -->
+    <!-- ✅ Auth logic (ONLY CHANGE: force one first name only) -->
     <script>
       (function () {
         const $ = (id) => document.getElementById(id);
@@ -518,20 +521,21 @@
         function openAuth() { authModal?.setAttribute("aria-hidden", "false"); }
         function closeAuth() { authModal?.setAttribute("aria-hidden", "true"); }
 
-        // ✅ ONE "name-like" word from email, ignore numbers
-        function firstFromEmail(email){
-          const local = String(email || "").split("@")[0] || "";
+        function getSingleFirstName(user) {
+          const raw = String(user?.name || user?.email || "").trim();
+          if (!raw) return "there";
 
-          const parts = local
-            .replace(/([a-zA-Z])(\d)/g, "$1 $2")
-            .replace(/(\d)([a-zA-Z])/g, "$1 $2")
-            .split(/[._\-\s]+/g)
-            .filter(Boolean);
+          const base = raw.includes("@") ? raw.split("@")[0] : raw;
 
-          let first = parts.find(p => /[a-zA-Z]/.test(p)) || "there";
-          first = first.replace(/\d+$/g, "").trim();
+          const cleaned = base
+            .replace(/[._+\-]+/g, " ")
+            .replace(/[^a-zA-Z\s]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
 
-          if(!first) return "there";
+          if (!cleaned) return "there";
+
+          const first = cleaned.split(" ")[0];
           return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
         }
 
@@ -559,11 +563,13 @@
           const data = await me();
           const user = data?.user;
 
-          if (user?.email) {
-            const first = firstFromEmail(user.email);
+          if (user?.email || user?.name) {
+            const first = getSingleFirstName(user);
             authBtn.textContent = `Hi, ${first}`;
             logoutBtn.style.display = "inline-block";
-            authMsg.textContent = `Signed in as ${user.email}`;
+            authMsg.textContent = user?.email
+              ? `Signed in as ${user.email}`
+              : "Signed in";
           } else {
             authBtn.textContent = "Sign in";
             logoutBtn.style.display = "none";
@@ -629,4 +635,3 @@
     </script>
   </body>
 </html>
-```

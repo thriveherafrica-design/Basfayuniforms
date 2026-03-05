@@ -63,25 +63,93 @@
     <a class="skip" href="#main">Skip to content</a>
 
     <!-- Header (✅ UPDATED ONLY HERE) -->
-    <header class="header">
-      <div class="container header-inner">
-        <a class="brand" href="#main" aria-label="BASFAY home">
+    <header
+      class="header"
+      style="
+        position: sticky;
+        top: 0;
+        z-index: 60;
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: saturate(180%) blur(10px);
+        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+      "
+    >
+      <div
+        class="container header-inner"
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 14px;
+          padding: 10px 0;
+          flex-wrap: wrap;
+        "
+      >
+        <a
+          class="brand"
+          href="#main"
+          aria-label="BASFAY home"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+            min-width: max-content;
+          "
+        >
+          <!-- IMPORTANT: Put your logo at ./images/basfay-logo.png -->
           <img
             src="./images/basfay-logo.png"
             alt="BASFAY Uniforms"
+            loading="eager"
+            decoding="async"
             style="
               height: 40px;
               width: auto;
               display: block;
               object-fit: contain;
-              filter: drop-shadow(0 1px 2px rgba(0,0,0,.25));
+              filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
             "
           />
-          <!-- screen-reader text (doesn't affect layout) -->
-          <span style="position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;">
-            BASFAY Uniforms — Quality &amp; Affordable
+
+          <span style="display: flex; flex-direction: column; line-height: 1.1;">
+            <span
+              style="
+                font-weight: 900;
+                letter-spacing: 0.10em;
+                text-transform: uppercase;
+                font-size: 13px;
+              "
+            >
+              BASFAY Uniforms
+            </span>
+            <span style="font-size: 12px; opacity: 0.72;">Quality &amp; Affordable</span>
           </span>
         </a>
+
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:flex-end;">
+          <a href="#shop" style="text-decoration:none; font-weight:800; font-size:13px; opacity:.85; color:inherit;">
+            Shop
+          </a>
+          <a href="#contact" style="text-decoration:none; font-weight:800; font-size:13px; opacity:.85; color:inherit;">
+            Contact
+          </a>
+
+          <span
+            class="muted"
+            style="
+              font-size: 12px;
+              padding: 6px 10px;
+              border: 1px solid rgba(15, 23, 42, 0.12);
+              border-radius: 999px;
+              background: rgba(255, 255, 255, 0.6);
+              white-space: nowrap;
+            "
+          >
+            Kangemi pickup • Nairobi delivery
+          </span>
+        </div>
       </div>
     </header>
 

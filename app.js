@@ -10,7 +10,7 @@ console.log("✅ BASFAY app.js LOADED (WORKING CART PREVIEW)");
 const CONFIG = {
   currency: "KES",
   pickup: "Kangemi",
-  whatsappNumber: "254718985676",
+  whatsappNumber: "254119667836",
   businessName: "BASFAY Uniforms",
   tillNumberPlaceholder: "XXXX",
 };

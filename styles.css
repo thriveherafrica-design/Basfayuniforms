@@ -1298,3 +1298,35 @@ input:focus,select:focus{
   font-weight:800;
   opacity:.7;
 }
+
+<style>
+  /* ...keep your existing styles... */
+
+  /* Desktop quick links */
+  .header-links{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:nowrap;
+    white-space:nowrap;
+  }
+
+  .header-link{
+    text-decoration:none;
+    font-weight:800;
+    font-size:13px;
+    opacity:.88;
+    color:inherit;
+    padding:6px 8px;
+    border-radius:10px;
+  }
+  .header-link:focus-visible{
+    outline: 3px solid rgba(30,136,229,0.25);
+    outline-offset: 2px;
+  }
+
+  /* Phone: hide Shop + Contact only */
+  @media (max-width: 768px){
+    .header-links{ display:none !important; }
+  }
+</style>

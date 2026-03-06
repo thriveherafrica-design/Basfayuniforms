@@ -78,34 +78,38 @@
         border-bottom: 1px solid rgba(30, 136, 229, 0.22) !important;
       }
 
-      /* Amazon-ish single row header actions */
-      .header-actions{
+      /* Header layout helpers */
+      .header-left{
         display:flex;
         align-items:center;
         gap:10px;
-        flex-wrap:nowrap;
-        white-space:nowrap;
-        overflow-x:auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width:none;
-        max-width: 100%;
+        min-width:0;
+        flex: 1 1 auto;
       }
-      .header-actions::-webkit-scrollbar{ display:none; }
-
-      .header-link{
-        text-decoration:none;
-        font-weight:800;
-        font-size:13px;
-        opacity:.88;
-        color:inherit;
-        padding:6px 8px;
-        border-radius:10px;
-      }
-      .header-link:focus-visible{
-        outline: 3px solid rgba(30,136,229,0.25);
-        outline-offset: 2px;
+      .header-right{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        flex: 0 0 auto;
       }
 
+      /* Hamburger (match cart vibe) */
+      #menuBtn.header-menu{
+        position: relative;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        width: 40px;
+        height: 40px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.18);
+        background: rgba(255,255,255,0.12);
+        cursor: pointer;
+        color: inherit;
+      }
+      #menuBtn.header-menu svg{ width:20px; height:20px; }
+
+      /* Top auth pill */
       #authBtn{
         border:1px solid rgba(30, 136, 229, 0.22);
         background: rgba(30, 136, 229, 0.08);
@@ -115,8 +119,10 @@
         font-size: 12.5px;
         cursor: pointer;
         color: inherit;
+        white-space: nowrap;
       }
 
+      /* Cart icon in header */
       .header-cart{
         position: relative;
         display:inline-flex;
@@ -204,18 +210,7 @@
         color: #0F2F4A !important;
       }
 
-      @media (max-width: 768px) {
-        .header-actions a[href="#shop"],
-        .header-actions a[href="#contact"] {
-          display: none !important;
-        }
-      }
-
       @media (max-width: 520px) {
-        .header-inner { flex-wrap: nowrap !important; }
-        .brand { min-width: 0 !important; flex: 1 1 auto !important; }
-        .header-actions { flex: 0 0 auto !important; max-width: 58% !important; }
-        .header-logo { height: 34px !important; }
         .brand-title {
           font-size: 12px !important;
           letter-spacing: 0.08em !important;
@@ -240,7 +235,7 @@
     </style>
 
     <!-- cache bust -->
-    <link rel="stylesheet" href="./styles.css?v=20260306-04" />
+    <link rel="stylesheet" href="./styles.css?v=20260306-05" />
   </head>
 
   <body>
@@ -269,64 +264,48 @@
           flex-wrap: nowrap;
         "
       >
-        <a
-          class="brand"
-          href="#main"
-          aria-label="BASFAY home"
-          style="
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: inherit;
-            min-width: 0;
-          "
-        >
-          <img
-            class="header-logo"
-            src="./images/basfay-logo.png"
-            alt="BASFAY Uniforms"
-            loading="eager"
-            decoding="async"
-            style="
-              height: 40px;
-              width: auto;
-              display: block;
-              object-fit: contain;
-              filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
-            "
-          />
-
-          <span style="display: flex; flex-direction: column; line-height: 1.1; min-width:0;">
-            <span
-              class="brand-title"
-              style="
-                font-weight: 800;
-                letter-spacing: 0.10em;
-                text-transform: uppercase;
-                font-size: 13px;
-              "
-            >
-              BASFAY UNIFORMS
-            </span>
-            <span class="brand-tagline" style="font-size: 12px; opacity: 0.72;">
-              Quality &amp; Affordable
-            </span>
-          </span>
-        </a>
-
-        <div class="header-actions" aria-label="Header actions">
-          <a class="header-link" href="#shop">Shop</a>
-          <a class="header-link" href="#contact">Contact</a>
-
-          <!-- ✅ Mobile 3-lines menu (hamburger) -->
-          <button id="menuBtn" type="button" aria-label="Menu">
+        <!-- LEFT: hamburger + brand text (NO header logo) -->
+        <div class="header-left">
+          <button id="menuBtn" class="header-menu" type="button" aria-label="Menu">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path fill="currentColor" d="M4 6.5h16v2H4v-2Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z"/>
             </svg>
           </button>
 
-          <!-- Desktop account pill -->
+          <a
+            class="brand"
+            href="#main"
+            aria-label="BASFAY home"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              text-decoration: none;
+              color: inherit;
+              min-width: 0;
+            "
+          >
+            <span style="display: flex; flex-direction: column; line-height: 1.1; min-width:0;">
+              <span
+                class="brand-title"
+                style="
+                  font-weight: 800;
+                  letter-spacing: 0.10em;
+                  text-transform: uppercase;
+                  font-size: 13px;
+                "
+              >
+                BASFAY UNIFORMS
+              </span>
+              <span class="brand-tagline" style="font-size: 12px; opacity: 0.72;">
+                Quality &amp; Affordable
+              </span>
+            </span>
+          </a>
+        </div>
+
+        <!-- RIGHT: Sign in + Cart -->
+        <div class="header-right" aria-label="Header actions">
           <button id="authBtn" type="button" aria-label="Account">Sign in</button>
 
           <button class="header-cart" id="openCart" aria-label="Open cart" type="button">
@@ -587,11 +566,11 @@
     </div>
 
     <!-- =========================
-         ✅ MOBILE MENU MODAL (3 lines)
+         ✅ MENU MODAL (hamburger)
          - Account
          - My Orders
          - Returns
-         - Chat with us
+         - Chat
     ========================== -->
     <div class="modal" id="menuModal" aria-hidden="true">
       <div class="modal-backdrop" id="menuBackdrop"></div>
@@ -624,7 +603,7 @@
 
     <!-- =========================
          ✅ ORDERS MODAL
-         - Logged-in: list last orders
+         - Logged-in: list orders
          - Guest: track with Order ID + Phone
     ========================== -->
     <div class="modal" id="ordersModal" aria-hidden="true">
@@ -639,12 +618,10 @@
           <div class="orders-box">
             <div id="ordersStatus" class="muted" style="font-size:12px;">Loading…</div>
 
-            <!-- Logged-in orders -->
             <div id="ordersLoggedInWrap" class="is-hidden">
               <div id="ordersList" class="orders-list"></div>
             </div>
 
-            <!-- Guest tracking -->
             <div id="ordersGuestWrap" class="is-hidden">
               <div class="card soft" style="padding:12px;">
                 <div style="font-weight:900;margin-bottom:8px;">Track as guest</div>
@@ -675,9 +652,9 @@
     </div>
 
     <!-- ✅ MAIN APP -->
-    <script src="./app.js?v=20260306-04" defer></script>
+    <script src="./app.js?v=20260306-05" defer></script>
 
-    <!-- ✅ AUTH UI + MENU + ORDERS UI -->
+    <!-- ✅ AUTH + MENU + ORDERS -->
     <script>
       (function () {
         const $ = (id) => document.getElementById(id);
@@ -840,7 +817,6 @@
           const user = m?.user;
 
           if (user?.email || user?.id){
-            // logged in: show list
             ordersStatus.textContent = "Fetching your order history…";
             try{
               const data = await getJson("/api/orders");
@@ -854,13 +830,12 @@
               ordersStatus.textContent = e.message || "Could not load orders.";
             }
           } else {
-            // guest: show tracker
             ordersGuestWrap?.classList.remove("is-hidden");
             ordersStatus.textContent = "Track an order as guest (Order ID + phone).";
           }
         }
 
-        // ===== Bindings: Auth =====
+        // ===== Auth bindings =====
         authBtn?.addEventListener("click", openAuth);
         authBackdrop?.addEventListener("click", closeAuth);
         authClose?.addEventListener("click", closeAuth);
@@ -907,8 +882,8 @@
           }
         });
 
-        // ===== Bindings: Menu =====
-        menuBtn?.addEventListener("click", () => { openMenu(); });
+        // ===== Menu bindings (hamburger on ALL devices) =====
+        menuBtn?.addEventListener("click", openMenu);
         menuBackdrop?.addEventListener("click", closeMenu);
         menuClose?.addEventListener("click", closeMenu);
 
@@ -934,7 +909,7 @@
           window.open(waLink("Hi BASFAY Uniforms, I need help."), "_blank", "noopener,noreferrer");
         });
 
-        // ===== Bindings: Orders =====
+        // ===== Orders bindings =====
         ordersBackdrop?.addEventListener("click", closeOrders);
         ordersClose?.addEventListener("click", closeOrders);
 
@@ -961,10 +936,8 @@
           guestTrackMsg.textContent = "Tracking…";
 
           try{
-            // Backend endpoint will be added next (currently 404 in your console)
             const data = await post("/api/orders/track", { order_id: orderId, phone });
 
-            // Be tolerant to response shapes
             const orders = Array.isArray(data?.orders)
               ? data.orders
               : (data?.order ? [data.order] : []);

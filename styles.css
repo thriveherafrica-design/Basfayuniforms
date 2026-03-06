@@ -1219,3 +1219,82 @@ input:focus,select:focus{
   opacity:.75;
   font-size:12px;
 }
+/* ============================
+   BASFAY: Header hamburger + no top logo
+   Paste at VERY END of styles.css
+   ============================ */
+
+/* Layout: left = menu + brand text, right = account + cart */
+.header-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex:0 0 auto;
+}
+
+/* Remove ONLY the header logo (not hero logo) */
+.header .header-logo{
+  display:none !important;
+}
+
+/* Hamburger button (same style as cart button) */
+.header-menu{
+  position: relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.12);
+  cursor: pointer;
+}
+.header-menu svg{ width:20px; height:20px; }
+
+/* Make it slightly bigger on desktop */
+@media (min-width: 881px){
+  .header-menu{
+    width: 44px;
+    height: 44px;
+    border-radius: 16px;
+  }
+}
+
+/* Menu drawer slides from LEFT */
+.menu-panel{
+  left:0 !important;
+  right:auto !important;
+  width:min(360px, 92vw) !important;
+}
+
+.menu-list{
+  display:grid;
+  gap:10px;
+  padding:12px 0;
+}
+
+.menu-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(15,28,43,0.10);
+  background:#fff;
+  color: var(--ink);
+  text-decoration:none;
+  font-weight:950;
+}
+.menu-item small{
+  font-weight:800;
+  opacity:.7;
+}

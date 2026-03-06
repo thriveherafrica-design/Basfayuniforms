@@ -1,32 +1,28 @@
 // functions/api/[[path]].js
 // BASFAY optional login + orders API (Cloudflare Pages Functions + D1)
-// ✅ Google OAuth routes included:
+// ✅ Google OAuth routes:
 //    GET /api/auth/google/start
 //    GET /api/auth/google/callback
 // ✅ Guest order tracking:
 //    POST /api/orders/track  { order_id, phone }
-// ✅ Debug:
-//    GET /api/auth/google/start?debug=1
 
 const COOKIE_NAME = "basfay_session";
 const SESSION_TTL_DAYS = 30;
-
-// Cloudflare PBKDF2 iterations: keep <= 100000
-const PBKDF2_ITERS = 100000;
-
-// Google OAuth state cookie (short-lived)
+const PBKDF2_ITERS = 100000; // keep <= 100000 on CF
 const GOOGLE_STATE_COOKIE = "basfay_google_state";
 
 export async function onRequest(context) {
   const { request, env, params } = context;
 
-  const segs = Array.isArray(params?.path)
-    ? params.path
-    : (params?.path ? [params.path] : []);
+  // ✅ Robust: params.path can be ["orders","track"] OR "orders/track"
+  const rawPath = Array.isArray(params?.path)
+    ? params.path.join("/")
+    : String(params?.path || "");
 
-  const endpoint = (segs[0] || "").toLowerCase();
-  const sub = (segs[1] || "").toLowerCase();
-  const action = (segs[2] || "").toLowerCase();
+  const segs = rawPath.split("/").filter(Boolean).map(s => String(s).toLowerCase());
+  const endpoint = segs[0] || "";
+  const sub = segs[1] || "";
+  const action = segs[2] || "";
 
   try {
     // Basic same-origin protection for state-changing requests
@@ -79,17 +75,14 @@ export async function onRequest(context) {
 
     /* -----------------------------
        Orders
-       - POST /api/orders         -> create
-       - GET  /api/orders         -> list (login required)
-       - POST /api/orders/track   -> guest tracking (order_id + phone)
+       - POST /api/orders
+       - GET  /api/orders
+       - POST /api/orders/track
     ----------------------------- */
-
-    // ✅ Guest + logged-in order tracking
     if (request.method === "POST" && endpoint === "orders" && sub === "track") {
       return await trackOrder(request, env);
     }
 
-    // ✅ Only treat /api/orders (no subpath) as create/list
     if (endpoint === "orders" && !sub && request.method === "POST") return await createOrder(request, env);
     if (endpoint === "orders" && !sub && request.method === "GET")  return await listOrders(request, env);
 
@@ -185,7 +178,6 @@ async function logout(request, env) {
 async function me(request, env) {
   const user = await getAuthedUser(request, env);
   if (!user) return json({ ok: true, user: null }, 200);
-
   return json({ ok: true, user }, 200);
 }
 
@@ -258,19 +250,17 @@ async function listOrders(request, env) {
 }
 
 /* -----------------------------
-   ✅ GUEST ORDER TRACKING
+   ✅ GUEST TRACKING
    POST /api/orders/track
-   Body: { order_id, phone }
+   { order_id, phone }
 ----------------------------- */
 async function trackOrder(request, env) {
   const body = await safeJson(request);
-  const orderId = cleanText(body.order_id, 80);
+  const orderId = cleanText(body.order_id, 120);
   const phoneRaw = cleanText(body.phone, 30);
   const phone = phoneRaw ? normalizePhone(phoneRaw) : "";
 
-  if (!orderId || !phone) {
-    return json({ error: "order_id and phone are required." }, 400);
-  }
+  if (!orderId || !phone) return json({ error: "order_id and phone are required." }, 400);
   if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
 
   const row = await env.DB.prepare(`
@@ -280,18 +270,15 @@ async function trackOrder(request, env) {
     LIMIT 1
   `).bind(orderId).first();
 
-  // Don't leak whether an order exists
   if (!row) return json({ error: "Not found" }, 404);
 
   const authed = await getAuthedUser(request, env);
-
-  // If logged in and owns the order, allow
   const owns = authed?.id && row.user_id && authed.id === row.user_id;
 
-  // Otherwise validate phone match
   const storedPhone = row.customer_phone ? normalizePhone(String(row.customer_phone)) : "";
   const phoneOk = storedPhone && storedPhone === phone;
 
+  // Don’t leak order existence
   if (!owns && !phoneOk) return json({ error: "Not found" }, 404);
 
   return json({
@@ -303,7 +290,7 @@ async function trackOrder(request, env) {
       total_kes: row.total_kes,
       customer_name: row.customer_name || null,
       items: safeParse(row.items_json),
-      note: row.note || null,
+      note: row.note || null
     }
   }, 200);
 }
@@ -554,13 +541,14 @@ function isSameOrigin(request) {
   return origin === `${url.protocol}//${url.host}`;
 }
 
+// ✅ normalize so 0712... matches 254712...
 function normalizePhone(v){
   const digits = String(v || "").replace(/[^\d]/g, "");
   if (!digits) return "";
   if (digits.startsWith("0") && digits.length === 10) return "254" + digits.slice(1);
   if (digits.startsWith("7") && digits.length === 9) return "254" + digits;
   if (digits.startsWith("254") && digits.length === 12) return digits;
-  return digits; // fallback
+  return digits;
 }
 
 function randomB64(bytesLen) {

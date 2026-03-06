@@ -5,6 +5,9 @@
 //    GET /api/auth/google/callback
 // ✅ Debug:
 //    GET /api/auth/google/start?debug=1
+//
+// ✅ Guest order tracking (NEW):
+//    POST /api/orders/track   body: { order_id, phone }
 
 const COOKIE_NAME = "basfay_session";
 const SESSION_TTL_DAYS = 30;
@@ -78,6 +81,11 @@ export async function onRequest(context) {
     /* -----------------------------
        Orders
     ----------------------------- */
+    // ✅ Guest track: /api/orders/track
+    if (endpoint === "orders" && sub === "track" && request.method === "POST") {
+      return await trackOrder(request, env);
+    }
+
     if (endpoint === "orders" && request.method === "POST") return await createOrder(request, env);
     if (endpoint === "orders" && request.method === "GET")  return await listOrders(request, env);
 
@@ -192,8 +200,14 @@ async function createOrder(request, env) {
   if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
 
   const customerName = cleanText(body.customer_name, 80);
-  const customerPhone = cleanText(body.customer_phone, 30);
+  const rawPhone = cleanText(body.customer_phone, 30);
+  const customerPhone = normalizeKenyaPhone(rawPhone);
   const note = cleanText(body.note, 300);
+
+  // ✅ Phone required so guests can track orders safely
+  if (!customerPhone || customerPhone.length < 10) {
+    return json({ error: "Phone number is required for order tracking." }, 400);
+  }
 
   const user = await getAuthedUser(request, env);
 
@@ -207,7 +221,7 @@ async function createOrder(request, env) {
     id,
     user ? user.id : null,
     customerName || null,
-    customerPhone || null,
+    customerPhone,
     JSON.stringify(items),
     Math.trunc(totalKes),
     note || null,
@@ -242,6 +256,55 @@ async function listOrders(request, env) {
   }));
 
   return json({ ok: true, orders }, 200);
+}
+
+/* -----------------------------
+   ✅ Guest order tracking
+   POST /api/orders/track
+   body: { order_id, phone }
+----------------------------- */
+async function trackOrder(request, env) {
+  if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
+
+  const body = await safeJson(request);
+  const orderId = cleanText(body.order_id, 80);
+  const phone = normalizeKenyaPhone(cleanText(body.phone, 30));
+
+  if (!orderId || orderId.length < 8) {
+    return json({ error: "Invalid order_id." }, 400);
+  }
+  if (!phone || phone.length < 10) {
+    return json({ error: "Phone number is required." }, 400);
+  }
+
+  const row = await env.DB.prepare(`
+    SELECT id, user_id, customer_name, customer_phone, items_json, total_kes, status, note, created_at
+    FROM orders
+    WHERE id = ?
+    LIMIT 1
+  `).bind(orderId).first();
+
+  // Don't reveal whether the order exists (prevents enumeration)
+  if (!row) return json({ error: "Not found." }, 404);
+
+  const storedPhone = normalizeKenyaPhone(row.customer_phone);
+  if (!storedPhone) return json({ error: "Not found." }, 404);
+
+  // Strict compare after normalization
+  if (storedPhone !== phone) return json({ error: "Not found." }, 404);
+
+  const order = {
+    id: row.id,
+    total_kes: row.total_kes,
+    status: row.status,
+    created_at: row.created_at,
+    customer_name: row.customer_name,
+    customer_phone: row.customer_phone,
+    items: safeParse(row.items_json),
+    note: row.note
+  };
+
+  return json({ ok: true, order }, 200);
 }
 
 /* -----------------------------
@@ -493,6 +556,22 @@ function isSameOrigin(request) {
   if (!origin) return true;
   const url = new URL(request.url);
   return origin === `${url.protocol}//${url.host}`;
+}
+
+function normalizeKenyaPhone(raw) {
+  const digits = String(raw || "").replace(/[^\d]/g, "");
+  if (!digits) return "";
+
+  // If already starts with 254...
+  if (digits.startsWith("254") && digits.length >= 12) return digits;
+
+  // If starts with 0 (07xx...), convert to 2547xx...
+  if (digits.startsWith("0") && digits.length >= 10) return "254" + digits.slice(1);
+
+  // If user typed 7xxxxxxxx (no 0), make it 2547xxxxxxxx
+  if (digits.startsWith("7") && digits.length === 9) return "254" + digits;
+
+  return digits;
 }
 
 function randomB64(bytesLen) {

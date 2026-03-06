@@ -204,12 +204,6 @@
         color: #0F2F4A !important;
       }
 
-      .hero-subline{
-        margin: 8px 0 0;
-        font-size: 12.5px;
-        opacity: .78;
-      }
-
       @media (max-width: 768px) {
         .header-actions a[href="#shop"],
         .header-actions a[href="#contact"] {
@@ -246,7 +240,7 @@
     </style>
 
     <!-- cache bust -->
-    <link rel="stylesheet" href="./styles.css?v=20260306-03" />
+    <link rel="stylesheet" href="./styles.css?v=20260306-04" />
   </head>
 
   <body>
@@ -325,6 +319,14 @@
           <a class="header-link" href="#shop">Shop</a>
           <a class="header-link" href="#contact">Contact</a>
 
+          <!-- ✅ Mobile 3-lines menu (hamburger) -->
+          <button id="menuBtn" type="button" aria-label="Menu">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M4 6.5h16v2H4v-2Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z"/>
+            </svg>
+          </button>
+
+          <!-- Desktop account pill -->
           <button id="authBtn" type="button" aria-label="Account">Sign in</button>
 
           <button class="header-cart" id="openCart" aria-label="Open cart" type="button">
@@ -355,7 +357,9 @@
                 <span class="hero-divider">|</span>
                 <span class="hero-tagline">Quality &amp; Affordable</span>
               </h1>
-  
+            </div>
+          </div>
+
           <div class="brand-right"></div>
         </div>
       </section>
@@ -582,14 +586,103 @@
       </div>
     </div>
 
-    <!-- ✅ MAIN APP -->
-    <script src="./app.js?v=20260306-03" defer></script>
+    <!-- =========================
+         ✅ MOBILE MENU MODAL (3 lines)
+         - Account
+         - My Orders
+         - Returns
+         - Chat with us
+    ========================== -->
+    <div class="modal" id="menuModal" aria-hidden="true">
+      <div class="modal-backdrop" id="menuBackdrop"></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Menu">
+        <div class="modal-head">
+          <h3>Menu</h3>
+          <button class="icon-btn" id="menuClose" aria-label="Close menu" type="button">✕</button>
+        </div>
 
-    <!-- ✅ AUTH UI -->
+        <div class="modal-body">
+          <div class="modal-info" style="width:100%;">
+            <div class="muted" id="menuGreeting" style="margin-bottom:10px;">
+              Welcome 👋
+            </div>
+
+            <div class="auth-row">
+              <button class="btn primary full" id="menuAccountBtn" type="button">Log in</button>
+              <button class="btn ghost full" id="menuOrdersBtn" type="button">My Orders</button>
+              <button class="btn ghost full" id="menuReturnsBtn" type="button">Returns</button>
+              <button class="btn ghost full" id="menuChatBtn" type="button">Chat with us</button>
+            </div>
+
+            <div class="muted" style="margin-top:10px;font-size:12px;">
+              Orders: login for full history, or track as a guest using Order ID + phone.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         ✅ ORDERS MODAL
+         - Logged-in: list last orders
+         - Guest: track with Order ID + Phone
+    ========================== -->
+    <div class="modal" id="ordersModal" aria-hidden="true">
+      <div class="modal-backdrop" id="ordersBackdrop"></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-label="My orders">
+        <div class="modal-head">
+          <h3>My Orders</h3>
+          <button class="icon-btn" id="ordersClose" aria-label="Close orders" type="button">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="orders-box">
+            <div id="ordersStatus" class="muted" style="font-size:12px;">Loading…</div>
+
+            <!-- Logged-in orders -->
+            <div id="ordersLoggedInWrap" class="is-hidden">
+              <div id="ordersList" class="orders-list"></div>
+            </div>
+
+            <!-- Guest tracking -->
+            <div id="ordersGuestWrap" class="is-hidden">
+              <div class="card soft" style="padding:12px;">
+                <div style="font-weight:900;margin-bottom:8px;">Track as guest</div>
+
+                <div class="checkout-field">
+                  <label for="guestOrderId">Order ID</label>
+                  <input id="guestOrderId" type="text" placeholder="e.g. 704f94ed-eb69-4b37-896b-..." autocomplete="off" />
+                </div>
+
+                <div class="checkout-field">
+                  <label for="guestPhone">Phone Number</label>
+                  <input id="guestPhone" type="tel" placeholder="07XXXXXXXX" inputmode="tel" autocomplete="tel" />
+                </div>
+
+                <div class="auth-row" style="margin-top:12px;">
+                  <button class="btn primary full" id="guestTrackBtn" type="button">Track Order</button>
+                  <button class="btn ghost full" id="guestLoginBtn" type="button">Log in</button>
+                </div>
+
+                <div id="guestTrackMsg" class="muted" style="margin-top:10px;font-size:12px;"></div>
+              </div>
+
+              <div id="guestTrackResult" class="orders-list" style="margin-top:12px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ MAIN APP -->
+    <script src="./app.js?v=20260306-04" defer></script>
+
+    <!-- ✅ AUTH UI + MENU + ORDERS UI -->
     <script>
       (function () {
         const $ = (id) => document.getElementById(id);
 
+        // Auth elements
         const authBtn = $("authBtn");
         const authModal = $("authModal");
         const authBackdrop = $("authBackdrop");
@@ -604,8 +697,41 @@
         const logoutBtn = $("logoutBtn");
         const authMsg = $("authMsg");
 
+        // Menu elements
+        const menuBtn = $("menuBtn");
+        const menuModal = $("menuModal");
+        const menuBackdrop = $("menuBackdrop");
+        const menuClose = $("menuClose");
+        const menuGreeting = $("menuGreeting");
+        const menuAccountBtn = $("menuAccountBtn");
+        const menuOrdersBtn = $("menuOrdersBtn");
+        const menuReturnsBtn = $("menuReturnsBtn");
+        const menuChatBtn = $("menuChatBtn");
+
+        // Orders elements
+        const ordersModal = $("ordersModal");
+        const ordersBackdrop = $("ordersBackdrop");
+        const ordersClose = $("ordersClose");
+        const ordersStatus = $("ordersStatus");
+        const ordersLoggedInWrap = $("ordersLoggedInWrap");
+        const ordersGuestWrap = $("ordersGuestWrap");
+        const ordersList = $("ordersList");
+
+        const guestOrderId = $("guestOrderId");
+        const guestPhone = $("guestPhone");
+        const guestTrackBtn = $("guestTrackBtn");
+        const guestLoginBtn = $("guestLoginBtn");
+        const guestTrackMsg = $("guestTrackMsg");
+        const guestTrackResult = $("guestTrackResult");
+
         function openAuth() { authModal?.setAttribute("aria-hidden", "false"); }
         function closeAuth() { authModal?.setAttribute("aria-hidden", "true"); }
+
+        function openMenu() { menuModal?.setAttribute("aria-hidden", "false"); }
+        function closeMenu() { menuModal?.setAttribute("aria-hidden", "true"); }
+
+        function openOrders() { ordersModal?.setAttribute("aria-hidden", "false"); }
+        function closeOrders() { ordersModal?.setAttribute("aria-hidden", "true"); }
 
         // ✅ Hi, ONE name only (from email or name)
         function getSingleFirstName(user) {
@@ -646,45 +772,120 @@
           return data;
         }
 
+        async function getJson(url) {
+          const res = await fetch(url, { credentials: "include" });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || "Request failed");
+          return data;
+        }
+
+        function waLink(msg){
+          return "https://wa.me/254119667836?text=" + encodeURIComponent(msg);
+        }
+
         async function refreshAuthUI() {
           const data = await me();
           const user = data?.user;
 
           if (user?.email || user?.name) {
             const first = getSingleFirstName(user);
-            authBtn.textContent = `Hi, ${first}`;
-            logoutBtn.style.display = "inline-block";
-            authMsg.textContent = user?.email ? `Signed in as ${user.email}` : "Signed in";
+            if (authBtn) authBtn.textContent = `Hi, ${first}`;
+            if (logoutBtn) logoutBtn.style.display = "inline-block";
+            if (authMsg) authMsg.textContent = user?.email ? `Signed in as ${user.email}` : "Signed in";
+
+            if (menuGreeting) menuGreeting.textContent = `Hi, ${first} 👋`;
+            if (menuAccountBtn) menuAccountBtn.textContent = "Account";
           } else {
-            authBtn.textContent = "Sign in";
-            logoutBtn.style.display = "none";
-            authMsg.textContent = "Login is optional. It saves your order history.";
+            if (authBtn) authBtn.textContent = "Sign in";
+            if (logoutBtn) logoutBtn.style.display = "none";
+            if (authMsg) authMsg.textContent = "Login is optional. It saves your order history.";
+
+            if (menuGreeting) menuGreeting.textContent = "Welcome 👋";
+            if (menuAccountBtn) menuAccountBtn.textContent = "Log in";
           }
         }
 
+        function renderOrderCard(o){
+          const created = o.created_at ? new Date(o.created_at * 1000).toLocaleString() : "";
+          const total = (o.total_kes != null) ? `KES ${Number(o.total_kes).toLocaleString("en-KE")}` : "";
+          const status = o.status ? String(o.status) : "";
+          const id = o.id ? String(o.id) : "";
+
+          return `
+            <div class="order-card">
+              <div class="order-row">
+                <div style="font-weight:900;">Order</div>
+                <div style="font-weight:900;">${total}</div>
+              </div>
+              <div class="order-muted" style="margin-top:6px;">
+                <div><strong>ID:</strong> ${id}</div>
+                ${status ? `<div><strong>Status:</strong> ${status}</div>` : ""}
+                ${created ? `<div><strong>Placed:</strong> ${created}</div>` : ""}
+              </div>
+            </div>
+          `;
+        }
+
+        async function loadOrdersUI(){
+          if (!ordersStatus) return;
+
+          ordersStatus.textContent = "Loading…";
+          ordersLoggedInWrap?.classList.add("is-hidden");
+          ordersGuestWrap?.classList.add("is-hidden");
+          if (ordersList) ordersList.innerHTML = "";
+          if (guestTrackResult) guestTrackResult.innerHTML = "";
+          if (guestTrackMsg) guestTrackMsg.textContent = "";
+
+          const m = await me();
+          const user = m?.user;
+
+          if (user?.email || user?.id){
+            // logged in: show list
+            ordersStatus.textContent = "Fetching your order history…";
+            try{
+              const data = await getJson("/api/orders");
+              const orders = Array.isArray(data?.orders) ? data.orders : [];
+              ordersLoggedInWrap?.classList.remove("is-hidden");
+              ordersStatus.textContent = orders.length ? "" : "No orders yet.";
+              if (ordersList){
+                ordersList.innerHTML = orders.map(renderOrderCard).join("");
+              }
+            }catch(e){
+              ordersStatus.textContent = e.message || "Could not load orders.";
+            }
+          } else {
+            // guest: show tracker
+            ordersGuestWrap?.classList.remove("is-hidden");
+            ordersStatus.textContent = "Track an order as guest (Order ID + phone).";
+          }
+        }
+
+        // ===== Bindings: Auth =====
         authBtn?.addEventListener("click", openAuth);
         authBackdrop?.addEventListener("click", closeAuth);
         authClose?.addEventListener("click", closeAuth);
 
         loginBtn?.addEventListener("click", async () => {
+          if (!authMsg) return;
           authMsg.textContent = "Signing in…";
           try {
             await post("/api/login", { email: authEmail.value, password: authPassword.value });
             authMsg.textContent = "Logged in ✅";
             await refreshAuthUI();
-            setTimeout(closeAuth, 600);
+            setTimeout(closeAuth, 500);
           } catch (e) {
             authMsg.textContent = e.message;
           }
         });
 
         signupBtn?.addEventListener("click", async () => {
+          if (!authMsg) return;
           authMsg.textContent = "Creating account…";
           try {
             await post("/api/register", { email: authEmail.value, password: authPassword.value });
             authMsg.textContent = "Account created ✅";
             await refreshAuthUI();
-            setTimeout(closeAuth, 600);
+            setTimeout(closeAuth, 500);
           } catch (e) {
             authMsg.textContent = e.message;
           }
@@ -695,6 +896,7 @@
         });
 
         logoutBtn?.addEventListener("click", async () => {
+          if (!authMsg) return;
           authMsg.textContent = "Logging out…";
           try {
             await post("/api/logout", {});
@@ -705,13 +907,85 @@
           }
         });
 
+        // ===== Bindings: Menu =====
+        menuBtn?.addEventListener("click", () => { openMenu(); });
+        menuBackdrop?.addEventListener("click", closeMenu);
+        menuClose?.addEventListener("click", closeMenu);
+
+        menuAccountBtn?.addEventListener("click", () => {
+          closeMenu();
+          openAuth();
+        });
+
+        menuOrdersBtn?.addEventListener("click", async () => {
+          closeMenu();
+          openOrders();
+          await loadOrdersUI();
+        });
+
+        menuReturnsBtn?.addEventListener("click", () => {
+          const msg =
+            "Hi BASFAY Uniforms, I would like to request a return/exchange.\n" +
+            "Order ID: \nPhone: \nReason: ";
+          window.open(waLink(msg), "_blank", "noopener,noreferrer");
+        });
+
+        menuChatBtn?.addEventListener("click", () => {
+          window.open(waLink("Hi BASFAY Uniforms, I need help."), "_blank", "noopener,noreferrer");
+        });
+
+        // ===== Bindings: Orders =====
+        ordersBackdrop?.addEventListener("click", closeOrders);
+        ordersClose?.addEventListener("click", closeOrders);
+
+        guestLoginBtn?.addEventListener("click", () => {
+          closeOrders();
+          openAuth();
+        });
+
+        guestTrackBtn?.addEventListener("click", async () => {
+          if (!guestTrackMsg) return;
+
+          const orderId = String(guestOrderId?.value || "").trim();
+          const phone = String(guestPhone?.value || "").replace(/[^\d+]/g, "");
+
+          if (!orderId || orderId.length < 10) {
+            guestTrackMsg.textContent = "Please enter a valid Order ID.";
+            return;
+          }
+          if (!phone || phone.length < 9) {
+            guestTrackMsg.textContent = "Please enter a valid phone number.";
+            return;
+          }
+
+          guestTrackMsg.textContent = "Tracking…";
+
+          try{
+            // Backend endpoint will be added next (currently 404 in your console)
+            const data = await post("/api/orders/track", { order_id: orderId, phone });
+
+            // Be tolerant to response shapes
+            const orders = Array.isArray(data?.orders)
+              ? data.orders
+              : (data?.order ? [data.order] : []);
+
+            if (!orders.length){
+              guestTrackMsg.textContent = "No order found for that Order ID + phone.";
+              if (guestTrackResult) guestTrackResult.innerHTML = "";
+              return;
+            }
+
+            guestTrackMsg.textContent = "";
+            if (guestTrackResult){
+              guestTrackResult.innerHTML = orders.map(renderOrderCard).join("");
+            }
+          }catch(e){
+            guestTrackMsg.textContent = e.message || "Could not track order.";
+          }
+        });
+
         document.addEventListener("DOMContentLoaded", refreshAuthUI);
       })();
-    </script>
-
-    <script>
-      const y = document.getElementById("year");
-      if (y) y.textContent = new Date().getFullYear();
     </script>
   </body>
 </html>

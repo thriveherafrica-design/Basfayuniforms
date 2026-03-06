@@ -1128,3 +1128,94 @@ input:focus,select:focus{
     font-size: 11px !important;
   }
 }
+
+/* =========================================================
+   BASFAY – Mobile Menu (3 lines) + Orders UI
+   Paste at the VERY END of styles.css
+   ========================================================= */
+
+/* 1) Mobile hamburger button */
+#menuBtn{
+  display:none;                 /* desktop hidden */
+  width:40px;
+  height:40px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.12);
+  color:#fff;
+  cursor:pointer;
+  align-items:center;
+  justify-content:center;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+}
+#menuBtn:hover{ transform: translateY(-1px); }
+#menuBtn:focus-visible{
+  outline: 3px solid rgba(255,255,255,0.22);
+  outline-offset: 2px;
+}
+#menuBtn svg{ width:20px; height:20px; }
+
+/* 2) Phone header behavior:
+      - hide Shop + Contact links (your HTML uses .header-link)
+      - show hamburger
+      - hide auth pill (Account will be inside the menu) */
+@media (max-width: 768px){
+  .header-actions .header-link{
+    display:none !important;
+  }
+
+  #menuBtn{
+    display:inline-flex !important;
+  }
+
+  /* optional but recommended: keeps header clean */
+  #authBtn{
+    display:none !important;
+  }
+}
+
+/* 3) Menu + Orders modal layout polish (doesn't touch your cart/modal base) */
+#menuModal .modal-body,
+#ordersModal .modal-body{
+  padding:14px;
+}
+#menuModal .auth-row,
+#ordersModal .auth-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+#menuModal .auth-row .btn,
+#ordersModal .auth-row .btn{
+  flex:1 1 auto;
+}
+
+/* 4) Orders UI cards */
+.orders-box{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.orders-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.order-card{
+  border:1px solid rgba(0,0,0,0.08);
+  border-radius:14px;
+  padding:10px 12px;
+  background:#fff;
+  box-shadow: 0 10px 24px rgba(15,28,43,0.06);
+}
+.order-row{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+}
+.order-muted{
+  opacity:.75;
+  font-size:12px;
+}

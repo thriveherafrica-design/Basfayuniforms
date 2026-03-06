@@ -3,6 +3,7 @@
    Cart + Two-step Checkout (Cash vs Till)
    + Desktop "Your Cart" preview (working)
    ✅ Order-first checkout (Daraja-ready): saves order to DB before WhatsApp
+   ✅ Order ID shown + copied (for guest tracking)
    ============================ */
 
 console.log("✅ BASFAY app.js LOADED (WORKING CART PREVIEW)");
@@ -44,9 +45,8 @@ const els = {
 
   payRadios: document.querySelectorAll('input[name="payMethod"]'),
 
-  // ✅ NEW: needed for Cash/Till behavior
   mpesaBox: document.getElementById("mpesaBox"),
-  mpesaCodeWrap: document.getElementById("mpesaCodeWrap"), // wrapped in HTML now
+  mpesaCodeWrap: document.getElementById("mpesaCodeWrap"),
 
   tillNumberUI: document.getElementById("tillNumberUI"),
   copyTillBtn: document.getElementById("copyTillBtn"),
@@ -55,13 +55,11 @@ const els = {
   orderItems: document.getElementById("orderItems"),
   orderSubtotal: document.getElementById("orderSubtotal"),
 
-  // ✅ RIGHT "Your Cart"
   cartPreviewCount: document.getElementById("cartPreviewCount"),
   cartPreviewItems: document.getElementById("cartPreviewItems"),
   cartPreviewSubtotal: document.getElementById("cartPreviewSubtotal"),
   openCartPreview: document.getElementById("openCartPreview"),
 
-  // Modal
   modal: document.getElementById("modal"),
   modalBackdrop: document.getElementById("modalBackdrop"),
   closeModal: document.getElementById("closeModal"),
@@ -81,8 +79,11 @@ let state = { color: "", type: "", sort: "featured" };
 const CART_KEY = "basfay_cart_v1";
 const CHECKOUT_STEP_KEY = "basfay_checkout_step_v1";
 
-/* ✅ NEW: reuse same order across Till Step 1 -> Step 2 (avoid duplicates) */
+/* ✅ reuse same order across Till Step 1 -> Step 2 (avoid duplicates) */
 const PENDING_ORDER_ID_KEY = "basfay_pending_order_id_v1";
+
+/* ✅ NEW: keep last order id for guests (tracking) */
+const LAST_ORDER_ID_KEY = "basfay_last_order_id_v1";
 
 /* Helpers */
 function safeText(s){ return String(s ?? "").trim(); }
@@ -113,7 +114,7 @@ function toast(msg){
   t.style.maxWidth="90vw";
   t.style.textAlign="center";
   document.body.appendChild(t);
-  setTimeout(()=>t.remove(),900);
+  setTimeout(()=>t.remove(),1400);
 }
 
 async function copyToClipboard(text){
@@ -128,6 +129,20 @@ async function copyToClipboard(text){
     document.execCommand("copy");
     ta.remove();
     toast("Copied ✅");
+  }
+}
+
+/* ✅ NEW: announce order id + copy (critical for guest tracking) */
+async function announceOrderId(orderId){
+  const id = safeText(orderId);
+  if(!id) return;
+  localStorage.setItem(LAST_ORDER_ID_KEY, id);
+
+  try{
+    await navigator.clipboard.writeText(id);
+    toast(`Order ID copied ✅ (${id.slice(0,8)}...)`);
+  }catch{
+    toast(`Order ID: ${id}`);
   }
 }
 
@@ -158,7 +173,7 @@ function calcSubtotal(){
   return getCart().reduce((sum,i)=>sum + (Number(i.price)||0)*(Number(i.qty)||0),0);
 }
 
-/* ✅ NEW: Save order to DB (Daraja-ready). Never blocks checkout if it fails. */
+/* ✅ Save order to DB (Daraja-ready). Never blocks checkout if it fails. */
 async function saveOrderToDB(payload){
   try{
     const res = await fetch("/api/orders", {
@@ -167,7 +182,7 @@ async function saveOrderToDB(payload){
       credentials: "include",
       body: JSON.stringify(payload),
     });
-    const data = await res.json();
+    const data = await res.json().catch(()=>({}));
     return data.orderId || null;
   }catch{
     return null;
@@ -247,10 +262,7 @@ function togglePaymentUI(){
   const method = String(getPayMethod()).toLowerCase();
   const isTill = method === "till";
 
-  // ✅ Cash hides Mpesa box
   if (els.mpesaBox) els.mpesaBox.classList.toggle("is-hidden", !isTill);
-
-  // ✅ Always hide confirmation code wrap (you want it removed)
   if (els.mpesaCodeWrap) els.mpesaCodeWrap.classList.add("is-hidden");
 }
 
@@ -436,7 +448,6 @@ function productCard(p){
   const wrap = document.createElement("article");
   wrap.className = "product";
 
-  // theme hooks for CSS
   wrap.classList.add(toTypeClass(p.type));
   if (normalize(p.type) === "tracksuit") wrap.classList.add("product-tracksuit");
   if (normalize(p.type) === "socks") wrap.classList.add("product-socks");
@@ -666,7 +677,6 @@ function bindCart(){
 
   if (els.tillNumberUI) els.tillNumberUI.textContent = CONFIG.tillNumberPlaceholder;
 
-  // ✅ Ensure correct UI on load
   togglePaymentUI();
 
   els.copyTillBtn?.addEventListener("click", ()=>copyToClipboard(CONFIG.tillNumberPlaceholder));
@@ -704,7 +714,10 @@ function bindCart(){
 
     async function ensureOrderId(noteLabel){
       let existing = safeText(localStorage.getItem(PENDING_ORDER_ID_KEY));
-      if(existing) return existing;
+      if(existing){
+        localStorage.setItem(LAST_ORDER_ID_KEY, existing);
+        return existing;
+      }
 
       const orderId = await saveOrderToDB({
         customer_name: "",
@@ -714,7 +727,11 @@ function bindCart(){
         note: `Pickup: ${CONFIG.pickup} | ${noteLabel}`
       });
 
-      if(orderId) localStorage.setItem(PENDING_ORDER_ID_KEY, orderId);
+      if(orderId){
+        localStorage.setItem(PENDING_ORDER_ID_KEY, orderId);
+        localStorage.setItem(LAST_ORDER_ID_KEY, orderId);
+        await announceOrderId(orderId);
+      }
       return orderId;
     }
 
@@ -735,8 +752,8 @@ function bindCart(){
       const orderId = await ensureOrderId(`Payment: M-Pesa Till (${CONFIG.tillNumberPlaceholder})`);
       setCheckoutStep("checkout");
       toast(orderId
-        ? "Order created ✅ Copy Till + Amount, pay, then tap Proceed to open WhatsApp."
-        : "Copy Till + Amount, pay, then tap Proceed to open WhatsApp."
+        ? "Order created ✅ Order ID copied. Now copy Till + Amount, pay, then tap Proceed."
+        : "Copy Till + Amount, pay, then tap Proceed."
       );
       return;
     }

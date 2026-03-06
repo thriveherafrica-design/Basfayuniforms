@@ -3,11 +3,10 @@
 // ✅ Google OAuth routes included:
 //    GET /api/auth/google/start
 //    GET /api/auth/google/callback
+// ✅ Guest order tracking:
+//    POST /api/orders/track  { order_id, phone }
 // ✅ Debug:
 //    GET /api/auth/google/start?debug=1
-//
-// ✅ Guest order tracking (NEW):
-//    POST /api/orders/track   body: { order_id, phone }
 
 const COOKIE_NAME = "basfay_session";
 const SESSION_TTL_DAYS = 30;
@@ -80,14 +79,19 @@ export async function onRequest(context) {
 
     /* -----------------------------
        Orders
+       - POST /api/orders         -> create
+       - GET  /api/orders         -> list (login required)
+       - POST /api/orders/track   -> guest tracking (order_id + phone)
     ----------------------------- */
-    // ✅ Guest track: /api/orders/track
-    if (endpoint === "orders" && sub === "track" && request.method === "POST") {
+
+    // ✅ Guest + logged-in order tracking
+    if (request.method === "POST" && endpoint === "orders" && sub === "track") {
       return await trackOrder(request, env);
     }
 
-    if (endpoint === "orders" && request.method === "POST") return await createOrder(request, env);
-    if (endpoint === "orders" && request.method === "GET")  return await listOrders(request, env);
+    // ✅ Only treat /api/orders (no subpath) as create/list
+    if (endpoint === "orders" && !sub && request.method === "POST") return await createOrder(request, env);
+    if (endpoint === "orders" && !sub && request.method === "GET")  return await listOrders(request, env);
 
     return json({ error: "Not found" }, 404);
   } catch (err) {
@@ -200,14 +204,9 @@ async function createOrder(request, env) {
   if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
 
   const customerName = cleanText(body.customer_name, 80);
-  const rawPhone = cleanText(body.customer_phone, 30);
-  const customerPhone = normalizeKenyaPhone(rawPhone);
+  const customerPhoneRaw = cleanText(body.customer_phone, 30);
+  const customerPhone = customerPhoneRaw ? normalizePhone(customerPhoneRaw) : "";
   const note = cleanText(body.note, 300);
-
-  // ✅ Phone required so guests can track orders safely
-  if (!customerPhone || customerPhone.length < 10) {
-    return json({ error: "Phone number is required for order tracking." }, 400);
-  }
 
   const user = await getAuthedUser(request, env);
 
@@ -221,7 +220,7 @@ async function createOrder(request, env) {
     id,
     user ? user.id : null,
     customerName || null,
-    customerPhone,
+    customerPhone || null,
     JSON.stringify(items),
     Math.trunc(totalKes),
     note || null,
@@ -259,23 +258,20 @@ async function listOrders(request, env) {
 }
 
 /* -----------------------------
-   ✅ Guest order tracking
+   ✅ GUEST ORDER TRACKING
    POST /api/orders/track
-   body: { order_id, phone }
+   Body: { order_id, phone }
 ----------------------------- */
 async function trackOrder(request, env) {
-  if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
-
   const body = await safeJson(request);
   const orderId = cleanText(body.order_id, 80);
-  const phone = normalizeKenyaPhone(cleanText(body.phone, 30));
+  const phoneRaw = cleanText(body.phone, 30);
+  const phone = phoneRaw ? normalizePhone(phoneRaw) : "";
 
-  if (!orderId || orderId.length < 8) {
-    return json({ error: "Invalid order_id." }, 400);
+  if (!orderId || !phone) {
+    return json({ error: "order_id and phone are required." }, 400);
   }
-  if (!phone || phone.length < 10) {
-    return json({ error: "Phone number is required." }, 400);
-  }
+  if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
 
   const row = await env.DB.prepare(`
     SELECT id, user_id, customer_name, customer_phone, items_json, total_kes, status, note, created_at
@@ -284,33 +280,36 @@ async function trackOrder(request, env) {
     LIMIT 1
   `).bind(orderId).first();
 
-  // Don't reveal whether the order exists (prevents enumeration)
-  if (!row) return json({ error: "Not found." }, 404);
+  // Don't leak whether an order exists
+  if (!row) return json({ error: "Not found" }, 404);
 
-  const storedPhone = normalizeKenyaPhone(row.customer_phone);
-  if (!storedPhone) return json({ error: "Not found." }, 404);
+  const authed = await getAuthedUser(request, env);
 
-  // Strict compare after normalization
-  if (storedPhone !== phone) return json({ error: "Not found." }, 404);
+  // If logged in and owns the order, allow
+  const owns = authed?.id && row.user_id && authed.id === row.user_id;
 
-  const order = {
-    id: row.id,
-    total_kes: row.total_kes,
-    status: row.status,
-    created_at: row.created_at,
-    customer_name: row.customer_name,
-    customer_phone: row.customer_phone,
-    items: safeParse(row.items_json),
-    note: row.note
-  };
+  // Otherwise validate phone match
+  const storedPhone = row.customer_phone ? normalizePhone(String(row.customer_phone)) : "";
+  const phoneOk = storedPhone && storedPhone === phone;
 
-  return json({ ok: true, order }, 200);
+  if (!owns && !phoneOk) return json({ error: "Not found" }, 404);
+
+  return json({
+    ok: true,
+    order: {
+      id: row.id,
+      status: row.status,
+      created_at: row.created_at,
+      total_kes: row.total_kes,
+      customer_name: row.customer_name || null,
+      items: safeParse(row.items_json),
+      note: row.note || null,
+    }
+  }, 200);
 }
 
 /* -----------------------------
    ✅ GOOGLE OAUTH
-   GET /api/auth/google/start
-   GET /api/auth/google/callback
 ----------------------------- */
 
 function baseUrlFromEnv(env) {
@@ -326,7 +325,6 @@ function redirectWithCookies(location, cookies = []) {
 async function googleStart(request, env) {
   const base = baseUrlFromEnv(env);
 
-  // sanitize env vars (removes whitespace + accidental quotes)
   const clientId = String(env?.GOOGLE_CLIENT_ID || "").trim().replace(/^['"]|['"]$/g, "");
   const clientSecret = String(env?.GOOGLE_CLIENT_SECRET || "").trim().replace(/^['"]|['"]$/g, "");
 
@@ -348,7 +346,6 @@ async function googleStart(request, env) {
   authUrl.searchParams.set("state", state);
   authUrl.searchParams.set("prompt", "select_account");
 
-  // ✅ DEBUG MODE: shows what you're actually sending to Google
   const url = new URL(request.url);
   if (url.searchParams.get("debug") === "1") {
     return json(
@@ -425,7 +422,6 @@ async function googleCallback(request, env) {
 
   let userId = existing?.id;
 
-  // store placeholder password_salt/hash as normal base64 (so login attempts won't crash)
   if (!userId) {
     userId = crypto.randomUUID();
     const createdAt = now();
@@ -558,20 +554,13 @@ function isSameOrigin(request) {
   return origin === `${url.protocol}//${url.host}`;
 }
 
-function normalizeKenyaPhone(raw) {
-  const digits = String(raw || "").replace(/[^\d]/g, "");
+function normalizePhone(v){
+  const digits = String(v || "").replace(/[^\d]/g, "");
   if (!digits) return "";
-
-  // If already starts with 254...
-  if (digits.startsWith("254") && digits.length >= 12) return digits;
-
-  // If starts with 0 (07xx...), convert to 2547xx...
-  if (digits.startsWith("0") && digits.length >= 10) return "254" + digits.slice(1);
-
-  // If user typed 7xxxxxxxx (no 0), make it 2547xxxxxxxx
+  if (digits.startsWith("0") && digits.length === 10) return "254" + digits.slice(1);
   if (digits.startsWith("7") && digits.length === 9) return "254" + digits;
-
-  return digits;
+  if (digits.startsWith("254") && digits.length === 12) return digits;
+  return digits; // fallback
 }
 
 function randomB64(bytesLen) {

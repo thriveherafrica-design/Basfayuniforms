@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- ✅ SEO upgrades (safe: doesn't affect cart/drawer JS) -->
+    <!-- ✅ SEO -->
     <title>BASFAY Uniforms Kenya | School Uniforms, Scrubs, Bags & Workwear (Nairobi)</title>
     <meta
       name="description"
@@ -14,7 +14,7 @@
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="theme-color" content="#1E88E5" />
 
-    <!-- ✅ FAVICON / TAB ICON -->
+    <!-- ✅ FAVICON -->
     <link rel="icon" href="/favicon.ico?v=20260305" sizes="any" />
     <link rel="icon" type="image/png" href="/favicon-32.png?v=20260305" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260305" />
@@ -60,7 +60,7 @@
       }
     </script>
 
-    <!-- ✅ Brand fonts -->
+    <!-- ✅ Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -69,7 +69,6 @@
     />
 
     <style>
-      /* classy font for top header text */
       .header .brand-title,
       .header .brand-tagline {
         font-family: "Cinzel", serif !important;
@@ -107,7 +106,6 @@
         outline-offset: 2px;
       }
 
-      /* Top auth button (looks like a pill) */
       #authBtn{
         border:1px solid rgba(30, 136, 229, 0.22);
         background: rgba(30, 136, 229, 0.08);
@@ -119,7 +117,6 @@
         color: inherit;
       }
 
-      /* Cart icon in header */
       .header-cart{
         position: relative;
         display:inline-flex;
@@ -151,7 +148,7 @@
         border: 2px solid rgba(255,255,255,0.9);
       }
 
-      /* ✅ HERO: logo + one-line title */
+      /* HERO */
       .brand-hero .brand-logo {
         width: 56px !important;
         height: 56px !important;
@@ -213,7 +210,6 @@
         opacity: .78;
       }
 
-      /* ✅ Phone: keep it clean: hide Shop/Contact, keep Account + Cart */
       @media (max-width: 768px) {
         .header-actions a[href="#shop"],
         .header-actions a[href="#contact"] {
@@ -221,22 +217,11 @@
         }
       }
 
-      /* mobile: keep header single row */
       @media (max-width: 520px) {
-        .header-inner {
-          flex-wrap: nowrap !important;
-        }
-        .brand {
-          min-width: 0 !important;
-          flex: 1 1 auto !important;
-        }
-        .header-actions {
-          flex: 0 0 auto !important;
-          max-width: 58% !important;
-        }
-        .header-logo {
-          height: 34px !important;
-        }
+        .header-inner { flex-wrap: nowrap !important; }
+        .brand { min-width: 0 !important; flex: 1 1 auto !important; }
+        .header-actions { flex: 0 0 auto !important; max-width: 58% !important; }
+        .header-logo { height: 34px !important; }
         .brand-title {
           font-size: 12px !important;
           letter-spacing: 0.08em !important;
@@ -252,20 +237,16 @@
           text-overflow: ellipsis;
           white-space: nowrap;
         }
-        #authBtn{
-          font-size: 12px !important;
-          padding: 6px 9px !important;
-        }
+        #authBtn { font-size: 12px !important; padding: 6px 9px !important; }
       }
 
-      /* Auth modal adjustments */
       #authMsg{ font-size: 12px; opacity: .85; margin-top: 10px; }
       .auth-row{ display:flex; gap:10px; flex-wrap:wrap; }
       .auth-row .btn{ flex: 1 1 auto; }
     </style>
 
-    <!-- bump version to bust cache -->
-    <link rel="stylesheet" href="./styles.css?v=20260306-02" />
+    <!-- cache bust -->
+    <link rel="stylesheet" href="./styles.css?v=20260306-03" />
   </head>
 
   <body>
@@ -340,14 +321,12 @@
           </span>
         </a>
 
-        <!-- ✅ Amazon-style header actions -->
         <div class="header-actions" aria-label="Header actions">
           <a class="header-link" href="#shop">Shop</a>
           <a class="header-link" href="#contact">Contact</a>
 
           <button id="authBtn" type="button" aria-label="Account">Sign in</button>
 
-          <!-- cart moved to TOP (amazon style) -->
           <button class="header-cart" id="openCart" aria-label="Open cart" type="button">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path
@@ -376,7 +355,10 @@
                 <span class="hero-divider">|</span>
                 <span class="hero-tagline">Quality &amp; Affordable</span>
               </h1>
-              
+              <p class="muted hero-subline">Kangemi Pickup • Same day Nairobi delivery</p>
+            </div>
+          </div>
+
           <div class="brand-right"></div>
         </div>
       </section>
@@ -424,7 +406,6 @@
             </div>
           </div>
 
-          <!-- ✅ Shop layout + RIGHT SIDE "Your Cart" -->
           <div class="shop-layout">
             <div class="catalog" id="catalog" aria-label="Product catalog">
               <div class="grid" id="productGrid" aria-live="polite"></div>
@@ -435,7 +416,6 @@
               </div>
             </div>
 
-            <!-- ✅ WORKING cart preview -->
             <div class="cart-preview" id="cartPreview">
               <h3>Your Cart</h3>
 
@@ -459,14 +439,125 @@
       </section>
     </main>
 
-    <!-- Drawer + Modals etc remain in your existing file -->
-    <!-- ✅ AUTH MODAL (UPDATED: email+password only + Google button) -->
+    <!-- =========================
+         ✅ CART DRAWER (REQUIRED)
+    ========================== -->
+    <div class="drawer" id="drawer" aria-hidden="true">
+      <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+      <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Order list">
+        <div class="drawer-head">
+          <h3>Your order</h3>
+          <button class="icon-btn" id="closeDrawer" aria-label="Close order list" type="button">✕</button>
+        </div>
+
+        <div class="drawer-body">
+          <div id="orderItems" class="order-items"></div>
+
+          <div class="order-summary">
+            <div class="row">
+              <span>Subtotal</span>
+              <strong id="orderSubtotal">KES 0</strong>
+            </div>
+          </div>
+
+          <div class="cart-empty" id="cartEmpty" hidden>
+            <p><strong>No items yet.</strong></p>
+            <p class="muted">Add products from the catalog.</p>
+          </div>
+        </div>
+
+        <div class="drawer-foot">
+          <div class="cart-note muted">Size included.</div>
+
+          <div class="card soft pay-card">
+            <div class="pay-title">Payment</div>
+
+            <div class="pay-options">
+              <label class="pay-opt">
+                <input type="radio" name="payMethod" value="Till" checked />
+                <span><strong>M-Pesa Buy Goods</strong> (Till: <span id="tillNumberUI">XXXX</span>)</span>
+              </label>
+
+              <label class="pay-opt">
+                <input type="radio" name="payMethod" value="Cash" />
+                <span><strong>Cash</strong> (On pickup / delivery)</span>
+              </label>
+            </div>
+
+            <div id="mpesaBox" class="checkout-field">
+              <div class="muted" style="margin-bottom:10px;">
+                1) Copy Till and Amount<br />
+                2) Pay via M-Pesa Buy Goods<br />
+                3) Tap <strong>Proceed</strong> to open WhatsApp<br />
+                4) Send the message and attach/forward your payment confirmation
+              </div>
+
+              <button class="btn ghost full" id="copyTillBtn" type="button">Copy Till Number</button>
+              <button class="btn ghost full" id="copyAmountBtn" type="button">Copy Amount</button>
+
+              <div id="mpesaCodeWrap" class="is-hidden">
+                <label for="mpesaCode" style="margin-top:10px; display:block; font-weight:800;">M-Pesa Confirmation Code</label>
+                <input type="text" id="mpesaCode" placeholder="e.g. QFT3XYZ123" autocomplete="off" />
+              </div>
+            </div>
+
+            <div class="checkout-field">
+              <label for="customerPhone">Phone Number</label>
+              <input type="tel" id="customerPhone" placeholder="07XXXXXXXX" inputmode="tel" autocomplete="tel" />
+            </div>
+
+            <div class="muted pay-help">Confirm active phone number.</div>
+          </div>
+
+          <a class="btn primary full" id="checkoutBtn" href="#" rel="noopener">Proceed</a>
+          <button class="btn ghost full" id="clearCart" type="button">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         ✅ PRODUCT MODAL (REQUIRED)
+    ========================== -->
+    <div class="modal" id="modal" aria-hidden="true">
+      <div class="modal-backdrop" id="modalBackdrop"></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Product details">
+        <div class="modal-head">
+          <h3 id="modalTitle">Product</h3>
+          <button class="icon-btn" id="closeModal" aria-label="Close product details" type="button">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-media" id="modalMedia"></div>
+          <div class="modal-info">
+            <div class="price" id="modalPrice"></div>
+            <div class="meta" id="modalMeta"></div>
+            <p class="muted" id="modalDesc"></p>
+
+            <div id="modalSizeField" class="is-hidden" aria-hidden="true">
+              <label class="size-label" for="modalSize">Size</label>
+              <select class="size-select" id="modalSize" required>
+                <option value="" selected disabled>Select size</option>
+              </select>
+            </div>
+
+            <div class="modal-actions">
+              <button class="btn primary" id="modalAdd" type="button">Add</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         ✅ AUTH MODAL (email+password + Google)
+    ========================== -->
     <div class="modal" id="authModal" aria-hidden="true">
       <div class="modal-backdrop" id="authBackdrop"></div>
       <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Account">
         <div class="modal-head">
           <h3 id="authTitle">Account</h3>
-          <button class="icon-btn" id="authClose" aria-label="Close account">✕</button>
+          <button class="icon-btn" id="authClose" aria-label="Close account" type="button">✕</button>
         </div>
 
         <div class="modal-body">
@@ -494,9 +585,10 @@
       </div>
     </div>
 
-    <script src="./app.js?v=20260306-02" defer></script>
+    <!-- ✅ MAIN APP -->
+    <script src="./app.js?v=20260306-03" defer></script>
 
-    <!-- ✅ Auth logic (ONLY CHANGE: force one first name only) -->
+    <!-- ✅ AUTH UI -->
     <script>
       (function () {
         const $ = (id) => document.getElementById(id);
@@ -518,6 +610,7 @@
         function openAuth() { authModal?.setAttribute("aria-hidden", "false"); }
         function closeAuth() { authModal?.setAttribute("aria-hidden", "true"); }
 
+        // ✅ Hi, ONE name only (from email or name)
         function getSingleFirstName(user) {
           const raw = String(user?.name || user?.email || "").trim();
           if (!raw) return "there";
@@ -564,9 +657,7 @@
             const first = getSingleFirstName(user);
             authBtn.textContent = `Hi, ${first}`;
             logoutBtn.style.display = "inline-block";
-            authMsg.textContent = user?.email
-              ? `Signed in as ${user.email}`
-              : "Signed in";
+            authMsg.textContent = user?.email ? `Signed in as ${user.email}` : "Signed in";
           } else {
             authBtn.textContent = "Sign in";
             logoutBtn.style.display = "none";
@@ -581,10 +672,7 @@
         loginBtn?.addEventListener("click", async () => {
           authMsg.textContent = "Signing in…";
           try {
-            await post("/api/login", {
-              email: authEmail.value,
-              password: authPassword.value
-            });
+            await post("/api/login", { email: authEmail.value, password: authPassword.value });
             authMsg.textContent = "Logged in ✅";
             await refreshAuthUI();
             setTimeout(closeAuth, 600);
@@ -596,10 +684,7 @@
         signupBtn?.addEventListener("click", async () => {
           authMsg.textContent = "Creating account…";
           try {
-            await post("/api/register", {
-              email: authEmail.value,
-              password: authPassword.value
-            });
+            await post("/api/register", { email: authEmail.value, password: authPassword.value });
             authMsg.textContent = "Account created ✅";
             await refreshAuthUI();
             setTimeout(closeAuth, 600);
@@ -628,7 +713,8 @@
     </script>
 
     <script>
-      document.getElementById("year").textContent = new Date().getFullYear();
+      const y = document.getElementById("year");
+      if (y) y.textContent = new Date().getFullYear();
     </script>
   </body>
 </html>

@@ -275,6 +275,32 @@ input:focus,select:focus{
   padding:8px;
 }
 .media img{
+
+  /* Make header behave on small screens (do NOT let brand push actions away) */
+.header-inner{ flex-wrap: nowrap !important; }
+.header-left{ min-width: 0 !important; flex: 1 1 auto !important; }
+.header-left .brand{ min-width: 0 !important; }
+
+/* Always keep the right side visible */
+.header-right{ flex: 0 0 auto !important; }
+#authBtn{ display: inline-flex !important; flex: 0 0 auto !important; white-space: nowrap; }
+
+/* Desktop-only links */
+.desktop-only{ display: inline-flex; }
+@media (max-width: 768px){
+  .desktop-only{ display: none !important; } /* hide Shop/Contact ONLY on phone */
+}
+
+/* Phone: keep the account pill compact so it fits */
+@media (max-width: 520px){
+  #authBtn{
+    padding: 6px 8px !important;
+    font-size: 12px !important;
+    max-width: 110px;           /* prevents it from exploding */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
   width:100%;
   height:100%;
   object-fit:contain;

@@ -145,6 +145,13 @@
         cursor: pointer;
         color: inherit;
         white-space: nowrap;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        flex-shrink:0;
+        max-width:110px;
+        overflow:hidden;
+        text-overflow:ellipsis;
       }
 
       /* Cart icon in header */
@@ -159,6 +166,7 @@
         border: 1px solid rgba(30,136,229,0.22);
         background: rgba(255,255,255,0.55);
         cursor: pointer;
+        flex-shrink:0;
       }
       .header-cart svg{ width:20px; height:20px; }
       .cart-badge{
@@ -251,12 +259,255 @@
           text-overflow: ellipsis;
           white-space: nowrap;
         }
-        #authBtn { font-size: 12px !important; padding: 6px 9px !important; }
+        #authBtn { font-size: 12px !important; padding: 6px 9px !important; max-width: 88px !important; }
       }
 
       #authMsg{ font-size: 12px; opacity: .85; margin-top: 10px; }
       .auth-row{ display:flex; gap:10px; flex-wrap:wrap; }
       .auth-row .btn{ flex: 1 1 auto; }
+
+      /* ✅ FORCE Sign-in visible on phone (fixes it being hidden/clipped by styles.css) */
+      @media (max-width: 768px){
+        .header-right{ display:flex !important; }
+        #authBtn{ display:inline-flex !important; }
+      }
+      @media (max-width: 520px){
+        /* free space so Sign in fits beside cart on small phones */
+        .header-left{ min-width: 0 !important; }
+        .header-right{ gap: 8px !important; }
+        .brand-tagline{ display:none !important; } /* header tagline only */
+        .brand-title{ max-width: 140px !important; }
+        #authBtn{ padding: 6px 8px !important; font-size: 12px !important; }
+      }
+      @media (max-width: 390px){
+        .brand-title{ max-width: 118px !important; }
+        #authBtn{ max-width: 78px !important; padding: 6px 7px !important; }
+      }
+
+      /* ✅ FOOTER */
+      .site-footer{
+        margin-top: 38px;
+        padding: 0 0 28px;
+      }
+
+      .site-footer .footer-shell{
+        background: rgba(255,255,255,0.80);
+        border: 1px solid rgba(15,47,74,0.12);
+        border-radius: 26px;
+        box-shadow: 0 18px 50px rgba(17,16,25,0.08);
+        padding: 28px;
+        backdrop-filter: saturate(180%) blur(10px);
+      }
+
+      .site-footer .footer-grid{
+        display:grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(260px, .85fr);
+        gap: 24px;
+        align-items:start;
+      }
+
+      .site-footer .footer-title{
+        margin: 0 0 10px;
+        font-size: clamp(20px, 2vw, 26px);
+        color:#0F2F4A;
+      }
+
+      .site-footer .footer-copy{
+        margin: 0;
+        color: rgba(15,47,74,0.82);
+        line-height: 1.75;
+        font-size: 14.5px;
+      }
+
+      .site-footer .footer-meta{
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        margin-top: 16px;
+      }
+
+      .site-footer .footer-chip{
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        border-radius: 999px;
+        padding: 8px 12px;
+        text-decoration:none;
+        color:#0F2F4A;
+        background: rgba(30,136,229,0.08);
+        border:1px solid rgba(30,136,229,0.16);
+        font-weight:800;
+        font-size:13px;
+      }
+
+      .site-footer .footer-social{
+        display:flex;
+        flex-wrap:wrap;
+        gap:12px;
+        margin-top: 18px;
+      }
+
+      .site-footer .footer-social-link{
+        width: 46px;
+        height: 46px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        border-radius: 16px;
+        text-decoration:none;
+        color:#0F2F4A;
+        background: rgba(255,255,255,0.92);
+        border:1px solid rgba(15,47,74,0.10);
+        box-shadow: 0 8px 20px rgba(15,47,74,0.08);
+        transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+      }
+
+      .site-footer .footer-social-link:hover{
+        transform: translateY(-2px);
+        border-color: rgba(30,136,229,0.24);
+        box-shadow: 0 12px 24px rgba(15,47,74,0.11);
+      }
+
+      .site-footer .footer-social-link svg{
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+      }
+
+      .site-footer .footer-links-wrap{
+        display:grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+
+      .site-footer .footer-links-group{
+        background: rgba(248,251,255,0.92);
+        border: 1px solid rgba(15,47,74,0.08);
+        border-radius: 20px;
+        padding: 16px;
+      }
+
+      .site-footer .footer-links-group h3{
+        margin: 0 0 10px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color:#0F2F4A;
+      }
+
+      .site-footer .footer-links{
+        display:flex;
+        flex-direction:column;
+        gap: 10px;
+      }
+
+      .site-footer .footer-links a{
+        color: rgba(15,47,74,0.88);
+        text-decoration:none;
+        font-weight:700;
+        font-size:14px;
+      }
+
+      .site-footer .footer-links a:hover{
+        text-decoration:underline;
+      }
+
+      .site-footer .footer-detail-grid{
+        display:grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 22px;
+      }
+
+      .site-footer .footer-detail-card{
+        background: rgba(248,251,255,0.92);
+        border: 1px solid rgba(15,47,74,0.08);
+        border-radius: 20px;
+        padding: 18px;
+        scroll-margin-top: 100px;
+      }
+
+      .site-footer .footer-detail-card h3{
+        margin:0 0 10px;
+        color:#0F2F4A;
+        font-size: 17px;
+      }
+
+      .site-footer .footer-detail-card p{
+        margin:0;
+        color: rgba(15,47,74,0.82);
+        line-height: 1.7;
+        font-size: 14px;
+      }
+
+      .site-footer .footer-inline-cta{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        margin-top: 12px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background:#0F2F4A;
+        color:#fff;
+        text-decoration:none;
+        font-weight:800;
+        font-size:13px;
+      }
+
+      .site-footer .footer-bottom{
+        margin-top: 18px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(15,47,74,0.10);
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:12px;
+        flex-wrap:wrap;
+      }
+
+      .site-footer .footer-bottom p{
+        margin:0;
+        color: rgba(15,47,74,0.74);
+        font-size:13px;
+      }
+
+      @media (max-width: 900px){
+        .site-footer .footer-grid{
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 700px){
+        .site-footer .footer-shell{
+          padding: 20px;
+          border-radius: 22px;
+        }
+        .site-footer .footer-links-wrap,
+        .site-footer .footer-detail-grid{
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 520px){
+        .site-footer .footer-shell{
+          padding: 18px;
+        }
+        .site-footer .footer-title{
+          font-size: 20px;
+        }
+        .site-footer .footer-copy,
+        .site-footer .footer-detail-card p{
+          font-size: 13.5px;
+        }
+        .site-footer .footer-social{
+          gap: 10px;
+        }
+        .site-footer .footer-social-link{
+          width: 42px;
+          height: 42px;
+          border-radius: 14px;
+        }
+      }
     </style>
 
     <!-- cache bust -->
@@ -448,6 +699,162 @@
         </div>
       </section>
     </main>
+
+    <!-- ✅ FOOTER / BOTTOM PART -->
+    <footer class="site-footer" id="contact" aria-label="Footer">
+      <div class="container">
+        <div class="footer-shell">
+          <div class="footer-grid">
+            <div>
+              <h2 class="footer-title">BASFAY Uniforms</h2>
+              <p class="footer-copy">
+                BASFAY Uniforms is a Nairobi-based uniforms and workwear store offering quality and affordable school uniforms, scrubs, workwear, school bags, sweaters, tracksuits, PE kits, shirts, dresses, blazers, trousers, socks and other essentials. Customers can shop online, place orders easily, and arrange pickup in Kangemi through WhatsApp for a simple and reliable buying experience in Kenya.
+              </p>
+
+              <div class="footer-meta">
+                <a
+                  class="footer-chip"
+                  href="https://wa.me/254119667836"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Chat with BASFAY on WhatsApp"
+                >
+                  WhatsApp
+                </a>
+                <span class="footer-chip">Kangemi, Nairobi County</span>
+              </div>
+
+              <div class="footer-social" aria-label="BASFAY social links">
+                <a
+                  class="footer-social-link"
+                  href="https://www.instagram.com/basfayuniforms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  title="Instagram"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M7 2C4.239 2 2 4.239 2 7v10c0 2.761 2.239 5 5 5h10c2.761 0 5-2.239 5-5V7c0-2.761-2.239-5-5-5H7zm11 2a1 1 0 110 2 1 1 0 010-2zM12 7a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6z"/>
+                  </svg>
+                </a>
+
+                <a
+                  class="footer-social-link"
+                  href="https://www.tiktok.com/@basfayuniforms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="TikTok"
+                  title="TikTok"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M14.5 2c.45 2.6 1.95 4.14 4.5 4.63v2.55a7.28 7.28 0 01-3.7-1.17v6.1c0 3.66-2.58 6.39-6.14 6.39-3.35 0-6.16-2.55-6.16-6.03 0-3.68 2.95-6.26 6.5-6.02v2.67c-1.95-.24-3.72 1.11-3.72 3.22 0 1.86 1.43 3.26 3.22 3.26 1.95 0 3.08-1.29 3.08-3.2V2h2.42z"/>
+                  </svg>
+                </a>
+
+                <a
+                  class="footer-social-link"
+                  href="https://www.facebook.com/basfayuniforms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  title="Facebook"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M13.5 22v-8h2.7l.4-3h-3.1V9.2c0-.87.28-1.46 1.53-1.46H16.7V5.05c-.3-.04-1.31-.12-2.49-.12-2.46 0-4.14 1.5-4.14 4.27V11H7.3v3h2.77v8h3.43z"/>
+                  </svg>
+                </a>
+
+                <a
+                  class="footer-social-link"
+                  href="https://wa.me/254119667836"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="WhatsApp"
+                  title="WhatsApp"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M20.52 3.48A11.8 11.8 0 0012.15 0C5.58 0 .24 5.34.24 11.9c0 2.1.55 4.14 1.59 5.94L0 24l6.36-1.67a11.9 11.9 0 005.79 1.48h.01c6.56 0 11.9-5.34 11.9-11.9 0-3.18-1.24-6.16-3.54-8.43zM12.16 21.8h-.01a9.9 9.9 0 01-5.03-1.37l-.36-.21-3.77.99 1.01-3.67-.24-.37a9.82 9.82 0 01-1.51-5.25C2.25 6.45 6.69 2 12.15 2c2.64 0 5.11 1.03 6.98 2.89a9.81 9.81 0 012.9 6.99c0 5.46-4.45 9.92-9.87 9.92zm5.44-7.39c-.3-.15-1.78-.88-2.05-.98-.27-.1-.46-.15-.65.15-.19.29-.75.98-.91 1.18-.17.2-.33.22-.62.07-.29-.15-1.21-.45-2.31-1.43-.86-.77-1.44-1.71-1.6-2-.17-.29-.02-.44.12-.59.13-.13.29-.34.43-.51.15-.17.19-.29.29-.49.1-.19.05-.37-.03-.51-.07-.15-.65-1.57-.89-2.16-.23-.55-.46-.48-.65-.49h-.56c-.19 0-.49.07-.75.37-.26.29-1 1-.97 2.44.03 1.44 1.03 2.83 1.17 3.02.15.2 2.02 3.09 4.89 4.34.68.29 1.21.47 1.62.6.68.22 1.3.19 1.79.11.55-.08 1.78-.73 2.04-1.44.25-.71.25-1.32.18-1.44-.07-.12-.26-.2-.56-.34z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+            <div class="footer-links-wrap">
+              <div class="footer-links-group">
+                <h3>Explore</h3>
+                <div class="footer-links">
+                  <a href="#about-us">About Us</a>
+                  <a href="#work-with-us">Work With Us</a>
+                  <a href="#sell-at-basfay">Sell at BASFAY</a>
+                  <a href="#terms-and-conditions">Terms &amp; Conditions</a>
+                </div>
+              </div>
+
+              <div class="footer-links-group">
+                <h3>Quick Links</h3>
+                <div class="footer-links">
+                  <a href="#shop">Shop</a>
+                  <a href="#main">Back to Top</a>
+                  <a href="https://wa.me/254119667836" target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a>
+                  <a href="#contact">Contact</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer-detail-grid">
+            <article class="footer-detail-card" id="about-us">
+              <h3>About Us</h3>
+              <p>
+                BASFAY Uniforms focuses on making uniforms and related essentials more accessible through quality products, fair pricing and convenient ordering. We serve parents, schools, institutions and everyday buyers looking for reliable uniforms, workwear, scrubs and accessories in Kenya.
+              </p>
+            </article>
+
+            <article class="footer-detail-card" id="work-with-us">
+              <h3>Work With Us</h3>
+              <p>
+                We are open to working with schools, institutions, resellers, bulk buyers and business partners who need consistent supply and dependable service. For collaborations, school supply conversations or partnership opportunities, reach out directly and share your requirements.
+              </p>
+              <a
+                class="footer-inline-cta"
+                href="https://wa.me/254119667836?text=Hi%20BASFAY%20Uniforms%2C%20I%20would%20like%20to%20work%20with%20you."
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Get in touch
+              </a>
+            </article>
+
+            <article class="footer-detail-card" id="sell-at-basfay">
+              <h3>Sell at BASFAY</h3>
+              <p>
+                If you supply quality uniforms, fabric, school accessories, workwear or related products and would like BASFAY to consider stocking or sourcing from you, send your product details, pricing, photos and contact information for review.
+              </p>
+              <a
+                class="footer-inline-cta"
+                href="https://wa.me/254119667836?text=Hi%20BASFAY%20Uniforms%2C%20I%20would%20like%20to%20sell%20at%20BASFAY."
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Submit enquiry
+              </a>
+            </article>
+
+            <article class="footer-detail-card" id="terms-and-conditions">
+              <h3>Terms &amp; Conditions</h3>
+              <p>
+                Product availability may change without notice. Prices are listed in KES. Orders are confirmed after customer details are submitted and payment choice is selected. For M-Pesa orders, payment confirmation may be required before processing. Pickup arrangements, delivery timelines, exchanges and any order issue handling are communicated directly through BASFAY support channels.
+              </p>
+            </article>
+          </div>
+
+          <div class="footer-bottom">
+            <p>© <span id="year"></span> BASFAY Uniforms. All rights reserved.</p>
+            <p>Quality &amp; Affordable</p>
+          </div>
+        </div>
+      </div>
+    </footer>
 
     <!-- =========================
          ✅ CART DRAWER (REQUIRED)

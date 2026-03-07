@@ -93,9 +93,9 @@
         flex: 0 0 auto;
       }
 
-      /* ✅ Desktop-only Shop/Contact (this is the only change you asked for) */
+      /* ✅ Desktop Shop/Contact (only on desktop) */
       .header-quicklinks{
-        display:none; /* hidden by default */
+        display:none;
         align-items:center;
         gap:10px;
         white-space:nowrap;
@@ -115,7 +115,7 @@
         outline-offset: 2px;
       }
       @media (min-width: 769px){
-        .header-quicklinks{ display:flex; } /* show on desktop */
+        .header-quicklinks{ display:flex; }
       }
 
       /* Hamburger (match cart vibe) */
@@ -260,7 +260,7 @@
     </style>
 
     <!-- cache bust -->
-    <link rel="stylesheet" href="./styles.css?v=20260306-05" />
+    <link rel="stylesheet" href="./styles.css?v=20260306-06" />
   </head>
 
   <body>
@@ -329,9 +329,8 @@
           </a>
         </div>
 
-        <!-- RIGHT: (Desktop) Shop/Contact + Sign in + Cart -->
+        <!-- RIGHT: desktop Shop/Contact + Sign in + Cart -->
         <div class="header-right" aria-label="Header actions">
-          <!-- ✅ DESKTOP ONLY -->
           <nav class="header-quicklinks" aria-label="Quick links">
             <a class="header-link" href="#shop">Shop</a>
             <a class="header-link" href="#contact">Contact</a>
@@ -352,9 +351,646 @@
       </div>
     </header>
 
-    <!-- ✅ The rest of your file stays EXACTLY as you already had it -->
-    <!-- (Keep your hero, shop, drawer, modals, menu modal, orders modal, scripts, etc.) -->
+    <main id="main">
+      <!-- Brand hero -->
+      <section class="brand-hero" aria-label="BASFAY brand banner">
+        <div class="container brand-hero-inner">
+          <div class="brand-badge">
+            <div class="brand-logo" aria-hidden="true">
+              <img src="./images/basfay-logo.png" alt="" loading="eager" decoding="async" />
+            </div>
 
-    <script src="./app.js?v=20260306-05" defer></script>
+            <div class="brand-lines">
+              <h1 class="hero-inline">
+                <span class="hero-name">Basfay Uniforms</span>
+                <span class="hero-divider">|</span>
+                <span class="hero-tagline">Quality &amp; Affordable</span>
+              </h1>
+            </div>
+          </div>
+
+          <div class="brand-right"></div>
+        </div>
+      </section>
+
+      <!-- Shop -->
+      <section class="section" id="shop">
+        <div class="container">
+          <div class="section-head">
+            <h2>Catalog</h2>
+            <p class="muted">Select size, add to order.</p>
+          </div>
+
+          <!-- Top toolbar -->
+          <div class="card soft" style="margin-bottom: 16px;">
+            <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:end; justify-content:space-between;">
+              <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:end;">
+                <div class="field" style="min-width:220px;">
+                  <label for="categoryDropdown">Category</label>
+                  <select id="categoryDropdown">
+                    <option value="">All</option>
+                  </select>
+                </div>
+
+                <div class="field" style="min-width:170px;">
+                  <label for="colorFilterTop">Color</label>
+                  <select id="colorFilterTop">
+                    <option value="">All</option>
+                  </select>
+                </div>
+
+                <div class="field" style="min-width:170px;">
+                  <label for="sortByTop">Sort</label>
+                  <select id="sortByTop">
+                    <option value="featured">Featured</option>
+                    <option value="price_asc">Price (Low–High)</option>
+                    <option value="price_desc">Price (High–Low)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:14px; align-items:center; justify-content:flex-end;">
+                <div><strong id="resultsCount">0</strong> items</div>
+                <div class="muted">KES</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="shop-layout">
+            <div class="catalog" id="catalog" aria-label="Product catalog">
+              <div class="grid" id="productGrid" aria-live="polite"></div>
+
+              <div class="empty" id="emptyState" hidden>
+                <h3>No matches</h3>
+                <p class="muted">Reset filters or try a broader search.</p>
+              </div>
+            </div>
+
+            <div class="cart-preview" id="cartPreview">
+              <h3>Your Cart</h3>
+
+              <div class="muted" style="margin-bottom:8px;">
+                <strong id="cartPreviewCount">0</strong> items
+              </div>
+
+              <div class="cart-preview-items" id="cartPreviewItems">No items yet</div>
+
+              <div class="cart-preview-total">
+                <span>Subtotal</span>
+                <strong id="cartPreviewSubtotal">KES 0</strong>
+              </div>
+
+              <button class="btn primary full" id="openCartPreview" type="button">
+                Go to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- =========================
+         ✅ CART DRAWER (REQUIRED)
+    ========================== -->
+    <div class="drawer" id="drawer" aria-hidden="true">
+      <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+      <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Order list">
+        <div class="drawer-head">
+          <h3>Your order</h3>
+          <button class="icon-btn" id="closeDrawer" aria-label="Close order list" type="button">✕</button>
+        </div>
+
+        <div class="drawer-body">
+          <div id="orderItems" class="order-items"></div>
+
+          <div class="order-summary">
+            <div class="row">
+              <span>Subtotal</span>
+              <strong id="orderSubtotal">KES 0</strong>
+            </div>
+          </div>
+
+          <div class="cart-empty" id="cartEmpty" hidden>
+            <p><strong>No items yet.</strong></p>
+            <p class="muted">Add products from the catalog.</p>
+          </div>
+        </div>
+
+        <div class="drawer-foot">
+          <div class="cart-note muted">Size included.</div>
+
+          <div class="card soft pay-card">
+            <div class="pay-title">Payment</div>
+
+            <div class="pay-options">
+              <label class="pay-opt">
+                <input type="radio" name="payMethod" value="Till" checked />
+                <span><strong>M-Pesa Buy Goods</strong> (Till: <span id="tillNumberUI">XXXX</span>)</span>
+              </label>
+
+              <label class="pay-opt">
+                <input type="radio" name="payMethod" value="Cash" />
+                <span><strong>Cash</strong> (On pickup / delivery)</span>
+              </label>
+            </div>
+
+            <div id="mpesaBox" class="checkout-field">
+              <div class="muted" style="margin-bottom:10px;">
+                1) Copy Till and Amount<br />
+                2) Pay via M-Pesa Buy Goods<br />
+                3) Tap <strong>Proceed</strong> to open WhatsApp<br />
+                4) Send the message and attach/forward your payment confirmation
+              </div>
+
+              <button class="btn ghost full" id="copyTillBtn" type="button">Copy Till Number</button>
+              <button class="btn ghost full" id="copyAmountBtn" type="button">Copy Amount</button>
+
+              <div id="mpesaCodeWrap" class="is-hidden">
+                <label for="mpesaCode" style="margin-top:10px; display:block; font-weight:800;">M-Pesa Confirmation Code</label>
+                <input type="text" id="mpesaCode" placeholder="e.g. QFT3XYZ123" autocomplete="off" />
+              </div>
+            </div>
+
+            <div class="checkout-field">
+              <label for="customerPhone">Phone Number</label>
+              <input type="tel" id="customerPhone" placeholder="07XXXXXXXX" inputmode="tel" autocomplete="tel" />
+            </div>
+
+            <div class="muted pay-help">Confirm active phone number.</div>
+          </div>
+
+          <a class="btn primary full" id="checkoutBtn" href="#" rel="noopener">Proceed</a>
+          <button class="btn ghost full" id="clearCart" type="button">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         ✅ PRODUCT MODAL (REQUIRED)
+    ========================== -->
+    <div class="modal" id="modal" aria-hidden="true">
+      <div class="modal-backdrop" id="modalBackdrop"></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Product details">
+        <div class="modal-head">
+          <h3 id="modalTitle">Product</h3>
+          <button class="icon-btn" id="closeModal" aria-label="Close product details" type="button">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-media" id="modalMedia"></div>
+          <div class="modal-info">
+            <div class="price" id="modalPrice"></div>
+            <div class="meta" id="modalMeta"></div>
+            <p class="muted" id="modalDesc"></p>
+
+            <div id="modalSizeField" class="is-hidden" aria-hidden="true">
+              <label class="size-label" for="modalSize">Size</label>
+              <select class="size-select" id="modalSize" required>
+                <option value="" selected disabled>Select size</option>
+              </select>
+            </div>
+
+            <div class="modal-actions">
+              <button class="btn primary" id="modalAdd" type="button">Add</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         ✅ AUTH MODAL (email+password + Google)
+    ========================== -->
+    <div class="modal" id="authModal" aria-hidden="true">
+      <div class="modal-backdrop" id="authBackdrop"></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Account">
+        <div class="modal-head">
+          <h3 id="authTitle">Account</h3>
+          <button class="icon-btn" id="authClose" aria-label="Close account" type="button">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-info" style="width:100%;">
+            <div class="checkout-field">
+              <label for="authEmail">Email</label>
+              <input id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" />
+            </div>
+
+            <div class="checkout-field">
+              <label for="authPassword">Password</label>
+              <input id="authPassword" type="password" placeholder="8+ characters" autocomplete="current-password" />
+            </div>
+
+            <div class="auth-row" style="margin-top:12px;">
+              <button class="btn primary" id="loginBtn" type="button">Login</button>
+              <button class="btn ghost" id="signupBtn" type="button">Create account</button>
+              <button class="btn ghost" id="googleBtn" type="button">Continue with Google</button>
+              <button class="btn ghost" id="logoutBtn" type="button">Logout</button>
+            </div>
+
+            <div id="authMsg" class="muted"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         ✅ MENU MODAL (hamburger)
+    ========================== -->
+    <div class="modal" id="menuModal" aria-hidden="true">
+      <div class="modal-backdrop" id="menuBackdrop"></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Menu">
+        <div class="modal-head">
+          <h3>Menu</h3>
+          <button class="icon-btn" id="menuClose" aria-label="Close menu" type="button">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-info" style="width:100%;">
+            <div class="muted" id="menuGreeting" style="margin-bottom:10px;">
+              Welcome 👋
+            </div>
+
+            <div class="auth-row">
+              <button class="btn primary full" id="menuAccountBtn" type="button">Log in</button>
+              <button class="btn ghost full" id="menuOrdersBtn" type="button">My Orders</button>
+              <button class="btn ghost full" id="menuReturnsBtn" type="button">Returns</button>
+              <button class="btn ghost full" id="menuChatBtn" type="button">Chat with us</button>
+            </div>
+
+            <div class="muted" style="margin-top:10px;font-size:12px;">
+              Orders: login for full history, or track as a guest using Order ID + phone.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         ✅ ORDERS MODAL
+    ========================== -->
+    <div class="modal" id="ordersModal" aria-hidden="true">
+      <div class="modal-backdrop" id="ordersBackdrop"></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-label="My orders">
+        <div class="modal-head">
+          <h3>My Orders</h3>
+          <button class="icon-btn" id="ordersClose" aria-label="Close orders" type="button">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="orders-box">
+            <div id="ordersStatus" class="muted" style="font-size:12px;">Loading…</div>
+
+            <div id="ordersLoggedInWrap" class="is-hidden">
+              <div id="ordersList" class="orders-list"></div>
+            </div>
+
+            <div id="ordersGuestWrap" class="is-hidden">
+              <div class="card soft" style="padding:12px;">
+                <div style="font-weight:900;margin-bottom:8px;">Track as guest</div>
+
+                <div class="checkout-field">
+                  <label for="guestOrderId">Order ID</label>
+                  <input id="guestOrderId" type="text" placeholder="e.g. 704f94ed-eb69-4b37-896b-..." autocomplete="off" />
+                </div>
+
+                <div class="checkout-field">
+                  <label for="guestPhone">Phone Number</label>
+                  <input id="guestPhone" type="tel" placeholder="07XXXXXXXX" inputmode="tel" autocomplete="tel" />
+                </div>
+
+                <div class="auth-row" style="margin-top:12px;">
+                  <button class="btn primary full" id="guestTrackBtn" type="button">Track Order</button>
+                  <button class="btn ghost full" id="guestLoginBtn" type="button">Log in</button>
+                </div>
+
+                <div id="guestTrackMsg" class="muted" style="margin-top:10px;font-size:12px;"></div>
+              </div>
+
+              <div id="guestTrackResult" class="orders-list" style="margin-top:12px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ MAIN APP -->
+    <script src="./app.js?v=20260306-06" defer></script>
+
+    <!-- ✅ AUTH + MENU + ORDERS -->
+    <script>
+      (function () {
+        const $ = (id) => document.getElementById(id);
+
+        // Auth elements
+        const authBtn = $("authBtn");
+        const authModal = $("authModal");
+        const authBackdrop = $("authBackdrop");
+        const authClose = $("authClose");
+
+        const authEmail = $("authEmail");
+        const authPassword = $("authPassword");
+
+        const loginBtn = $("loginBtn");
+        const signupBtn = $("signupBtn");
+        const googleBtn = $("googleBtn");
+        const logoutBtn = $("logoutBtn");
+        const authMsg = $("authMsg");
+
+        // Menu elements
+        const menuBtn = $("menuBtn");
+        const menuModal = $("menuModal");
+        const menuBackdrop = $("menuBackdrop");
+        const menuClose = $("menuClose");
+        const menuGreeting = $("menuGreeting");
+        const menuAccountBtn = $("menuAccountBtn");
+        const menuOrdersBtn = $("menuOrdersBtn");
+        const menuReturnsBtn = $("menuReturnsBtn");
+        const menuChatBtn = $("menuChatBtn");
+
+        // Orders elements
+        const ordersModal = $("ordersModal");
+        const ordersBackdrop = $("ordersBackdrop");
+        const ordersClose = $("ordersClose");
+        const ordersStatus = $("ordersStatus");
+        const ordersLoggedInWrap = $("ordersLoggedInWrap");
+        const ordersGuestWrap = $("ordersGuestWrap");
+        const ordersList = $("ordersList");
+
+        const guestOrderId = $("guestOrderId");
+        const guestPhone = $("guestPhone");
+        const guestTrackBtn = $("guestTrackBtn");
+        const guestLoginBtn = $("guestLoginBtn");
+        const guestTrackMsg = $("guestTrackMsg");
+        const guestTrackResult = $("guestTrackResult");
+
+        function openAuth() { authModal?.setAttribute("aria-hidden", "false"); }
+        function closeAuth() { authModal?.setAttribute("aria-hidden", "true"); }
+
+        function openMenu() { menuModal?.setAttribute("aria-hidden", "false"); }
+        function closeMenu() { menuModal?.setAttribute("aria-hidden", "true"); }
+
+        function openOrders() { ordersModal?.setAttribute("aria-hidden", "false"); }
+        function closeOrders() { ordersModal?.setAttribute("aria-hidden", "true"); }
+
+        // ✅ Hi, ONE name only (from email or name)
+        function getSingleFirstName(user) {
+          const raw = String(user?.name || user?.email || "").trim();
+          if (!raw) return "there";
+
+          const base = raw.includes("@") ? raw.split("@")[0] : raw;
+
+          const cleaned = base
+            .replace(/[._+\-]+/g, " ")
+            .replace(/[^a-zA-Z\s]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+          if (!cleaned) return "there";
+
+          const first = cleaned.split(" ")[0];
+          return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
+        }
+
+        async function me() {
+          try {
+            return await fetch("/api/me", { credentials: "include" }).then(r => r.json());
+          } catch {
+            return { ok: true, user: null };
+          }
+        }
+
+        async function post(url, payload) {
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(payload || {})
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || "Request failed");
+          return data;
+        }
+
+        async function getJson(url) {
+          const res = await fetch(url, { credentials: "include" });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || "Request failed");
+          return data;
+        }
+
+        function waLink(msg){
+          return "https://wa.me/254119667836?text=" + encodeURIComponent(msg);
+        }
+
+        async function refreshAuthUI() {
+          const data = await me();
+          const user = data?.user;
+
+          if (user?.email || user?.name) {
+            const first = getSingleFirstName(user);
+            if (authBtn) authBtn.textContent = `Hi, ${first}`;
+            if (logoutBtn) logoutBtn.style.display = "inline-block";
+            if (authMsg) authMsg.textContent = user?.email ? `Signed in as ${user.email}` : "Signed in";
+
+            if (menuGreeting) menuGreeting.textContent = `Hi, ${first} 👋`;
+            if (menuAccountBtn) menuAccountBtn.textContent = "Account";
+          } else {
+            if (authBtn) authBtn.textContent = "Sign in";
+            if (logoutBtn) logoutBtn.style.display = "none";
+            if (authMsg) authMsg.textContent = "Login is optional. It saves your order history.";
+
+            if (menuGreeting) menuGreeting.textContent = "Welcome 👋";
+            if (menuAccountBtn) menuAccountBtn.textContent = "Log in";
+          }
+        }
+
+        function renderOrderCard(o){
+          const created = o.created_at ? new Date(o.created_at * 1000).toLocaleString() : "";
+          const total = (o.total_kes != null) ? `KES ${Number(o.total_kes).toLocaleString("en-KE")}` : "";
+          const status = o.status ? String(o.status) : "";
+          const id = o.id ? String(o.id) : "";
+
+          return `
+            <div class="order-card">
+              <div class="order-row">
+                <div style="font-weight:900;">Order</div>
+                <div style="font-weight:900;">${total}</div>
+              </div>
+              <div class="order-muted" style="margin-top:6px;">
+                <div><strong>ID:</strong> ${id}</div>
+                ${status ? `<div><strong>Status:</strong> ${status}</div>` : ""}
+                ${created ? `<div><strong>Placed:</strong> ${created}</div>` : ""}
+              </div>
+            </div>
+          `;
+        }
+
+        async function loadOrdersUI(){
+          if (!ordersStatus) return;
+
+          ordersStatus.textContent = "Loading…";
+          ordersLoggedInWrap?.classList.add("is-hidden");
+          ordersGuestWrap?.classList.add("is-hidden");
+          if (ordersList) ordersList.innerHTML = "";
+          if (guestTrackResult) guestTrackResult.innerHTML = "";
+          if (guestTrackMsg) guestTrackMsg.textContent = "";
+
+          const m = await me();
+          const user = m?.user;
+
+          if (user?.email || user?.id){
+            ordersStatus.textContent = "Fetching your order history…";
+            try{
+              const data = await getJson("/api/orders");
+              const orders = Array.isArray(data?.orders) ? data.orders : [];
+              ordersLoggedInWrap?.classList.remove("is-hidden");
+              ordersStatus.textContent = orders.length ? "" : "No orders yet.";
+              if (ordersList){
+                ordersList.innerHTML = orders.map(renderOrderCard).join("");
+              }
+            }catch(e){
+              ordersStatus.textContent = e.message || "Could not load orders.";
+            }
+          } else {
+            ordersGuestWrap?.classList.remove("is-hidden");
+            ordersStatus.textContent = "Track an order as guest (Order ID + phone).";
+          }
+        }
+
+        // Auth bindings
+        authBtn?.addEventListener("click", openAuth);
+        authBackdrop?.addEventListener("click", closeAuth);
+        authClose?.addEventListener("click", closeAuth);
+
+        loginBtn?.addEventListener("click", async () => {
+          if (!authMsg) return;
+          authMsg.textContent = "Signing in…";
+          try {
+            await post("/api/login", { email: authEmail.value, password: authPassword.value });
+            authMsg.textContent = "Logged in ✅";
+            await refreshAuthUI();
+            setTimeout(closeAuth, 500);
+          } catch (e) {
+            authMsg.textContent = e.message;
+          }
+        });
+
+        signupBtn?.addEventListener("click", async () => {
+          if (!authMsg) return;
+          authMsg.textContent = "Creating account…";
+          try {
+            await post("/api/register", { email: authEmail.value, password: authPassword.value });
+            authMsg.textContent = "Account created ✅";
+            await refreshAuthUI();
+            setTimeout(closeAuth, 500);
+          } catch (e) {
+            authMsg.textContent = e.message;
+          }
+        });
+
+        googleBtn?.addEventListener("click", () => {
+          window.location.href = "/api/auth/google/start";
+        });
+
+        logoutBtn?.addEventListener("click", async () => {
+          if (!authMsg) return;
+          authMsg.textContent = "Logging out…";
+          try {
+            await post("/api/logout", {});
+            authMsg.textContent = "Logged out ✅";
+            await refreshAuthUI();
+          } catch (e) {
+            authMsg.textContent = e.message;
+          }
+        });
+
+        // Menu bindings
+        menuBtn?.addEventListener("click", openMenu);
+        menuBackdrop?.addEventListener("click", closeMenu);
+        menuClose?.addEventListener("click", closeMenu);
+
+        menuAccountBtn?.addEventListener("click", () => {
+          closeMenu();
+          openAuth();
+        });
+
+        menuOrdersBtn?.addEventListener("click", async () => {
+          closeMenu();
+          openOrders();
+          await loadOrdersUI();
+        });
+
+        menuReturnsBtn?.addEventListener("click", () => {
+          const msg =
+            "Hi BASFAY Uniforms, I would like to request a return/exchange.\n" +
+            "Order ID: \nPhone: \nReason: ";
+          window.open(waLink(msg), "_blank", "noopener,noreferrer");
+        });
+
+        menuChatBtn?.addEventListener("click", () => {
+          window.open(waLink("Hi BASFAY Uniforms, I need help."), "_blank", "noopener,noreferrer");
+        });
+
+        // Orders bindings
+        ordersBackdrop?.addEventListener("click", closeOrders);
+        ordersClose?.addEventListener("click", closeOrders);
+
+        guestLoginBtn?.addEventListener("click", () => {
+          closeOrders();
+          openAuth();
+        });
+
+        guestTrackBtn?.addEventListener("click", async () => {
+          if (!guestTrackMsg) return;
+
+          const orderId = String(guestOrderId?.value || "").trim();
+          const phone = String(guestPhone?.value || "").replace(/[^\d+]/g, "");
+
+          if (!orderId || orderId.length < 10) {
+            guestTrackMsg.textContent = "Please enter a valid Order ID.";
+            return;
+          }
+          if (!phone || phone.length < 9) {
+            guestTrackMsg.textContent = "Please enter a valid phone number.";
+            return;
+          }
+
+          guestTrackMsg.textContent = "Tracking…";
+
+          try{
+            const data = await post("/api/orders/track", { order_id: orderId, phone });
+
+            const orders = Array.isArray(data?.orders)
+              ? data.orders
+              : (data?.order ? [data.order] : []);
+
+            if (!orders.length){
+              guestTrackMsg.textContent = "No order found for that Order ID + phone.";
+              if (guestTrackResult) guestTrackResult.innerHTML = "";
+              return;
+            }
+
+            guestTrackMsg.textContent = "";
+            if (guestTrackResult){
+              guestTrackResult.innerHTML = orders.map(renderOrderCard).join("");
+            }
+          }catch(e){
+            guestTrackMsg.textContent = e.message || "Could not track order.";
+          }
+        });
+
+        document.addEventListener("DOMContentLoaded", refreshAuthUI);
+      })();
+    </script>
+
+    <script>
+      const y = document.getElementById("year");
+      if (y) y.textContent = new Date().getFullYear();
+    </script>
+
+    <!-- cache bust -->
+    <link rel="stylesheet" href="./styles.css?v=20260306-06" />
   </body>
 </html>

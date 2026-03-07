@@ -1158,3 +1158,65 @@ input:focus,select:focus{
     height: 48px !important;
   }
 }
+
+/* =========================================
+   BASFAY FINAL FIX: cleaner hero logo
+   + better-looking logo treatment
+   Paste at the VERY END of styles.css
+   ========================================= */
+
+.brand-hero .brand-logo{
+  position: relative !important;
+  width: 64px !important;
+  height: 64px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
+.brand-hero .brand-logo::before{
+  content: "" !important;
+  position: absolute !important;
+  inset: -8px !important;
+  border-radius: 50% !important;
+  background: radial-gradient(
+    circle,
+    rgba(255,255,255,0.78) 0%,
+    rgba(255,255,255,0.34) 42%,
+    rgba(255,255,255,0) 74%
+  ) !important;
+  filter: blur(6px) !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+
+.brand-hero .brand-logo img{
+  position: relative !important;
+  z-index: 1 !important;
+  width: 56px !important;
+  height: 56px !important;
+  object-fit: contain !important;
+  display: block !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 10px !important;
+  filter: drop-shadow(0 2px 8px rgba(15,47,74,0.18)) !important;
+}
+
+@media (max-width: 520px){
+  .brand-hero .brand-logo{
+    width: 54px !important;
+    height: 54px !important;
+  }
+
+  .brand-hero .brand-logo img{
+    width: 48px !important;
+    height: 48px !important;
+  }
+}

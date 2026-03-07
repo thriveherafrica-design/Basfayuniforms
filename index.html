@@ -244,21 +244,34 @@
       }
 
       @media (max-width: 520px) {
+        .brand-text{
+          display:flex !important;
+          flex-direction:column !important;
+          align-items:flex-start !important;
+          justify-content:center !important;
+          min-width:0 !important;
+          line-height:1.05 !important;
+        }
+
         .brand-title {
           font-size: 12px !important;
           letter-spacing: 0.08em !important;
-          max-width: 160px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
+          max-width: none !important;
+          overflow: visible !important;
+          text-overflow: unset !important;
+          white-space: normal !important;
+          display: block !important;
         }
+
         .brand-tagline {
-          font-size: 11px !important;
-          max-width: 160px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
+          display: block !important;
+          font-size: 10.5px !important;
+          max-width: none !important;
+          overflow: visible !important;
+          text-overflow: unset !important;
+          white-space: normal !important;
         }
+
         #authBtn { font-size: 12px !important; padding: 6px 9px !important; max-width: 88px !important; }
       }
 
@@ -277,6 +290,11 @@
         }
 
         .header-left{
+          min-width:0 !important;
+          flex:1 1 auto !important;
+        }
+
+        .header-left .brand{
           min-width:0 !important;
           flex:1 1 auto !important;
         }
@@ -312,15 +330,28 @@
       }
 
       @media (max-width: 520px){
+        .brand-text{
+          display:flex !important;
+          flex-direction:column !important;
+          align-items:flex-start !important;
+          justify-content:center !important;
+          min-width:0 !important;
+          line-height:1.05 !important;
+        }
+
         .brand-tagline{
-          display:none !important;
+          display:block !important;
+          max-width:none !important;
+          overflow:visible !important;
+          text-overflow:unset !important;
+          white-space:normal !important;
         }
 
         .brand-title{
-          max-width:120px !important;
-          overflow:hidden !important;
-          text-overflow:ellipsis !important;
-          white-space:nowrap !important;
+          max-width:none !important;
+          overflow:visible !important;
+          text-overflow:unset !important;
+          white-space:normal !important;
         }
 
         #authBtn{
@@ -331,7 +362,20 @@
 
       @media (max-width: 390px){
         .brand-title{
-          max-width:100px !important;
+          font-size:11px !important;
+          max-width:none !important;
+          overflow:visible !important;
+          text-overflow:unset !important;
+          white-space:normal !important;
+        }
+
+        .brand-tagline{
+          font-size:10px !important;
+          display:block !important;
+          max-width:none !important;
+          overflow:visible !important;
+          text-overflow:unset !important;
+          white-space:normal !important;
         }
 
         #authBtn{
@@ -635,7 +679,7 @@
               min-width: 0;
             "
           >
-            <span style="display: flex; flex-direction: column; line-height: 1.1; min-width:0;">
+            <span class="brand-text" style="display: flex; flex-direction: column; line-height: 1.1; min-width:0;">
               <span
                 class="brand-title"
                 style="

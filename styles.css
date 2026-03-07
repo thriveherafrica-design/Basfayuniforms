@@ -1609,3 +1609,76 @@ input:focus,select:focus{
     border-radius: 14px;
   }
 }
+/* ✅ FORCE Sign in visible on phone */
+@media (max-width: 768px){
+  .header .container.header-inner{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:10px !important;
+    flex-wrap:nowrap !important;
+  }
+
+  .header-left{
+    min-width:0 !important;
+    flex:1 1 auto !important;
+  }
+
+  .header-right{
+    display:flex !important;
+    align-items:center !important;
+    gap:8px !important;
+    flex:0 0 auto !important;
+    margin-left:auto !important;
+  }
+
+  #authBtn{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    position:relative !important;
+    z-index:5 !important;
+    white-space:nowrap !important;
+    flex-shrink:0 !important;
+    padding:6px 10px !important;
+    font-size:12px !important;
+    line-height:1 !important;
+    max-width:none !important;
+  }
+
+  .header-cart{
+    display:inline-flex !important;
+    flex-shrink:0 !important;
+  }
+}
+
+@media (max-width: 520px){
+  .brand-tagline{
+    display:none !important;
+  }
+
+  .brand-title{
+    max-width:120px !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+  }
+
+  #authBtn{
+    padding:6px 8px !important;
+    font-size:11.5px !important;
+  }
+}
+
+@media (max-width: 390px){
+  .brand-title{
+    max-width:100px !important;
+  }
+
+  #authBtn{
+    padding:6px 7px !important;
+    font-size:11px !important;
+  }
+}

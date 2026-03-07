@@ -5,6 +5,9 @@
 //    GET /api/auth/google/callback
 // ✅ Guest order tracking:
 //    POST /api/orders/track  { order_id, phone }
+// ✅ Reviews:
+//    GET  /api/reviews?product_id=...
+//    POST /api/reviews/submit
 
 const COOKIE_NAME = "basfay_session";
 const SESSION_TTL_DAYS = 30;
@@ -19,7 +22,7 @@ export async function onRequest(context) {
     ? params.path.join("/")
     : String(params?.path || "");
 
-  const segs = rawPath.split("/").filter(Boolean).map(s => String(s).toLowerCase());
+  const segs = rawPath.split("/").filter(Boolean).map((s) => String(s).toLowerCase());
   const endpoint = segs[0] || "";
   const sub = segs[1] || "";
   const action = segs[2] || "";
@@ -71,7 +74,20 @@ export async function onRequest(context) {
     if (request.method === "POST" && endpoint === "register") return await register(request, env);
     if (request.method === "POST" && endpoint === "login") return await login(request, env);
     if (request.method === "POST" && endpoint === "logout") return await logout(request, env);
-    if (request.method === "GET"  && endpoint === "me") return await me(request, env);
+    if (request.method === "GET" && endpoint === "me") return await me(request, env);
+
+    /* -----------------------------
+       Reviews
+       - GET  /api/reviews?product_id=...
+       - POST /api/reviews/submit
+    ----------------------------- */
+    if (request.method === "GET" && endpoint === "reviews" && !sub) {
+      return await getProductReviews(request, env);
+    }
+
+    if (request.method === "POST" && endpoint === "reviews" && sub === "submit") {
+      return await submitReview(request, env);
+    }
 
     /* -----------------------------
        Orders
@@ -84,7 +100,7 @@ export async function onRequest(context) {
     }
 
     if (endpoint === "orders" && !sub && request.method === "POST") return await createOrder(request, env);
-    if (endpoint === "orders" && !sub && request.method === "GET")  return await listOrders(request, env);
+    if (endpoint === "orders" && !sub && request.method === "GET") return await listOrders(request, env);
 
     return json({ error: "Not found" }, 404);
   } catch (err) {
@@ -235,7 +251,7 @@ async function listOrders(request, env) {
     LIMIT 50
   `).bind(user.id).all();
 
-  const orders = (rows.results || []).map(r => ({
+  const orders = (rows.results || []).map((r) => ({
     id: r.id,
     total_kes: r.total_kes,
     status: r.status,
@@ -293,6 +309,223 @@ async function trackOrder(request, env) {
       note: row.note || null
     }
   }, 200);
+}
+
+/* -----------------------------
+   REVIEWS
+----------------------------- */
+
+async function getProductReviews(request, env) {
+  const url = new URL(request.url);
+  const productId = cleanText(url.searchParams.get("product_id"), 120);
+
+  if (!productId) return json({ error: "product_id is required." }, 400);
+  if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
+
+  const summary = await env.DB.prepare(`
+    SELECT
+      COUNT(*) AS review_count,
+      ROUND(AVG(rating), 1) AS average_rating
+    FROM reviews
+    WHERE product_id = ?
+      AND status = 'approved'
+  `).bind(productId).first();
+
+  const rows = await env.DB.prepare(`
+    SELECT
+      id,
+      customer_name,
+      rating,
+      review_text,
+      verified_purchase,
+      created_at
+    FROM reviews
+    WHERE product_id = ?
+      AND status = 'approved'
+    ORDER BY created_at DESC
+    LIMIT 10
+  `).bind(productId).all();
+
+  const reviewCount = Number(summary?.review_count || 0);
+  const averageRating = reviewCount ? Number(summary?.average_rating || 0) : 0;
+
+  return json({
+    ok: true,
+    product_id: productId,
+    average_rating: averageRating,
+    review_count: reviewCount,
+    reviews: (rows.results || []).map((r) => ({
+      id: r.id,
+      customer_name: r.customer_name || "Verified Buyer",
+      rating: r.rating,
+      review_text: r.review_text,
+      verified_purchase: !!r.verified_purchase,
+      created_at: r.created_at
+    }))
+  }, 200);
+}
+
+async function submitReview(request, env) {
+  const body = await safeJson(request);
+
+  const productId = cleanText(body.product_id || body.productId, 120);
+  const orderId = cleanText(body.order_id || body.orderId, 120);
+  const phone = normalizePhone(cleanText(body.customer_phone || body.phone, 30));
+  const customerName = cleanText(body.customer_name || body.name, 80);
+  const reviewText = cleanText(body.review_text || body.reviewBody, 1000);
+  const rating = Number(body.rating);
+  const turnstileToken = cleanText(body.turnstile_token || body.turnstileToken, 4000);
+
+  if (!productId || !orderId || !phone || !reviewText) {
+    return json({ error: "product_id, order_id, phone and review_text are required." }, 400);
+  }
+
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    return json({ error: "rating must be an integer between 1 and 5." }, 400);
+  }
+
+  if (reviewText.length < 8) {
+    return json({ error: "Review is too short." }, 400);
+  }
+
+  if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
+
+  const turnstile = await verifyTurnstileToken(turnstileToken, request, env);
+  if (!turnstile.ok) {
+    return json({ error: "Turnstile verification failed." }, 400);
+  }
+
+  const row = await env.DB.prepare(`
+    SELECT id, user_id, customer_name, customer_phone, items_json, total_kes, status, note, created_at
+    FROM orders
+    WHERE id = ?
+    LIMIT 1
+  `).bind(orderId).first();
+
+  if (!row) return json({ error: "Order not found." }, 404);
+
+  const authed = await getAuthedUser(request, env);
+  const owns = authed?.id && row.user_id && authed.id === row.user_id;
+
+  const storedPhone = row.customer_phone ? normalizePhone(String(row.customer_phone)) : "";
+  const phoneOk = storedPhone && storedPhone === phone;
+
+  // Don’t leak order existence
+  if (!owns && !phoneOk) {
+    return json({ error: "Order not found." }, 404);
+  }
+
+  const orderItems = safeParse(row.items_json);
+  const matchedItem = findProductInOrder(orderItems, productId);
+
+  if (!matchedItem) {
+    return json({
+      error: "This product was not found in that order.",
+      detail: "Order items must include product_id, productId, or id for review verification to work."
+    }, 400);
+  }
+
+  const existing = await env.DB.prepare(`
+    SELECT id, status
+    FROM reviews
+    WHERE product_id = ?
+      AND order_id = ?
+      AND customer_phone = ?
+    LIMIT 1
+  `).bind(productId, orderId, phone).first();
+
+  if (existing) {
+    return json({
+      error: "A review for this product and order already exists.",
+      status: existing.status
+    }, 409);
+  }
+
+  const ts = now();
+  const reviewId = crypto.randomUUID();
+
+  await env.DB.prepare(`
+    INSERT INTO reviews (
+      id,
+      product_id,
+      order_id,
+      user_id,
+      customer_name,
+      customer_phone,
+      rating,
+      review_text,
+      verified_purchase,
+      status,
+      created_at,
+      updated_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, 'pending', ?, ?)
+  `).bind(
+    reviewId,
+    productId,
+    orderId,
+    authed?.id || row.user_id || null,
+    customerName || row.customer_name || null,
+    phone,
+    Math.trunc(rating),
+    reviewText,
+    ts,
+    ts
+  ).run();
+
+  return json({
+    ok: true,
+    message: "Review submitted and pending approval.",
+    reviewId
+  }, 200);
+}
+
+async function verifyTurnstileToken(token, request, env) {
+  if (!token) return { ok: false, error: "Missing turnstile token." };
+
+  const secret = String(env?.TURNSTILE_SECRET || "").trim();
+  if (!secret) return { ok: false, error: "TURNSTILE_SECRET missing." };
+
+  const form = new URLSearchParams();
+  form.set("secret", secret);
+  form.set("response", token);
+
+  const ip = request.headers.get("CF-Connecting-IP") || "";
+  if (ip) form.set("remoteip", ip);
+
+  try {
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: form
+    });
+
+    const data = await res.json().catch(() => ({ success: false }));
+    if (!res.ok || !data?.success) {
+      return { ok: false, detail: data };
+    }
+
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: String(e?.message || e) };
+  }
+}
+
+function findProductInOrder(items, productId) {
+  if (!Array.isArray(items)) return null;
+  return items.find((item) => extractOrderItemProductId(item) === productId) || null;
+}
+
+function extractOrderItemProductId(item) {
+  if (!item || typeof item !== "object") return "";
+  return cleanText(
+    item.product_id ||
+    item.productId ||
+    item.id ||
+    item?.product?.id ||
+    "",
+    120
+  );
 }
 
 /* -----------------------------
@@ -542,7 +775,7 @@ function isSameOrigin(request) {
 }
 
 // ✅ normalize so 0712... matches 254712...
-function normalizePhone(v){
+function normalizePhone(v) {
   const digits = String(v || "").replace(/[^\d]/g, "");
   if (!digits) return "";
   if (digits.startsWith("0") && digits.length === 10) return "254" + digits.slice(1);

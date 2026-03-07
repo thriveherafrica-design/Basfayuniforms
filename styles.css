@@ -136,7 +136,12 @@ a:hover{ opacity:0.9; }
   letter-spacing:0.4px;
   box-shadow:0 12px 26px rgba(0,0,0,0.20);
 }
-.brand-text{ display:grid; line-height:1.12; }
+.brand-text{
+  display:flex;
+  flex-direction:column;
+  line-height:1.1;
+  min-width:0;
+}
 .brand-name{
   font-family:"Fraunces", serif;
   font-weight:700;
@@ -1026,6 +1031,7 @@ input:focus,select:focus{
 
   .header-left .brand{
     min-width:0 !important;
+    flex:1 1 auto !important;
   }
 
   .header-right{
@@ -1060,15 +1066,32 @@ input:focus,select:focus{
 }
 
 @media (max-width: 520px){
+  .brand-text{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:flex-start !important;
+    justify-content:center !important;
+    min-width:0 !important;
+    line-height:1.05 !important;
+  }
+
   .brand-tagline{
-    display:none !important;
+    display:block !important;
+    font-size:10.5px !important;
+    max-width:none !important;
+    overflow:visible !important;
+    text-overflow:unset !important;
+    white-space:normal !important;
   }
 
   .brand-title{
-    max-width:120px !important;
-    overflow:hidden !important;
-    text-overflow:ellipsis !important;
-    white-space:nowrap !important;
+    display:block !important;
+    font-size:12px !important;
+    letter-spacing:0.08em !important;
+    max-width:none !important;
+    overflow:visible !important;
+    text-overflow:unset !important;
+    white-space:normal !important;
   }
 
   #authBtn{
@@ -1087,7 +1110,20 @@ input:focus,select:focus{
 
 @media (max-width: 390px){
   .brand-title{
-    max-width:100px !important;
+    font-size:11px !important;
+    max-width:none !important;
+    overflow:visible !important;
+    text-overflow:unset !important;
+    white-space:normal !important;
+  }
+
+  .brand-tagline{
+    display:block !important;
+    font-size:10px !important;
+    max-width:none !important;
+    overflow:visible !important;
+    text-overflow:unset !important;
+    white-space:normal !important;
   }
 
   #authBtn{
@@ -1162,7 +1198,6 @@ input:focus,select:focus{
 /* =========================================
    BASFAY FINAL FIX: cleaner hero logo
    + better-looking logo treatment
-   Paste at the VERY END of styles.css
    ========================================= */
 
 .brand-hero .brand-logo{

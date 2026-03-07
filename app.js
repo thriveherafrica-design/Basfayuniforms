@@ -4,9 +4,11 @@
    + Desktop "Your Cart" preview (working)
    ✅ Order-first checkout (Daraja-ready): saves order to DB before WhatsApp
    ✅ Order ID shown + copied (for guest tracking)
+   ✅ Product reviews in modal
+   ✅ Customer-submitted review form with Turnstile
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (WORKING CART PREVIEW)");
+console.log("✅ BASFAY app.js LOADED (REVIEWS + WORKING CART PREVIEW)");
 
 const CONFIG = {
   currency: "KES",
@@ -14,6 +16,7 @@ const CONFIG = {
   whatsappNumber: "254119667836",
   businessName: "BASFAY Uniforms",
   tillNumberPlaceholder: "XXXX",
+  turnstileSiteKey: "0x4AAAAAACnvQa10Y55LL_Rg",
 };
 
 const FUTURE_CATEGORIES = [
@@ -78,12 +81,17 @@ let state = { color: "", type: "", sort: "featured" };
 
 const CART_KEY = "basfay_cart_v1";
 const CHECKOUT_STEP_KEY = "basfay_checkout_step_v1";
-
-/* ✅ reuse same order across Till Step 1 -> Step 2 (avoid duplicates) */
 const PENDING_ORDER_ID_KEY = "basfay_pending_order_id_v1";
-
-/* ✅ NEW: keep last order id for guests (tracking) */
 const LAST_ORDER_ID_KEY = "basfay_last_order_id_v1";
+const LAST_CUSTOMER_PHONE_KEY = "basfay_last_customer_phone_v1";
+
+const reviewState = {
+  currentProductId: "",
+  ui: null,
+  widgetId: null,
+  scriptPromise: null,
+  cache: new Map(),
+};
 
 /* Helpers */
 function safeText(s){ return String(s ?? "").trim(); }
@@ -97,6 +105,33 @@ function toTypeClass(type){
   return "type-" + normalize(type).replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
 }
 function cleanPhone(raw){ return safeText(raw).replace(/[^\d+]/g, ""); }
+
+function escapeHtml(value){
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function starsForRating(rating){
+  const rounded = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+  return "★".repeat(rounded) + "☆".repeat(5 - rounded);
+}
+
+function reviewDateText(ts){
+  if(!ts) return "";
+  try{
+    return new Date(Number(ts) * 1000).toLocaleDateString("en-KE", {
+      year: "numeric",
+      month: "short",
+      day: "numeric"
+    });
+  }catch{
+    return "";
+  }
+}
 
 function toast(msg){
   const t = document.createElement("div");
@@ -114,7 +149,7 @@ function toast(msg){
   t.style.maxWidth="90vw";
   t.style.textAlign="center";
   document.body.appendChild(t);
-  setTimeout(()=>t.remove(),1400);
+  setTimeout(()=>t.remove(),1600);
 }
 
 async function copyToClipboard(text){
@@ -130,6 +165,25 @@ async function copyToClipboard(text){
     ta.remove();
     toast("Copied ✅");
   }
+}
+
+async function apiGetJson(url){
+  const res = await fetch(url, { credentials: "include" });
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data?.error || "Request failed.");
+  return data;
+}
+
+async function apiPostJson(url, payload){
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type":"application/json" },
+    credentials: "include",
+    body: JSON.stringify(payload || {})
+  });
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data?.error || "Request failed.");
+  return data;
 }
 
 /* ✅ NEW: announce order id + copy (critical for guest tracking) */
@@ -194,8 +248,11 @@ function buildOrderItemsPayload(){
   return cart.map(item=>{
     const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
     return {
+      product_id: item.id,
       id: item.id,
       name: p?.name || safeText(item.id),
+      color: p?.color || "",
+      type: p?.type || "",
       size: item.size,
       qty: Number(item.qty)||1,
       price: Number(item.price)||0
@@ -206,13 +263,8 @@ function buildOrderItemsPayload(){
 /* ✅ One setter: updates EVERYTHING */
 function setCart(items){
   localStorage.setItem(CART_KEY, JSON.stringify(items));
-
-  // Any cart change invalidates pending order (avoid mismatch)
   localStorage.removeItem(PENDING_ORDER_ID_KEY);
-
-  // Any cart change should reset the step back to cart
   setCheckoutStep("cart");
-
   refreshAllCartUIs();
 }
 
@@ -331,17 +383,17 @@ function renderOrderPanel(){
     return `
       <div class="order-item">
         <div>
-          <div><strong>${name}</strong></div>
-          <small>Size: ${sizeTxt}</small><br/>
+          <div><strong>${escapeHtml(name)}</strong></div>
+          <small>Size: ${escapeHtml(sizeTxt)}</small><br/>
           <small>${money(unit)} each</small>
         </div>
         <div class="actions">
           <strong>${money(line)}</strong>
           <div class="mob-stepper">
-            <button class="mob-trash" type="button" data-rm="${item.key}">🗑</button>
-            <button class="mob-btn" type="button" data-dec="${item.key}">−</button>
+            <button class="mob-trash" type="button" data-rm="${escapeHtml(item.key)}">🗑</button>
+            <button class="mob-btn" type="button" data-dec="${escapeHtml(item.key)}">−</button>
             <span class="mob-qty">${qty}</span>
-            <button class="mob-btn" type="button" data-inc="${item.key}">+</button>
+            <button class="mob-btn" type="button" data-inc="${escapeHtml(item.key)}">+</button>
           </div>
         </div>
       </div>
@@ -381,7 +433,7 @@ function renderCartPreview(){
 
     return `
       <div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.08);">
-        <div style="font-weight:800;">${qty}× ${name} ${sizeTxt}</div>
+        <div style="font-weight:800;">${escapeHtml(`${qty}× ${name} ${sizeTxt}`)}</div>
         <div style="font-weight:900;">${money(line)}</div>
       </div>
     `;
@@ -398,6 +450,416 @@ function refreshAllCartUIs(){
   refreshCartBadge();
   renderOrderPanel();
   renderCartPreview();
+}
+
+/* Reviews UI */
+function ensureReviewUI(){
+  if(reviewState.ui) return reviewState.ui;
+
+  const modalInfo = els.modal?.querySelector(".modal-info") || els.modalDesc?.parentElement;
+  if(!modalInfo) return null;
+
+  const wrap = document.createElement("div");
+  wrap.id = "modalReviewsBlock";
+  wrap.style.marginTop = "14px";
+  wrap.style.paddingTop = "14px";
+  wrap.style.borderTop = "1px solid rgba(15,28,43,0.08)";
+
+  wrap.innerHTML = `
+    <div id="modalReviewsSummary" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+      <strong style="font-size:14px;">Reviews</strong>
+      <span class="muted" style="font-size:13px;">Loading...</span>
+    </div>
+
+    <div id="modalReviewsList" style="display:grid;gap:10px;margin-bottom:12px;"></div>
+
+    <button
+      type="button"
+      id="modalReviewToggleBtn"
+      class="btn ghost"
+      style="margin-bottom:12px;"
+    >
+      Leave a review
+    </button>
+
+    <div id="modalReviewFormWrap" class="is-hidden" style="display:none;">
+      <div
+        style="
+          border:1px solid rgba(15,28,43,0.08);
+          border-radius:16px;
+          padding:12px;
+          background:rgba(255,255,255,0.72);
+        "
+      >
+        <div style="font-weight:900;margin-bottom:10px;">Verified purchase review</div>
+
+        <div class="checkout-field">
+          <label for="reviewOrderId">Order ID</label>
+          <input id="reviewOrderId" type="text" placeholder="Paste your Order ID" autocomplete="off" />
+        </div>
+
+        <div class="checkout-field">
+          <label for="reviewPhone">Phone Number</label>
+          <input id="reviewPhone" type="tel" placeholder="07XXXXXXXX" inputmode="tel" autocomplete="tel" />
+        </div>
+
+        <div class="checkout-field">
+          <label for="reviewName">Name</label>
+          <input id="reviewName" type="text" placeholder="Your name (optional)" autocomplete="name" />
+        </div>
+
+        <div class="checkout-field">
+          <label for="reviewRating">Rating</label>
+          <select id="reviewRating">
+            <option value="" selected disabled>Select rating</option>
+            <option value="5">5 - Excellent</option>
+            <option value="4">4 - Very good</option>
+            <option value="3">3 - Good</option>
+            <option value="2">2 - Fair</option>
+            <option value="1">1 - Poor</option>
+          </select>
+        </div>
+
+        <div class="checkout-field">
+          <label for="reviewText">Review</label>
+          <textarea
+            id="reviewText"
+            rows="4"
+            placeholder="Share your experience with this item"
+            style="
+              width:100%;
+              padding:12px 12px;
+              border-radius:14px;
+              border:1px solid rgba(15,28,43,0.12);
+              background:rgba(255,255,255,0.95);
+              color:var(--ink);
+              outline:none;
+              resize:vertical;
+              font:inherit;
+            "
+          ></textarea>
+        </div>
+
+        <div id="reviewTurnstileWrap" style="margin-top:12px;"></div>
+
+        <div id="reviewFormMsg" class="muted" style="margin-top:10px;font-size:12px;"></div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+          <button type="button" id="reviewSubmitBtn" class="btn primary">Submit review</button>
+          <button type="button" id="reviewCancelBtn" class="btn ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  modalInfo.appendChild(wrap);
+
+  const ui = {
+    wrap,
+    summary: wrap.querySelector("#modalReviewsSummary"),
+    list: wrap.querySelector("#modalReviewsList"),
+    toggleBtn: wrap.querySelector("#modalReviewToggleBtn"),
+    formWrap: wrap.querySelector("#modalReviewFormWrap"),
+    orderId: wrap.querySelector("#reviewOrderId"),
+    phone: wrap.querySelector("#reviewPhone"),
+    name: wrap.querySelector("#reviewName"),
+    rating: wrap.querySelector("#reviewRating"),
+    text: wrap.querySelector("#reviewText"),
+    turnstileWrap: wrap.querySelector("#reviewTurnstileWrap"),
+    msg: wrap.querySelector("#reviewFormMsg"),
+    submitBtn: wrap.querySelector("#reviewSubmitBtn"),
+    cancelBtn: wrap.querySelector("#reviewCancelBtn"),
+  };
+
+  ui.toggleBtn.addEventListener("click", async ()=>{
+    const hidden = ui.formWrap.style.display === "none";
+    if(hidden){
+      ui.formWrap.style.display = "block";
+      ui.formWrap.classList.remove("is-hidden");
+      prefillReviewForm();
+      await mountTurnstileWidget();
+    }else{
+      hideReviewForm();
+    }
+  });
+
+  ui.cancelBtn.addEventListener("click", ()=>{
+    hideReviewForm();
+  });
+
+  ui.submitBtn.addEventListener("click", submitReviewFromModal);
+
+  reviewState.ui = ui;
+  return ui;
+}
+
+function prefillReviewForm(){
+  const ui = ensureReviewUI();
+  if(!ui) return;
+
+  const lastOrderId = safeText(localStorage.getItem(LAST_ORDER_ID_KEY));
+  const lastPhone = safeText(localStorage.getItem(LAST_CUSTOMER_PHONE_KEY));
+  const drawerPhone = cleanPhone(els.customerPhone?.value);
+
+  if(!ui.orderId.value && lastOrderId) ui.orderId.value = lastOrderId;
+  if(!ui.phone.value && drawerPhone) ui.phone.value = drawerPhone;
+  if(!ui.phone.value && lastPhone) ui.phone.value = lastPhone;
+}
+
+function hideReviewForm(){
+  const ui = ensureReviewUI();
+  if(!ui) return;
+  ui.formWrap.style.display = "none";
+  ui.formWrap.classList.add("is-hidden");
+  ui.msg.textContent = "";
+}
+
+function renderModalReviews(data){
+  const ui = ensureReviewUI();
+  if(!ui) return;
+
+  const count = Number(data?.review_count || 0);
+  const avg = Number(data?.average_rating || 0);
+
+  if(count > 0){
+    ui.summary.innerHTML = `
+      <strong style="font-size:14px;">Reviews</strong>
+      <span style="color:#F4B400;font-size:14px;letter-spacing:0.06em;">${starsForRating(avg)}</span>
+      <strong style="font-size:14px;">${avg.toFixed(1)}</strong>
+      <span class="muted" style="font-size:13px;">(${count} review${count === 1 ? "" : "s"})</span>
+    `;
+  }else{
+    ui.summary.innerHTML = `
+      <strong style="font-size:14px;">Reviews</strong>
+      <span class="muted" style="font-size:13px;">No approved reviews yet.</span>
+    `;
+  }
+
+  const reviews = Array.isArray(data?.reviews) ? data.reviews : [];
+  if(!reviews.length){
+    ui.list.innerHTML = `
+      <div
+        style="
+          border:1px solid rgba(15,28,43,0.08);
+          border-radius:14px;
+          padding:12px;
+          background:#fff;
+          color:rgba(15,28,43,0.72);
+          font-size:13px;
+          line-height:1.6;
+        "
+      >
+        Be the first verified buyer to leave a review for this item.
+      </div>
+    `;
+    return;
+  }
+
+  ui.list.innerHTML = reviews.map(r => {
+    const dateText = reviewDateText(r.created_at);
+    const buyerName = safeText(r.customer_name) || "Verified Buyer";
+    return `
+      <article
+        style="
+          border:1px solid rgba(15,28,43,0.08);
+          border-radius:14px;
+          padding:12px;
+          background:#fff;
+          box-shadow:0 8px 20px rgba(15,28,43,0.04);
+        "
+      >
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:8px;flex-wrap:wrap;">
+          <div>
+            <strong style="font-size:14px;">${escapeHtml(buyerName)}</strong>
+            ${r.verified_purchase ? `<div style="font-size:12px;color:#0F2F4A;font-weight:800;margin-top:2px;">Verified Buyer</div>` : ``}
+          </div>
+          <div style="text-align:right;">
+            <div style="color:#F4B400;font-size:13px;letter-spacing:0.06em;">${starsForRating(r.rating)}</div>
+            ${dateText ? `<div style="font-size:12px;color:rgba(15,28,43,0.58);margin-top:2px;">${escapeHtml(dateText)}</div>` : ``}
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.65;color:rgba(15,28,43,0.78);">
+          ${escapeHtml(r.review_text)}
+        </p>
+      </article>
+    `;
+  }).join("");
+}
+
+async function loadReviewsForProduct(productId){
+  const ui = ensureReviewUI();
+  if(!ui) return;
+
+  reviewState.currentProductId = safeText(productId);
+  ui.summary.innerHTML = `<strong style="font-size:14px;">Reviews</strong><span class="muted" style="font-size:13px;">Loading...</span>`;
+  ui.list.innerHTML = "";
+  ui.msg.textContent = "";
+
+  try{
+    const data = await apiGetJson(`/api/reviews?product_id=${encodeURIComponent(productId)}`);
+    reviewState.cache.set(productId, data);
+    renderModalReviews(data);
+  }catch(err){
+    ui.summary.innerHTML = `<strong style="font-size:14px;">Reviews</strong><span class="muted" style="font-size:13px;">Could not load reviews.</span>`;
+    ui.list.innerHTML = `
+      <div
+        style="
+          border:1px solid rgba(15,28,43,0.08);
+          border-radius:14px;
+          padding:12px;
+          background:#fff;
+          color:rgba(15,28,43,0.72);
+          font-size:13px;
+          line-height:1.6;
+        "
+      >
+        Reviews are temporarily unavailable.
+      </div>
+    `;
+  }
+}
+
+async function ensureTurnstileScript(){
+  if(window.turnstile) return;
+  if(reviewState.scriptPromise) return reviewState.scriptPromise;
+
+  reviewState.scriptPromise = new Promise((resolve, reject)=>{
+    const existing = document.querySelector('script[data-basfay-turnstile="1"]');
+    if(existing){
+      existing.addEventListener("load", ()=>resolve(), { once:true });
+      existing.addEventListener("error", ()=>reject(new Error("Could not load Turnstile.")), { once:true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.defer = true;
+    script.dataset.basfayTurnstile = "1";
+    script.onload = ()=>resolve();
+    script.onerror = ()=>reject(new Error("Could not load Turnstile."));
+    document.head.appendChild(script);
+  });
+
+  return reviewState.scriptPromise;
+}
+
+async function mountTurnstileWidget(){
+  const ui = ensureReviewUI();
+  if(!ui || !CONFIG.turnstileSiteKey) return;
+
+  try{
+    await ensureTurnstileScript();
+
+    if(window.turnstile && reviewState.widgetId !== null){
+      ui.turnstileWrap.dataset.token = "";
+      window.turnstile.reset(reviewState.widgetId);
+      return;
+    }
+
+    ui.turnstileWrap.innerHTML = "";
+    ui.turnstileWrap.dataset.token = "";
+
+    if(window.turnstile){
+      reviewState.widgetId = window.turnstile.render(ui.turnstileWrap, {
+        sitekey: CONFIG.turnstileSiteKey,
+        theme: "light",
+        callback(token){
+          ui.turnstileWrap.dataset.token = token || "";
+        },
+        "expired-callback"(){
+          ui.turnstileWrap.dataset.token = "";
+        },
+        "error-callback"(){
+          ui.turnstileWrap.dataset.token = "";
+        }
+      });
+    }
+  }catch(err){
+    ui.msg.textContent = "Could not load review verification. Please refresh and try again.";
+  }
+}
+
+function resetTurnstileWidget(){
+  const ui = ensureReviewUI();
+  if(!ui) return;
+  ui.turnstileWrap.dataset.token = "";
+  if(window.turnstile && reviewState.widgetId !== null){
+    try{
+      window.turnstile.reset(reviewState.widgetId);
+    }catch{
+      // leave it
+    }
+  }
+}
+
+async function submitReviewFromModal(){
+  const ui = ensureReviewUI();
+  if(!ui) return;
+
+  const productId = safeText(reviewState.currentProductId);
+  const orderId = safeText(ui.orderId.value);
+  const phone = cleanPhone(ui.phone.value);
+  const name = safeText(ui.name.value);
+  const rating = Number(ui.rating.value);
+  const reviewText = safeText(ui.text.value);
+  const turnstileToken = safeText(ui.turnstileWrap.dataset.token);
+
+  if(!productId){
+    ui.msg.textContent = "Product not selected.";
+    return;
+  }
+  if(!orderId){
+    ui.msg.textContent = "Please enter your Order ID.";
+    return;
+  }
+  if(!phone || phone.length < 9){
+    ui.msg.textContent = "Please enter a valid phone number.";
+    return;
+  }
+  if(!rating || rating < 1 || rating > 5){
+    ui.msg.textContent = "Please select a rating.";
+    return;
+  }
+  if(reviewText.length < 8){
+    ui.msg.textContent = "Please write a slightly longer review.";
+    return;
+  }
+  if(!turnstileToken){
+    ui.msg.textContent = "Please complete the verification first.";
+    return;
+  }
+
+  ui.submitBtn.disabled = true;
+  ui.submitBtn.textContent = "Submitting...";
+  ui.msg.textContent = "Submitting your review...";
+
+  try{
+    await apiPostJson("/api/reviews/submit", {
+      product_id: productId,
+      order_id: orderId,
+      customer_phone: phone,
+      customer_name: name,
+      rating,
+      review_text: reviewText,
+      turnstile_token: turnstileToken
+    });
+
+    localStorage.setItem(LAST_ORDER_ID_KEY, orderId);
+    localStorage.setItem(LAST_CUSTOMER_PHONE_KEY, phone);
+
+    ui.msg.textContent = "Review submitted ✅ It will appear after approval.";
+    ui.text.value = "";
+    ui.rating.value = "";
+    resetTurnstileWidget();
+    toast("Review submitted ✅");
+  }catch(err){
+    ui.msg.textContent = err.message || "Could not submit review.";
+    resetTurnstileWidget();
+  }finally{
+    ui.submitBtn.disabled = false;
+    ui.submitBtn.textContent = "Submit review";
+  }
 }
 
 /* Render products */
@@ -552,17 +1014,23 @@ function openDrawer(){ els.drawer?.setAttribute("aria-hidden","false"); }
 function closeDrawer(){ els.drawer?.setAttribute("aria-hidden","true"); }
 
 function bindModal(){
-  els.closeModal?.addEventListener("click", ()=>els.modal?.setAttribute("aria-hidden","true"));
-  els.modalBackdrop?.addEventListener("click", ()=>els.modal?.setAttribute("aria-hidden","true"));
+  els.closeModal?.addEventListener("click", ()=>{
+    els.modal?.setAttribute("aria-hidden","true");
+    hideReviewForm();
+  });
+  els.modalBackdrop?.addEventListener("click", ()=>{
+    els.modal?.setAttribute("aria-hidden","true");
+    hideReviewForm();
+  });
 }
 
-function openModal(productId){
+async function openModal(productId){
   const p = PRODUCTS.find(x => normalize(x.id) === normalize(productId));
   if(!p || !els.modal) return;
 
   els.modalTitle.textContent = p.name;
   els.modalDesc.textContent = p.description || "Durable, comfortable uniform item.";
-  els.modalMedia.innerHTML = p.image ? `<img src="${p.image}" alt="${p.name} photo">` : "";
+  els.modalMedia.innerHTML = p.image ? `<img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)} photo">` : "";
   els.modalMeta.textContent = [p.color && `Color: ${p.color}`, p.type && `Type: ${p.type}`].filter(Boolean).join(" • ");
 
   const variants = Array.isArray(p.variants) ? p.variants : [];
@@ -607,6 +1075,10 @@ function openModal(productId){
       addToCart(p.id, "-", p.price, 1);
     }
   };
+
+  ensureReviewUI();
+  hideReviewForm();
+  await loadReviewsForProduct(p.id);
 
   els.modal.setAttribute("aria-hidden","false");
 }
@@ -709,6 +1181,8 @@ function bindCart(){
       return;
     }
 
+    localStorage.setItem(LAST_CUSTOMER_PHONE_KEY, phone);
+
     const subtotal = calcSubtotal();
     const itemsPayload = buildOrderItemsPayload();
 
@@ -747,7 +1221,7 @@ function bindCart(){
       return;
     }
 
-    // ✅ Till => Step 1: show guidance + create order (Daraja-ready)
+    // ✅ Till => Step 1: show guidance + create order
     if(getCheckoutStep()==="cart"){
       const orderId = await ensureOrderId(`Payment: M-Pesa Till (${CONFIG.tillNumberPlaceholder})`);
       setCheckoutStep("checkout");
@@ -758,7 +1232,7 @@ function bindCart(){
       return;
     }
 
-    // ✅ Till => Step 2: open WhatsApp for now (later: Daraja web payment)
+    // ✅ Till => Step 2: open WhatsApp
     const orderId = await ensureOrderId(`Payment: M-Pesa Till (${CONFIG.tillNumberPlaceholder})`);
 
     let msg = buildCheckoutWhatsAppMessage();
@@ -785,6 +1259,7 @@ async function loadProducts(){
       name: safeText(p.name),
       color: safeText(p.color),
       type: safeText(p.type),
+      pattern: safeText(p.pattern),
       price: p.price==null ? null : Number(p.price),
       variants,
       image: safeText(p.image),

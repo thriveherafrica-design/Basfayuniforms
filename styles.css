@@ -1360,96 +1360,79 @@ input:focus,select:focus{
 }
 
 /* =========================
-   PRODUCT POPUP: force an end + inner scroll
-   Paste at the very bottom
+   BASFAY REAL MODAL SCROLL FIX
+   Uses your actual selectors:
+   .modal-panel / .modal-body / .modal-info
    ========================= */
 
-/* the dark overlay */
-.modal,
-.modal-overlay,
-.product-modal-overlay {
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 16px !important;
-}
-
-/* the white popup box itself */
-.modal-card,
-.product-modal,
-.product-popup,
-.quick-view-card {
-  width: min(1100px, calc(100vw - 32px)) !important;
+.modal-panel{
   max-height: calc(100vh - 32px) !important;
-  overflow: hidden !important;
-  border-radius: 24px !important;
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 460px) !important;
-  align-items: stretch !important;
-}
-
-/* left side image area */
-.modal-media,
-.product-modal-media,
-.popup-media {
-  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
   overflow: hidden !important;
 }
 
-/* right side content area: THIS becomes scrollable */
-.modal-info,
-.modal-content,
-.product-modal-info,
-.product-details-pane,
-.quick-view-content {
+.modal-head{
+  flex: 0 0 auto !important;
+}
+
+.modal-body{
+  flex: 1 1 auto !important;
   min-height: 0 !important;
-  max-height: calc(100vh - 32px) !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  overscroll-behavior: contain;
-  padding-right: 8px !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
 }
 
-/* cleaner scrollbar */
-.modal-info::-webkit-scrollbar,
-.modal-content::-webkit-scrollbar,
-.product-modal-info::-webkit-scrollbar,
-.product-details-pane::-webkit-scrollbar,
-.quick-view-content::-webkit-scrollbar {
-  width: 8px;
+.modal-info{
+  min-height: 0 !important;
 }
 
-.modal-info::-webkit-scrollbar-thumb,
-.modal-content::-webkit-scrollbar-thumb,
-.product-modal-info::-webkit-scrollbar-thumb,
-.product-details-pane::-webkit-scrollbar-thumb,
-.quick-view-content::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.18);
-  border-radius: 999px;
+/* keep product modal 2-column on desktop */
+#modal .modal-body{
+  grid-template-columns: 1fr !important;
 }
 
-/* phone */
-@media (max-width: 900px) {
-  .modal-card,
-  .product-modal,
-  .product-popup,
-  .quick-view-card {
-    width: calc(100vw - 16px) !important;
-    max-height: calc(100vh - 16px) !important;
+@media (min-width: 880px){
+  #modal .modal-body{
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* PHONE: make the modal fit screen and let the body scroll */
+@media (max-width: 900px){
+  .modal-panel{
+    left: 8px !important;
+    right: 8px !important;
+    top: 8px !important;
+    bottom: 8px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    height: auto !important;
+    transform: none !important;
+    border-radius: 20px !important;
+  }
+
+  .modal-body{
+    padding: 12px !important;
     grid-template-columns: 1fr !important;
   }
 
-  .modal-media,
-  .product-modal-media,
-  .popup-media {
-    max-height: 38vh !important;
+  #modal .modal-media{
+    height: auto !important;
+    min-height: 180px !important;
+    max-height: 34dvh !important;
+    flex: 0 0 auto !important;
   }
 
-  .modal-info,
-  .modal-content,
-  .product-modal-info,
-  .product-details-pane,
-  .quick-view-content {
-    max-height: none !important;
-    overflow-y: auto !important;
+  #modal .modal-media img{
+    object-fit: contain !important;
+  }
+
+  #modal .modal-info{
+    min-height: 0 !important;
   }
 }
+

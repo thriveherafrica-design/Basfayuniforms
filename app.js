@@ -194,7 +194,7 @@ async function announceOrderId(orderId){
 
   try{
     await navigator.clipboard.writeText(id);
-    toast(`Order ID copied ✅ (${id.slice(0,8)}...)`);
+    toast(`Order ID copied ✅ (${id.slice(0, (${id.slice(0,8)}...)`);
   }catch{
     toast(`Order ID: ${id}`);
   }
@@ -623,7 +623,7 @@ function renderModalReviews(data){
 
   ui.summary.innerHTML = `
     <strong style="font-size:14px;">Reviews</strong>
-    <span style="color:#F4B400;font-size:14px;letter-spacing:0.06em;">${count > 0 ? starsForRating(avg) : "☆☆☆☆☆"}</span>
+    <span style="color:#F4B400;font-size:18px;letter-spacing:0.08em;line-height:1;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.15);">${count > 0 ? starsForRating(avg) : "☆☆☆☆☆"}</span>
     <strong style="font-size:14px;">${count > 0 ? avg.toFixed(1) : "0.0"}</strong>
     <span class="muted" style="font-size:13px;">(${count} review${count === 1 ? "" : "s"})</span>
   `;
@@ -667,7 +667,7 @@ function renderModalReviews(data){
             ${r.verified_purchase ? `<div style="font-size:12px;color:#0F2F4A;font-weight:800;margin-top:2px;">Verified Buyer</div>` : ``}
           </div>
           <div style="text-align:right;">
-            <div style="color:#F4B400;font-size:13px;letter-spacing:0.06em;">${starsForRating(r.rating)}</div>
+            <div style="color:#F4B400;font-size:16px;letter-spacing:0.08em;line-height:1;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.15);">${starsForRating(r.rating)}</div>
             ${dateText ? `<div style="font-size:12px;color:rgba(15,28,43,0.58);margin-top:2px;">${escapeHtml(dateText)}</div>` : ``}
           </div>
         </div>
@@ -975,10 +975,10 @@ function productCard(p){
   cardRating.style.flexWrap = "wrap";
   cardRating.style.marginTop = "2px";
   cardRating.innerHTML = `
-    <span style="color:#F4B400;font-size:13px;letter-spacing:0.06em;line-height:1;">
+    <span style="color:#F4B400;font-size:18px;letter-spacing:0.08em;line-height:1;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,0.15);">
       ${reviewCount > 0 ? starsForRating(averageRating) : "☆☆☆☆☆"}
     </span>
-    <span style="font-size:13px;font-weight:800;color:var(--ink);">
+    <span style="font-size:14px;font-weight:800;color:var(--ink);">
       ${reviewCount > 0 ? averageRating.toFixed(1) : "0.0"}
       <span class="muted">(${reviewCount})</span>
     </span>

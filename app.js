@@ -975,7 +975,7 @@ function productCard(p){
   cardRating.style.flexWrap = "wrap";
   cardRating.style.marginTop = "2px";
   cardRating.innerHTML = `
-    <span style="color:#F4B400;font-size:13px;letter-spacing:0.06em;line-height:1;">
+    <span style="color:#B8860B;font-size:13px;letter-spacing:0.06em;line-height:1;">
       ${reviewCount > 0 ? starsForRating(averageRating) : "☆☆☆☆☆"}
     </span>
     <span style="font-size:13px;font-weight:800;color:var(--ink);">

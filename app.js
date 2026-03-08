@@ -621,19 +621,12 @@ function renderModalReviews(data){
   const count = Number(data?.review_count || 0);
   const avg = Number(data?.average_rating || 0);
 
-  if(count > 0){
-    ui.summary.innerHTML = `
-      <strong style="font-size:14px;">Reviews</strong>
-      <span style="color:#F4B400;font-size:14px;letter-spacing:0.06em;">${starsForRating(avg)}</span>
-      <strong style="font-size:14px;">${avg.toFixed(1)}</strong>
-      <span class="muted" style="font-size:13px;">(${count} review${count === 1 ? "" : "s"})</span>
-    `;
-  }else{
-    ui.summary.innerHTML = `
-      <strong style="font-size:14px;">Reviews</strong>
-      <span class="muted" style="font-size:13px;">No approved reviews yet.</span>
-    `;
-  }
+  ui.summary.innerHTML = `
+    <strong style="font-size:14px;">Reviews</strong>
+    <span style="color:#F4B400;font-size:14px;letter-spacing:0.06em;">${count > 0 ? starsForRating(avg) : "☆☆☆☆☆"}</span>
+    <strong style="font-size:14px;">${count > 0 ? avg.toFixed(1) : "0.0"}</strong>
+    <span class="muted" style="font-size:13px;">(${count} review${count === 1 ? "" : "s"})</span>
+  `;
 
   const reviews = Array.isArray(data?.reviews) ? data.reviews : [];
   if(!reviews.length){

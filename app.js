@@ -679,6 +679,38 @@ function renderModalReviews(data){
   }).join("");
 }
 
+function getCardReviewSummary(productId){
+  const data = reviewState.cache.get(productId);
+  return {
+    review_count: Number(data?.review_count || 0),
+    average_rating: Number(data?.average_rating || 0)
+  };
+}
+
+async function preloadReviewSummaries(){
+  if(!Array.isArray(PRODUCTS) || !PRODUCTS.length) return;
+
+  await Promise.allSettled(
+    PRODUCTS.map(async (p)=>{
+      if(!p?.id || reviewState.cache.has(p.id)) return;
+
+      try{
+        const data = await apiGetJson(`/api/reviews?product_id=${encodeURIComponent(p.id)}`);
+        reviewState.cache.set(p.id, data);
+      }catch{
+        reviewState.cache.set(p.id, {
+          product_id: p.id,
+          review_count: 0,
+          average_rating: 0,
+          reviews: []
+        });
+      }
+    })
+  );
+
+  renderProducts();
+}
+
 async function loadReviewsForProduct(productId){
   const ui = ensureReviewUI();
   if(!ui) return;
@@ -692,6 +724,7 @@ async function loadReviewsForProduct(productId){
     const data = await apiGetJson(`/api/reviews?product_id=${encodeURIComponent(productId)}`);
     reviewState.cache.set(productId, data);
     renderModalReviews(data);
+    renderProducts();
   }catch(err){
     ui.summary.innerHTML = `<strong style="font-size:14px;">Reviews</strong><span class="muted" style="font-size:13px;">Could not load reviews.</span>`;
     ui.list.innerHTML = `
@@ -931,6 +964,26 @@ function productCard(p){
   const title = document.createElement("h3");
   title.textContent = p.name;
 
+  const reviewSummary = getCardReviewSummary(p.id);
+  const reviewCount = reviewSummary.review_count;
+  const averageRating = reviewSummary.average_rating;
+
+  const cardRating = document.createElement("div");
+  cardRating.style.display = "flex";
+  cardRating.style.alignItems = "center";
+  cardRating.style.gap = "8px";
+  cardRating.style.flexWrap = "wrap";
+  cardRating.style.marginTop = "2px";
+  cardRating.innerHTML = `
+    <span style="color:#F4B400;font-size:13px;letter-spacing:0.06em;line-height:1;">
+      ${reviewCount > 0 ? starsForRating(averageRating) : "☆☆☆☆☆"}
+    </span>
+    <span style="font-size:13px;font-weight:800;color:var(--ink);">
+      ${reviewCount > 0 ? averageRating.toFixed(1) : "0.0"}
+      <span class="muted">(${reviewCount})</span>
+    </span>
+  `;
+
   const variants = Array.isArray(p.variants) ? p.variants : [];
   let selected = null;
 
@@ -995,6 +1048,7 @@ function productCard(p){
 
   wrap.appendChild(media);
   wrap.appendChild(title);
+  wrap.appendChild(cardRating);
   if(variants.length) wrap.appendChild(sizeWrap);
   wrap.appendChild(price);
   wrap.appendChild(actions);
@@ -1280,6 +1334,8 @@ async function loadProducts(){
     refreshAllCartUIs();
 
     if(!getCart().length) setCheckoutStep("cart");
+
+    await preloadReviewSummaries();
   }catch(err){
     console.error("BASFAY app.js error:", err);
     toast("Site error: open Console (F12) to see why.");

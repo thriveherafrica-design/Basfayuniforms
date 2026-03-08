@@ -1304,3 +1304,39 @@ input:focus,select:focus{
     font-size: 10px !important;
   }
 }
+
+/* ===== Make product stars bigger + more visible ===== */
+.rating-stars,
+.stars,
+.product-stars,
+.review-stars {
+  font-size: 1.15rem !important;
+  line-height: 1 !important;
+  letter-spacing: 0.08em;
+  color: #f4b400 !important;
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.18),
+    0 0 4px rgba(244, 180, 0, 0.28);
+  display: inline-flex;
+  align-items: center;
+}
+
+/* rating row spacing */
+.rating,
+.product-rating,
+.rating-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* make the score/count easier to read too */
+.rating-count,
+.rating-text,
+.review-count,
+.product-rating span {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #243043;
+}

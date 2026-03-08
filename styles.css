@@ -1340,3 +1340,21 @@ input:focus,select:focus{
   font-weight: 700;
   color: #243043;
 }
+
+/* BASFAY drawer finish */
+.drawer-panel{
+  top: 12px;
+  bottom: 12px;
+  height: auto;
+  max-height: calc(100vh - 24px);
+  border-radius: 22px 0 0 22px;
+  overflow: hidden;
+}
+
+.drawer-body{
+  padding-bottom: 12px;
+}
+
+.drawer-foot{
+  border-top: 1px solid rgba(15,28,43,0.08);
+}

@@ -575,6 +575,20 @@
         font-size:13px;
       }
 
+      /* ✅ product page support */
+      #modalViewDetails{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        text-decoration:none;
+      }
+
+      #modalSeoNote{
+        font-size:12px;
+        opacity:.85;
+        margin-top: 6px;
+      }
+
       @media (max-width: 900px){
         .site-footer .footer-grid{
           grid-template-columns: 1fr;
@@ -632,7 +646,7 @@
     <link rel="stylesheet" href="./styles.css?v=20260307-11" />
   </head>
 
-  <body>
+  <body data-product-page-base="./product.html?slug=" data-products-json="./products.json">
     <a class="skip" href="#main">Skip to content</a>
 
     <!-- Header -->
@@ -747,7 +761,7 @@
         <div class="container">
           <div class="section-head">
             <h2>Catalog</h2>
-            <p class="muted">Select size, add to order.</p>
+            <p class="muted">Select size, add to order, or open full item details.</p>
           </div>
 
           <!-- Top toolbar -->
@@ -787,7 +801,13 @@
 
           <div class="shop-layout">
             <div class="catalog" id="catalog" aria-label="Product catalog">
-              <div class="grid" id="productGrid" aria-live="polite"></div>
+              <div
+                class="grid"
+                id="productGrid"
+                aria-live="polite"
+                data-product-grid="true"
+                data-product-page-base="./product.html?slug="
+              ></div>
 
               <div class="empty" id="emptyState" hidden>
                 <h3>No matches</h3>
@@ -1054,6 +1074,7 @@
             <div class="price" id="modalPrice"></div>
             <div class="meta" id="modalMeta"></div>
             <p class="muted" id="modalDesc"></p>
+            <p class="muted" id="modalSeoNote">Open the full product page for a shareable link and more item details.</p>
 
             <div id="modalSizeField" class="is-hidden" aria-hidden="true">
               <label class="size-label" for="modalSize">Size</label>
@@ -1064,6 +1085,7 @@
 
             <div class="modal-actions">
               <button class="btn primary" id="modalAdd" type="button">Add</button>
+              <a class="btn ghost" id="modalViewDetails" href="./product.html" type="button">View details</a>
             </div>
           </div>
         </div>
@@ -1186,8 +1208,14 @@
       </div>
     </div>
 
+    <!-- ✅ product page support config -->
+    <script>
+      window.BASFAY_PRODUCT_PAGE_BASE = "./product.html?slug=";
+      window.BASFAY_PRODUCTS_JSON = "./products.json";
+    </script>
+
     <!-- ✅ MAIN APP -->
-    <script src="./app.js?v=20260306-06" defer></script>
+    <script src="./app.js?v=20260311-01" defer></script>
     <!--Start of Tawk.to Script-->
 <script type="text/javascript">
 var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();

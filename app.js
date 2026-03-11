@@ -6,9 +6,10 @@
    ✅ Order ID shown + copied (for guest tracking)
    ✅ Product reviews in modal
    ✅ Customer-submitted review form with Turnstile
+   ✅ Product page links via slug
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (REVIEWS + WORKING CART PREVIEW)");
+console.log("✅ BASFAY app.js LOADED (REVIEWS + WORKING CART PREVIEW + PRODUCT LINKS)");
 
 const CONFIG = {
   currency: "KES",
@@ -74,6 +75,7 @@ const els = {
   modalAdd: document.getElementById("modalAdd"),
   modalSizeField: document.getElementById("modalSizeField"),
   modalSize: document.getElementById("modalSize"),
+  modalViewDetails: document.getElementById("modalViewDetails"),
 };
 
 let PRODUCTS = [];
@@ -131,6 +133,48 @@ function reviewDateText(ts){
   }catch{
     return "";
   }
+}
+
+function getProductsJsonPath(){
+  return window.BASFAY_PRODUCTS_JSON || document.body?.dataset?.productsJson || "./products.json";
+}
+
+function getProductPageBase(){
+  return window.BASFAY_PRODUCT_PAGE_BASE || document.body?.dataset?.productPageBase || "./product.html?slug=";
+}
+
+function getProductSlug(product){
+  return safeText(product?.slug) || safeText(product?.id);
+}
+
+function getProductUrl(product){
+  const slug = getProductSlug(product);
+  return `${getProductPageBase()}${encodeURIComponent(slug)}`;
+}
+
+function getProductBasePrice(product){
+  const variants = Array.isArray(product?.variants) ? product.variants : [];
+  if (variants.length) {
+    const prices = variants
+      .map(v => Number(v.price))
+      .filter(v => !Number.isNaN(v));
+    if (prices.length) return Math.min(...prices);
+  }
+
+  if (product?.basePrice != null && !Number.isNaN(Number(product.basePrice))) {
+    return Number(product.basePrice);
+  }
+
+  if (product?.price != null && !Number.isNaN(Number(product.price))) {
+    return Number(product.price);
+  }
+
+  return null;
+}
+
+function getProductDisplayPrice(product){
+  const base = getProductBasePrice(product);
+  return base == null ? "" : `From ${formatMoney(base)}`;
 }
 
 function toast(msg){
@@ -915,12 +959,17 @@ function applySort(list){
   const byNameDesc = (a,b)=>safeText(b.name).localeCompare(safeText(a.name));
 
   const minPrice = (p)=>{
-    if(Array.isArray(p.variants)&&p.variants.length) return Math.min(...p.variants.map(v=>Number(v.price)||1e15));
-    return p.price ?? 1e15;
+    const base = getProductBasePrice(p);
+    return base == null ? 1e15 : base;
   };
   const maxPrice = (p)=>{
-    if(Array.isArray(p.variants)&&p.variants.length) return Math.max(...p.variants.map(v=>Number(v.price)||-1));
-    return p.price ?? -1;
+    const variants = Array.isArray(p.variants) ? p.variants : [];
+    if (variants.length) {
+      return Math.max(...variants.map(v=>Number(v.price)||-1));
+    }
+    if (p.price != null) return Number(p.price);
+    if (p.basePrice != null) return Number(p.basePrice);
+    return -1;
   };
 
   if(sort==="name_asc") return [...list].sort(byNameAsc);
@@ -940,6 +989,8 @@ function productCard(p){
   if (normalize(p.type) === "tracksuit") wrap.classList.add("product-tracksuit");
   if (normalize(p.type) === "socks") wrap.classList.add("product-socks");
 
+  const productUrl = getProductUrl(p);
+
   const media = document.createElement("div");
   media.className = "media";
 
@@ -948,21 +999,35 @@ function productCard(p){
   tag.textContent = p.color || "Uniform";
   media.appendChild(tag);
 
+  const mediaLink = document.createElement("a");
+  mediaLink.href = productUrl;
+  mediaLink.setAttribute("aria-label", `View ${p.name}`);
+  mediaLink.style.display = "block";
+  mediaLink.style.color = "inherit";
+  mediaLink.style.textDecoration = "none";
+
   if(p.image){
     const img = document.createElement("img");
-    img.src=p.image;
-    img.alt=`${p.name} photo`;
-    img.loading="lazy";
-    media.appendChild(img);
+    img.src = p.image;
+    img.alt = `${p.name} photo`;
+    img.loading = "lazy";
+    mediaLink.appendChild(img);
   }else{
     const ph = document.createElement("div");
-    ph.className="placeholder";
-    ph.innerHTML="<div>Image coming soon</div>";
-    media.appendChild(ph);
+    ph.className = "placeholder";
+    ph.innerHTML = "<div>Image coming soon</div>";
+    mediaLink.appendChild(ph);
   }
 
+  media.appendChild(mediaLink);
+
   const title = document.createElement("h3");
-  title.textContent = p.name;
+  const titleLink = document.createElement("a");
+  titleLink.href = productUrl;
+  titleLink.textContent = p.name;
+  titleLink.style.color = "inherit";
+  titleLink.style.textDecoration = "none";
+  title.appendChild(titleLink);
 
   const reviewSummary = getCardReviewSummary(p.id);
   const reviewCount = reviewSummary.review_count;
@@ -988,25 +1053,28 @@ function productCard(p){
   let selected = null;
 
   const price = document.createElement("div");
-  price.className="price";
-  if(!variants.length && p.price!=null) price.textContent = formatMoney(p.price);
+  price.className = "price";
+  const baseDisplay = getProductDisplayPrice(p);
+  if (baseDisplay) {
+    price.textContent = baseDisplay;
+  }
 
   const sizeWrap = document.createElement("div");
   if(variants.length){
     const select = document.createElement("select");
-    select.className="size-select";
+    select.className = "size-select";
     select.innerHTML = `<option value="" disabled selected>Select size</option>`;
 
     const sortedV = [...variants].sort((a,b)=>{
-      const na=Number(a.size), nb=Number(b.size);
+      const na = Number(a.size), nb = Number(b.size);
       if(!Number.isNaN(na) && !Number.isNaN(nb)) return na-nb;
       return String(a.size).localeCompare(String(b.size));
     });
 
     sortedV.forEach(v=>{
       const opt = document.createElement("option");
-      opt.value=String(v.size);
-      opt.textContent=String(v.size);
+      opt.value = String(v.size);
+      opt.textContent = String(v.size);
       select.appendChild(opt);
     });
 
@@ -1021,25 +1089,26 @@ function productCard(p){
   }
 
   const actions = document.createElement("div");
-  actions.className="product-actions";
+  actions.className = "product-actions";
 
   const viewBtn = document.createElement("button");
-  viewBtn.type="button";
-  viewBtn.className="btn small ghost";
-  viewBtn.textContent="View";
+  viewBtn.type = "button";
+  viewBtn.className = "btn small ghost";
+  viewBtn.textContent = "View";
   viewBtn.addEventListener("click", ()=>openModal(p.id));
 
   const addBtn = document.createElement("button");
-  addBtn.type="button";
-  addBtn.className="btn small primary";
-  addBtn.textContent="Add to cart";
+  addBtn.type = "button";
+  addBtn.className = "btn small primary";
+  addBtn.textContent = "Add to cart";
   addBtn.addEventListener("click", ()=>{
     if(variants.length){
       if(!selected) return alert("Please select a size first.");
       addToCart(p.id, selected.size, selected.price, 1);
     }else{
-      if(p.price==null) return alert("Price on request. Please message us on WhatsApp.");
-      addToCart(p.id, "-", p.price, 1);
+      const fallbackPrice = getProductBasePrice(p);
+      if(fallbackPrice == null) return alert("Price on request. Please message us on WhatsApp.");
+      addToCart(p.id, "-", fallbackPrice, 1);
     }
   });
 
@@ -1079,6 +1148,9 @@ async function openModal(productId){
   els.modalDesc.textContent = p.description || "Durable, comfortable uniform item.";
   els.modalMedia.innerHTML = p.image ? `<img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)} photo">` : "";
   els.modalMeta.textContent = [p.color && `Color: ${p.color}`, p.type && `Type: ${p.type}`].filter(Boolean).join(" • ");
+  if (els.modalViewDetails) {
+    els.modalViewDetails.href = getProductUrl(p);
+  }
 
   const variants = Array.isArray(p.variants) ? p.variants : [];
   let selected = null;
@@ -1100,7 +1172,7 @@ async function openModal(productId){
         els.modalSize.appendChild(opt);
       });
 
-      els.modalPrice.textContent = "";
+      els.modalPrice.textContent = getProductDisplayPrice(p);
       els.modalSize.onchange = ()=>{
         const found = sorted.find(v=>String(v.size)===els.modalSize.value);
         if(!found) return;
@@ -1109,7 +1181,8 @@ async function openModal(productId){
       };
     }else{
       els.modalSizeField.classList.add("is-hidden");
-      els.modalPrice.textContent = p.price!=null ? formatMoney(p.price) : "";
+      const fallbackPrice = getProductBasePrice(p);
+      els.modalPrice.textContent = fallbackPrice != null ? formatMoney(fallbackPrice) : "";
     }
   }
 
@@ -1118,8 +1191,9 @@ async function openModal(productId){
       if(!selected) return alert("Please select a size first.");
       addToCart(p.id, selected.size, selected.price, 1);
     }else{
-      if(p.price==null) return alert("Price on request. Please message us on WhatsApp.");
-      addToCart(p.id, "-", p.price, 1);
+      const fallbackPrice = getProductBasePrice(p);
+      if(fallbackPrice == null) return alert("Price on request. Please message us on WhatsApp.");
+      addToCart(p.id, "-", fallbackPrice, 1);
     }
   };
 
@@ -1290,7 +1364,7 @@ function bindCart(){
 }
 
 async function loadProducts(){
-  const res = await fetch("./products.json", { cache:"no-store" });
+  const res = await fetch(getProductsJsonPath(), { cache:"no-store" });
   if(!res.ok) throw new Error("Could not load products.json");
   const data = await res.json();
   if(!Array.isArray(data)) throw new Error("products.json must be an array");
@@ -1303,16 +1377,20 @@ async function loadProducts(){
 
     return {
       id: safeText(p.id),
+      slug: safeText(p.slug) || safeText(p.id),
       name: safeText(p.name),
       color: safeText(p.color),
       type: safeText(p.type),
       pattern: safeText(p.pattern),
       price: p.price==null ? null : Number(p.price),
+      basePrice: p.basePrice==null ? null : Number(p.basePrice),
       variants,
       image: safeText(p.image),
       hasPhoto: Boolean(safeText(p.image)),
       featured: Boolean(p.featured),
       description: safeText(p.description),
+      seoTitle: safeText(p.seoTitle),
+      seoDescription: safeText(p.seoDescription),
     };
   });
 

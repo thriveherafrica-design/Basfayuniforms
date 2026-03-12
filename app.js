@@ -4,9 +4,10 @@
    Product page links via slug
    Dead products auto-filtered
    Faster product images via Cloudflare transforms
+   Lighter mobile rendering
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (LIVE PRODUCTS + PRODUCT LINKS + REVIEWS + IMAGE SPEED)");
+console.log("✅ BASFAY app.js LOADED (LIVE PRODUCTS + PRODUCT LINKS + REVIEWS + IMAGE SPEED + MOBILE)");
 
 const CONFIG = {
   currency: "KES",
@@ -26,6 +27,9 @@ const FUTURE_CATEGORIES = [
   "Sweater", "Shirt", "Dress", "Socks", "Marvin", "Tracksuit", "Gameskit", "PE Shirt",
   "Trousers", "School Bag", "Shoes", "Blazer", "Materials", "Cardigan", "Accessory",
 ];
+
+const INITIAL_VISIBLE_PRODUCTS = 12;
+const LOAD_MORE_PRODUCTS_STEP = 12;
 
 const els = {
   year: document.getElementById("year"),
@@ -82,6 +86,7 @@ const els = {
 
 let PRODUCTS = [];
 let state = { color: "", type: "", sort: "featured" };
+let visibleProductCount = INITIAL_VISIBLE_PRODUCTS;
 
 const CART_KEY = "basfay_cart_v1";
 const CHECKOUT_STEP_KEY = "basfay_checkout_step_v1";
@@ -294,7 +299,7 @@ function getCardImageOptions(index = 0) {
     sizes: "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 280px",
     displayWidth: 640,
     displayHeight: 640,
-    eager: index < 4,
+    eager: index < 1,
     fit: "cover",
     quality: CONFIG.imageQuality
   };
@@ -344,6 +349,45 @@ function getProductDisplayPrice(product) {
   return Array.isArray(product?.variants) && product.variants.length
     ? `From ${formatMoney(base)}`
     : formatMoney(base);
+}
+
+function resetVisibleProducts() {
+  visibleProductCount = INITIAL_VISIBLE_PRODUCTS;
+}
+
+function getFilteredProducts() {
+  return PRODUCTS.filter(p => {
+    if (state.color && p.color !== state.color) return false;
+    if (state.type && normalize(p.type) !== normalize(state.type)) return false;
+    return true;
+  });
+}
+
+function getVisibleSortedProducts() {
+  const filtered = getFilteredProducts();
+  const sorted = applySort(filtered);
+  const visible = sorted.slice(0, visibleProductCount);
+  return { filtered, sorted, visible };
+}
+
+function createLoadMoreCard(totalCount, visibleCount) {
+  const wrap = document.createElement("div");
+  wrap.style.gridColumn = "1 / -1";
+  wrap.style.display = "flex";
+  wrap.style.justifyContent = "center";
+  wrap.style.padding = "8px 0 4px";
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "btn primary";
+  btn.textContent = `Load more (${Math.max(totalCount - visibleCount, 0)} more)`;
+  btn.addEventListener("click", () => {
+    visibleProductCount += LOAD_MORE_PRODUCTS_STEP;
+    renderProducts();
+  });
+
+  wrap.appendChild(btn);
+  return wrap;
 }
 
 function toast(msg) {
@@ -420,10 +464,8 @@ function getReviewsUrl(productId) {
 
 async function submitReviewRequest(payload) {
   try {
-    // ✅ preferred route
     return await apiPostJson(CONFIG.reviewSubmitEndpoint, payload);
   } catch (err) {
-    // ✅ fallback route if /api/reviews/submit does not exist
     if (err?.status === 404) {
       return await apiPostJson(CONFIG.reviewsListEndpoint, {
         product_id: payload.product_id,
@@ -1176,20 +1218,18 @@ async function submitReviewFromModal() {
 function renderProducts() {
   if (!els.productGrid) return;
 
-  const filtered = PRODUCTS.filter(p => {
-    if (state.color && p.color !== state.color) return false;
-    if (state.type && normalize(p.type) !== normalize(state.type)) return false;
-    return true;
-  });
-
-  const sorted = applySort(filtered);
+  const { sorted, visible } = getVisibleSortedProducts();
 
   if (els.resultsCount) els.resultsCount.textContent = String(sorted.length);
 
   els.productGrid.innerHTML = "";
   if (els.emptyState) els.emptyState.hidden = sorted.length !== 0;
 
-  sorted.forEach((p, index) => els.productGrid.appendChild(productCard(p, index)));
+  visible.forEach((p, index) => els.productGrid.appendChild(productCard(p, index)));
+
+  if (visible.length < sorted.length) {
+    els.productGrid.appendChild(createLoadMoreCard(sorted.length, visible.length));
+  }
 }
 
 function applySort(list) {
@@ -1229,6 +1269,9 @@ function productCard(p, index = 0) {
   wrap.classList.add(toTypeClass(p.type));
   if (normalize(p.type) === "tracksuit") wrap.classList.add("product-tracksuit");
   if (normalize(p.type) === "socks") wrap.classList.add("product-socks");
+
+  wrap.style.contentVisibility = "auto";
+  wrap.style.containIntrinsicSize = "420px";
 
   const productUrl = getProductUrl(p);
   wrap.style.cursor = "pointer";
@@ -1481,14 +1524,17 @@ function hydrateFiltersOptions() {
 function bindFilters() {
   els.categoryDropdown?.addEventListener("change", () => {
     state.type = els.categoryDropdown.value || "";
+    resetVisibleProducts();
     renderProducts();
   });
   els.colorFilterTop?.addEventListener("change", () => {
     state.color = els.colorFilterTop.value || "";
+    resetVisibleProducts();
     renderProducts();
   });
   els.sortByTop?.addEventListener("change", () => {
     state.sort = els.sortByTop.value || "featured";
+    resetVisibleProducts();
     renderProducts();
   });
 }
@@ -1653,6 +1699,7 @@ async function loadProducts() {
     bindCart();
     bindModal();
 
+    resetVisibleProducts();
     renderProducts();
     refreshAllCartUIs();
 
@@ -1660,7 +1707,8 @@ async function loadProducts() {
 
     window.addEventListener("storage", refreshAllCartUIs);
 
-    await preloadReviewSummaries();
+    // Intentionally not preloading reviews for every product.
+    // That created too many mobile requests.
   } catch (err) {
     console.error("BASFAY app.js error:", err);
     toast("Site error: open Console (F12) to see why.");

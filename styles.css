@@ -1487,3 +1487,9 @@ input:focus,select:focus{
   content-visibility: auto;
   contain-intrinsic-size: 420px;
 }
+
+.product .media img {
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  background: #fff;
+}

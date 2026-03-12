@@ -1,15 +1,11 @@
 /* ============================
-   BASFAY Catalog Site (Clean UI)
-   Cart + Two-step Checkout (Cash vs Till)
-   + Desktop "Your Cart" preview (working)
-   ✅ Order-first checkout (Daraja-ready): saves order to DB before WhatsApp
-   ✅ Order ID shown + copied (for guest tracking)
-   ✅ Product reviews in modal
-   ✅ Customer-submitted review form with Turnstile
-   ✅ Product page links via slug
+   BASFAY Catalog Site
+   Cart + Two-step Checkout
+   Product page links via slug
+   Dead products auto-filtered
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (REVIEWS + WORKING CART PREVIEW + PRODUCT LINKS)");
+console.log("✅ BASFAY app.js LOADED (LIVE PRODUCTS + PRODUCT LINKS + REVIEWS)");
 
 const CONFIG = {
   currency: "KES",
@@ -99,13 +95,16 @@ const reviewState = {
 function safeText(s){ return String(s ?? "").trim(); }
 function normalize(s){ return safeText(s).toLowerCase(); }
 function money(n){ return `${CONFIG.currency} ${Number(n || 0).toLocaleString("en-KE")}`; }
+
 function formatMoney(amount){
   if (amount == null || Number.isNaN(Number(amount))) return "";
   return money(Number(amount));
 }
+
 function toTypeClass(type){
   return "type-" + normalize(type).replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
 }
+
 function cleanPhone(raw){ return safeText(raw).replace(/[^\d+]/g, ""); }
 
 function escapeHtml(value){
@@ -136,11 +135,11 @@ function reviewDateText(ts){
 }
 
 function getProductsJsonPath(){
-  return window.BASFAY_PRODUCTS_JSON || document.body?.dataset?.productsJson || "./products.json";
+  return window.BASFAY_PRODUCTS_JSON || document.body?.dataset?.productsJson || "/products.json";
 }
 
 function getProductPageBase(){
-  return window.BASFAY_PRODUCT_PAGE_BASE || document.body?.dataset?.productPageBase || "./product.html?slug=";
+  return window.BASFAY_PRODUCT_PAGE_BASE || document.body?.dataset?.productPageBase || "/product.html?slug=";
 }
 
 function getProductSlug(product){
@@ -172,9 +171,18 @@ function getProductBasePrice(product){
   return null;
 }
 
+function isLiveProductEntry(product){
+  const hasIdentity = Boolean(safeText(product?.id) && safeText(product?.name));
+  const hasPrice = getProductBasePrice(product) != null;
+  return hasIdentity && hasPrice;
+}
+
 function getProductDisplayPrice(product){
   const base = getProductBasePrice(product);
-  return base == null ? "" : `From ${formatMoney(base)}`;
+  if (base == null) return "Price on request";
+  return Array.isArray(product?.variants) && product.variants.length
+    ? `From ${formatMoney(base)}`
+    : formatMoney(base);
 }
 
 function toast(msg){
@@ -230,7 +238,6 @@ async function apiPostJson(url, payload){
   return data;
 }
 
-/* ✅ NEW: announce order id + copy (critical for guest tracking) */
 async function announceOrderId(orderId){
   const id = safeText(orderId);
   if(!id) return;
@@ -249,6 +256,7 @@ function getCheckoutStep(){
   const s = safeText(localStorage.getItem(CHECKOUT_STEP_KEY));
   return s === "checkout" ? "checkout" : "cart";
 }
+
 function setCheckoutStep(step){
   localStorage.setItem(CHECKOUT_STEP_KEY, step === "checkout" ? "checkout" : "cart");
 }
@@ -271,7 +279,6 @@ function calcSubtotal(){
   return getCart().reduce((sum,i)=>sum + (Number(i.price)||0)*(Number(i.qty)||0),0);
 }
 
-/* ✅ Save order to DB (Daraja-ready). Never blocks checkout if it fails. */
 async function saveOrderToDB(payload){
   try{
     const res = await fetch("/api/orders", {
@@ -304,7 +311,6 @@ function buildOrderItemsPayload(){
   });
 }
 
-/* ✅ One setter: updates EVERYTHING */
 function setCart(items){
   localStorage.setItem(CART_KEY, JSON.stringify(items));
   localStorage.removeItem(PENDING_ORDER_ID_KEY);
@@ -398,7 +404,7 @@ function buildCheckoutWhatsAppMessage(){
   return lines.join("\n");
 }
 
-/* Drawer "Your order" list + Amazon stepper */
+/* Drawer order list */
 function renderOrderPanel(){
   if(!els.orderItems || !els.orderSubtotal) return;
 
@@ -451,7 +457,6 @@ function renderOrderPanel(){
   els.orderItems.querySelectorAll("[data-dec]").forEach(btn=>btn.addEventListener("click", ()=>decQty(btn.dataset.dec)));
 }
 
-/* ✅ RIGHT SIDE "Your Cart" (WORKING) */
 function renderCartPreview(){
   if(!els.cartPreviewItems || !els.cartPreviewSubtotal || !els.cartPreviewCount) return;
 
@@ -484,7 +489,6 @@ function renderCartPreview(){
   }).join("");
 }
 
-/* Badge */
 function refreshCartBadge(){
   if(!els.cartCount) return;
   els.cartCount.textContent = String(cartCountTotal());
@@ -962,6 +966,7 @@ function applySort(list){
     const base = getProductBasePrice(p);
     return base == null ? 1e15 : base;
   };
+
   const maxPrice = (p)=>{
     const variants = Array.isArray(p.variants) ? p.variants : [];
     if (variants.length) {
@@ -1061,10 +1066,7 @@ function productCard(p){
 
   const price = document.createElement("div");
   price.className = "price";
-  const baseDisplay = getProductDisplayPrice(p);
-  if (baseDisplay) {
-    price.textContent = baseDisplay;
-  }
+  price.textContent = getProductDisplayPrice(p);
 
   const sizeWrap = document.createElement("div");
   if(variants.length){
@@ -1291,7 +1293,6 @@ function bindCart(){
     });
   });
 
-  // ✅ UPDATED: Order-first checkout (Daraja-ready)
   els.checkoutBtn?.addEventListener("click", async (e)=>{
     e.preventDefault();
 
@@ -1338,7 +1339,6 @@ function bindCart(){
       return orderId;
     }
 
-    // ✅ Cash => save order, then WhatsApp immediately
     if(methodLower.includes("cash")){
       localStorage.removeItem(PENDING_ORDER_ID_KEY);
       const orderId = await ensureOrderId("Payment: Cash");
@@ -1350,7 +1350,6 @@ function bindCart(){
       return;
     }
 
-    // ✅ Till => Step 1: show guidance + create order
     if(getCheckoutStep()==="cart"){
       const orderId = await ensureOrderId(`Payment: M-Pesa Till (${CONFIG.tillNumberPlaceholder})`);
       setCheckoutStep("checkout");
@@ -1361,7 +1360,6 @@ function bindCart(){
       return;
     }
 
-    // ✅ Till => Step 2: open WhatsApp
     const orderId = await ensureOrderId(`Payment: M-Pesa Till (${CONFIG.tillNumberPlaceholder})`);
 
     let msg = buildCheckoutWhatsAppMessage();
@@ -1377,30 +1375,32 @@ async function loadProducts(){
   const data = await res.json();
   if(!Array.isArray(data)) throw new Error("products.json must be an array");
 
-  PRODUCTS = data.map(p=>{
-    const variants = Array.isArray(p.variants)
-      ? p.variants.map(v=>({ size:safeText(v.size), price:Number(v.price) }))
-          .filter(v=>v.size && !Number.isNaN(v.price))
-      : [];
+  PRODUCTS = data
+    .map(p=>{
+      const variants = Array.isArray(p.variants)
+        ? p.variants.map(v=>({ size:safeText(v.size), price:Number(v.price) }))
+            .filter(v=>v.size && !Number.isNaN(v.price))
+        : [];
 
-    return {
-      id: safeText(p.id),
-      slug: safeText(p.slug) || safeText(p.id),
-      name: safeText(p.name),
-      color: safeText(p.color),
-      type: safeText(p.type),
-      pattern: safeText(p.pattern),
-      price: p.price==null ? null : Number(p.price),
-      basePrice: p.basePrice==null ? null : Number(p.basePrice),
-      variants,
-      image: safeText(p.image),
-      hasPhoto: Boolean(safeText(p.image)),
-      featured: Boolean(p.featured),
-      description: safeText(p.description),
-      seoTitle: safeText(p.seoTitle),
-      seoDescription: safeText(p.seoDescription),
-    };
-  });
+      return {
+        id: safeText(p.id),
+        slug: safeText(p.slug) || safeText(p.id),
+        name: safeText(p.name),
+        color: safeText(p.color),
+        type: safeText(p.type),
+        pattern: safeText(p.pattern),
+        price: p.price==null ? null : Number(p.price),
+        basePrice: p.basePrice==null ? null : Number(p.basePrice),
+        variants,
+        image: safeText(p.image),
+        hasPhoto: Boolean(safeText(p.image)),
+        featured: Boolean(p.featured),
+        description: safeText(p.description),
+        seoTitle: safeText(p.seoTitle),
+        seoDescription: safeText(p.seoDescription),
+      };
+    })
+    .filter(isLiveProductEntry);
 
   hydrateFiltersOptions();
 }
@@ -1420,6 +1420,8 @@ async function loadProducts(){
     refreshAllCartUIs();
 
     if(!getCart().length) setCheckoutStep("cart");
+
+    window.addEventListener("storage", refreshAllCartUIs);
 
     await preloadReviewSummaries();
   }catch(err){

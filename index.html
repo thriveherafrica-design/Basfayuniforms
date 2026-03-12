@@ -62,10 +62,12 @@
       rel="stylesheet"
     />
 
-    <!-- cache bust -->
-    <link rel="stylesheet" href="./styles.css?v=20260307-11" />
+    <link rel="stylesheet" href="./styles.css?v=20260312-01" />
 
     <style>
+      [hidden]{ display:none !important; }
+      img[hidden]{ display:none !important; }
+
       .header .brand-title,
       .header .brand-tagline {
         font-family: "Cinzel", serif !important;
@@ -676,7 +678,7 @@
     </style>
   </head>
 
-  <body data-products-json="./products.json">
+  <body data-products-json="/products.json">
     <a class="skip" href="#main">Skip to content</a>
 
     <!-- Header -->
@@ -780,9 +782,8 @@
 
           <div id="productNotFound" class="state-card" hidden>
             <h2>Product not found</h2>
-            <p>
-              That item could not be found. The link may be outdated, the slug may be wrong, or the product
-              simply is not in <code>products.json</code>.
+            <p id="productNotFoundText">
+              That item could not be found. The link may be outdated, the slug may be wrong, or the product is not currently live in your catalog.
             </p>
             <div style="margin-top:14px;">
               <a class="btn primary" href="./index.html#shop">Back to shop</a>
@@ -1403,6 +1404,7 @@
         const ui = {
           loading: document.getElementById("productLoading"),
           notFound: document.getElementById("productNotFound"),
+          notFoundText: document.getElementById("productNotFoundText"),
           shell: document.getElementById("productShell"),
           imageBox: document.getElementById("productImageBox"),
           image: document.getElementById("productImage"),
@@ -1442,6 +1444,7 @@
         function safeText(v){ return String(v ?? "").trim(); }
         function normalize(v){ return safeText(v).toLowerCase(); }
         function money(n){ return `KES ${Number(n || 0).toLocaleString("en-KE")}`; }
+
         function escapeHtml(value){
           return String(value ?? "")
             .replace(/&/g, "&amp;")
@@ -1450,10 +1453,12 @@
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#39;");
         }
+
         function starsForRating(rating){
           const rounded = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
           return "★".repeat(rounded) + "☆".repeat(5 - rounded);
         }
+
         function reviewDateText(ts){
           if(!ts) return "";
           try{
@@ -1466,12 +1471,31 @@
             return "";
           }
         }
+
         function getProductsJsonPath(){
-          return document.body?.dataset?.productsJson || "./products.json";
+          return document.body?.dataset?.productsJson || "/products.json";
         }
+
         function getSlugFromUrl(){
-          return safeText(new URLSearchParams(window.location.search).get("slug"));
+          const url = new URL(window.location.href);
+          const candidates = [
+            url.searchParams.get("slug"),
+            url.searchParams.get("id")
+          ];
+
+          const hash = safeText(url.hash.replace(/^#/, ""));
+          if (hash && hash.toLowerCase() !== "shop" && hash.toLowerCase() !== "contact") {
+            candidates.push(hash);
+          }
+
+          for (const value of candidates) {
+            const clean = safeText(value);
+            if (clean) return decodeURIComponent(clean);
+          }
+
+          return "";
         }
+
         function getBasePrice(product){
           const variants = Array.isArray(product?.variants) ? product.variants : [];
           if (variants.length) {
@@ -1482,13 +1506,24 @@
           if (product?.price != null && !Number.isNaN(Number(product.price))) return Number(product.price);
           return null;
         }
+
+        function isLiveProduct(product){
+          const hasIdentity = Boolean(safeText(product?.id) && safeText(product?.name));
+          const hasPrice = getBasePrice(product) != null;
+          return hasIdentity && hasPrice;
+        }
+
         function getDisplayPrice(product){
           const base = getBasePrice(product);
-          return base == null ? "Price on request" : (Array.isArray(product?.variants) && product.variants.length ? `From ${money(base)}` : money(base));
+          return base == null
+            ? "Price on request"
+            : (Array.isArray(product?.variants) && product.variants.length ? `From ${money(base)}` : money(base));
         }
+
         function getProductUrl(product){
-          return `./product.html?slug=${encodeURIComponent(safeText(product?.slug || product?.id))}`;
+          return `/product.html?slug=${encodeURIComponent(safeText(product?.slug || product?.id))}`;
         }
+
         function absoluteUrl(path){
           try{
             return new URL(path, window.location.origin).href;
@@ -1496,6 +1531,7 @@
             return path;
           }
         }
+
         function toast(msg){
           const t = document.createElement("div");
           t.textContent = msg;
@@ -1514,6 +1550,7 @@
           document.body.appendChild(t);
           setTimeout(() => t.remove(), 1600);
         }
+
         function getCart(){
           try{
             const raw = localStorage.getItem(CART_KEY);
@@ -1524,14 +1561,17 @@
             return [];
           }
         }
+
         function setCart(items){
           localStorage.setItem(CART_KEY, JSON.stringify(items));
           refreshCartCount();
         }
+
         function refreshCartCount(){
           const count = getCart().reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
           if (ui.cartCount) ui.cartCount.textContent = String(count);
         }
+
         function addToCart(product, size, price, qty = 1){
           const cart = getCart();
           const key = `${product.id}__${size}`;
@@ -1554,32 +1594,34 @@
         }
 
         function normaliseProducts(data){
-          return data.map(p => {
-            const variants = Array.isArray(p.variants)
-              ? p.variants.map(v => ({
-                  size: safeText(v.size),
-                  price: Number(v.price)
-                })).filter(v => v.size && !Number.isNaN(v.price))
-              : [];
+          return data
+            .map(p => {
+              const variants = Array.isArray(p.variants)
+                ? p.variants.map(v => ({
+                    size: safeText(v.size),
+                    price: Number(v.price)
+                  })).filter(v => v.size && !Number.isNaN(v.price))
+                : [];
 
-            return {
-              id: safeText(p.id),
-              slug: safeText(p.slug) || safeText(p.id),
-              name: safeText(p.name),
-              color: safeText(p.color),
-              type: safeText(p.type),
-              pattern: safeText(p.pattern),
-              price: p.price == null ? null : Number(p.price),
-              basePrice: p.basePrice == null ? null : Number(p.basePrice),
-              variants,
-              image: safeText(p.image),
-              thumb: safeText(p.thumb),
-              description: safeText(p.description),
-              seoTitle: safeText(p.seoTitle),
-              seoDescription: safeText(p.seoDescription),
-              featured: Boolean(p.featured)
-            };
-          });
+              return {
+                id: safeText(p.id),
+                slug: safeText(p.slug) || safeText(p.id),
+                name: safeText(p.name),
+                color: safeText(p.color),
+                type: safeText(p.type),
+                pattern: safeText(p.pattern),
+                price: p.price == null ? null : Number(p.price),
+                basePrice: p.basePrice == null ? null : Number(p.basePrice),
+                variants,
+                image: safeText(p.image),
+                thumb: safeText(p.thumb),
+                description: safeText(p.description),
+                seoTitle: safeText(p.seoTitle),
+                seoDescription: safeText(p.seoDescription),
+                featured: Boolean(p.featured)
+              };
+            })
+            .filter(isLiveProduct);
         }
 
         function updateHead(product, reviewData){
@@ -1733,6 +1775,31 @@
           }
         }
 
+        function resetImageBox(){
+          ui.imageBox.innerHTML = `
+            <img
+              id="productImage"
+              src=""
+              alt=""
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+              width="1200"
+              height="1200"
+            />
+          `;
+          ui.image = document.getElementById("productImage");
+        }
+
+        function showNotFound(message){
+          ui.loading.hidden = true;
+          ui.shell.hidden = true;
+          ui.notFound.hidden = false;
+          ui.reviewsSection.hidden = true;
+          ui.relatedSection.hidden = true;
+          if (ui.notFoundText && message) ui.notFoundText.textContent = message;
+        }
+
         function renderProduct(product){
           currentProduct = product;
           selectedVariant = null;
@@ -1740,6 +1807,8 @@
           ui.loading.hidden = true;
           ui.notFound.hidden = true;
           ui.shell.hidden = false;
+          ui.reviewsSection.hidden = true;
+          ui.relatedSection.hidden = true;
 
           ui.badge.textContent = product.color || product.type || "Uniform";
           ui.name.textContent = product.name;
@@ -1749,17 +1818,23 @@
 
           renderMetaChips(product);
 
+          resetImageBox();
+
           if (product.image) {
             ui.image.hidden = false;
             ui.image.src = product.image;
             ui.image.alt = `${product.name} photo`;
+            ui.image.onerror = () => {
+              ui.imageBox.innerHTML = `<div class="product-placeholder">Image coming soon</div>`;
+            };
           } else {
-            ui.image.hidden = true;
             ui.imageBox.innerHTML = `<div class="product-placeholder">Image coming soon</div>`;
           }
 
           const variants = Array.isArray(product.variants) ? product.variants : [];
           ui.size.innerHTML = `<option value="" selected disabled>Select size</option>`;
+          ui.size.onchange = null;
+          ui.addBtn.textContent = "Add to cart";
 
           if (variants.length) {
             ui.sizeField.hidden = false;
@@ -1786,25 +1861,7 @@
             };
           } else {
             ui.sizeField.hidden = true;
-            ui.size.onchange = null;
           }
-
-          ui.addBtn.onclick = () => {
-            if (variants.length) {
-              if (!selectedVariant) {
-                alert("Please select a size first.");
-                return;
-              }
-              addToCart(product, selectedVariant.size, selectedVariant.price, 1);
-            } else {
-              const fallbackPrice = getBasePrice(product);
-              if (fallbackPrice == null) {
-                alert("Price on request. Please message us on WhatsApp.");
-                return;
-              }
-              addToCart(product, "-", fallbackPrice, 1);
-            }
-          };
 
           const waLines = [
             `Hi BASFAY Uniforms, I would like to ask about this item:`,
@@ -1817,16 +1874,36 @@
 
           ui.waBtn.href = `https://wa.me/254119667836?text=${encodeURIComponent(waLines.join("\n"))}`;
 
+          ui.addBtn.onclick = () => {
+            if (variants.length) {
+              if (!selectedVariant) {
+                alert("Please select a size first.");
+                return;
+              }
+              addToCart(product, selectedVariant.size, selectedVariant.price, 1);
+              return;
+            }
+
+            const fallbackPrice = getBasePrice(product);
+            if (fallbackPrice == null) {
+              window.open(ui.waBtn.href, "_blank", "noopener,noreferrer");
+              return;
+            }
+
+            addToCart(product, "-", fallbackPrice, 1);
+          };
+
           renderRelated(product);
         }
 
         async function init(){
           refreshCartCount();
+          window.addEventListener("storage", refreshCartCount);
 
           const slug = getSlugFromUrl();
           if (!slug) {
-            ui.loading.hidden = true;
-            ui.notFound.hidden = false;
+            document.title = "Product not found | BASFAY Uniforms";
+            showNotFound("No product slug was found in the URL.");
             return;
           }
 
@@ -1844,9 +1921,8 @@
             );
 
             if (!product) {
-              ui.loading.hidden = true;
-              ui.notFound.hidden = false;
               document.title = "Product not found | BASFAY Uniforms";
+              showNotFound("That product slug does not match any live product in your catalog.");
               return;
             }
 
@@ -1854,8 +1930,8 @@
             await loadReviews(product);
           }catch(err){
             console.error("Product page error:", err);
-            ui.loading.hidden = true;
-            ui.notFound.hidden = false;
+            document.title = "Product not found | BASFAY Uniforms";
+            showNotFound("Could not load this product. Check that products.json is valid and uploaded in the site root.");
           }
         }
 

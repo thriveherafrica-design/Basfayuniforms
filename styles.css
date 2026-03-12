@@ -1466,3 +1466,24 @@ input:focus,select:focus{
   contain-intrinsic-size: 420px;
 }
 
+.product .media img,
+#modalMedia img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.product .media img {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+#modalMedia img {
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.product {
+  content-visibility: auto;
+  contain-intrinsic-size: 420px;
+}

@@ -1444,3 +1444,20 @@ input:focus,select:focus{
   }
 }
 
+.product .media img,
+#modalMedia img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.product .media img {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+#modalMedia img {
+  max-width: 100%;
+  object-fit: contain;
+}
+

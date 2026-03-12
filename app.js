@@ -3,11 +3,10 @@
    Cart + Two-step Checkout
    Product page links via slug
    Dead products auto-filtered
-   Faster product images via Cloudflare transforms
-   Lighter mobile rendering
+   Safer image loading + lighter mobile rendering
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (LIVE PRODUCTS + PRODUCT LINKS + REVIEWS + IMAGE SPEED + MOBILE)");
+console.log("✅ BASFAY app.js LOADED (SAFE IMAGES + MOBILE FIX)");
 
 const CONFIG = {
   currency: "KES",
@@ -16,7 +15,6 @@ const CONFIG = {
   businessName: "BASFAY Uniforms",
   tillNumberPlaceholder: "XXXX",
   turnstileSiteKey: "0x4AAAAAACnvQa10Y55LL_Rg",
-  imageQuality: 75,
 
   // ✅ review endpoints
   reviewsListEndpoint: "/api/reviews",
@@ -162,78 +160,14 @@ function getProductUrl(product) {
   return `${getProductPageBase()}${encodeURIComponent(slug)}`;
 }
 
-/* Image speed helpers */
-function isAbsoluteUrl(url) {
-  return /^https?:\/\//i.test(safeText(url));
-}
-
+/* Safe image helpers */
 function normalizeImageSourcePath(src) {
   const value = safeText(src);
   if (!value) return "";
-  if (isAbsoluteUrl(value)) return value;
+  if (/^https?:\/\//i.test(value)) return value;
   if (value.startsWith("/")) return value;
   if (value.startsWith("./")) return `/${value.slice(2)}`;
   return `/${value.replace(/^\/+/, "")}`;
-}
-
-function canUseCloudflareImageTransforms() {
-  const host = safeText(window.location.hostname);
-  return Boolean(host) && !host.endsWith(".pages.dev");
-}
-
-function getCloudflareImageUrl(src, options = {}) {
-  const normalized = normalizeImageSourcePath(src);
-  if (!normalized) return "";
-
-  if (!canUseCloudflareImageTransforms()) {
-    return normalized;
-  }
-
-  const width = Number(options.width);
-  const height = Number(options.height);
-  const quality = Number(options.quality || CONFIG.imageQuality || 75);
-  const fit = safeText(options.fit) || "cover";
-
-  const params = [];
-  if (!Number.isNaN(width) && width > 0) params.push(`width=${Math.round(width)}`);
-  if (!Number.isNaN(height) && height > 0) params.push(`height=${Math.round(height)}`);
-  if (!Number.isNaN(quality) && quality > 0) params.push(`quality=${Math.round(quality)}`);
-  params.push("format=auto");
-  params.push(`fit=${fit}`);
-
-  const source = normalized.startsWith("/") ? normalized.slice(1) : normalized;
-  return `/cdn-cgi/image/${params.join(",")}/${source}`;
-}
-
-function buildImageSrcSet(src, widths = [], options = {}) {
-  const normalized = normalizeImageSourcePath(src);
-  if (!normalized || !canUseCloudflareImageTransforms()) return "";
-
-  return widths
-    .filter(w => Number(w) > 0)
-    .map(w => `${getCloudflareImageUrl(normalized, { ...options, width: Number(w) })} ${Number(w)}w`)
-    .join(", ");
-}
-
-function handleImageLoadError(event) {
-  const img = event?.currentTarget;
-  if (!img) return;
-
-  const fallback = safeText(img.dataset.fallback);
-  if (!fallback) return;
-
-  img.removeAttribute("srcset");
-  img.removeAttribute("sizes");
-
-  try {
-    const current = img.currentSrc || img.src;
-    const fallbackAbsolute = new URL(fallback, window.location.origin).href;
-    if (current !== fallbackAbsolute) {
-      img.src = fallback;
-    }
-  } catch {
-    img.src = fallback;
-  }
 }
 
 function applyResponsiveImage(img, src, options = {}) {
@@ -242,78 +176,46 @@ function applyResponsiveImage(img, src, options = {}) {
   const normalized = normalizeImageSourcePath(src);
   if (!normalized) return;
 
-  const widths = Array.isArray(options.widths) && options.widths.length
-    ? options.widths.map(Number).filter(w => !Number.isNaN(w) && w > 0)
-    : [320, 480, 640];
-
-  const displayWidth = Number(options.displayWidth) || widths[widths.length - 1] || 640;
-  const displayHeight = Number(options.displayHeight) || displayWidth;
-  const eager = Boolean(options.eager);
-  const fit = safeText(options.fit) || "cover";
-  const quality = Number(options.quality || CONFIG.imageQuality || 75);
-  const sizes = safeText(options.sizes) || "100vw";
-
-  img.width = displayWidth;
-  img.height = displayHeight;
+  img.src = normalized;
+  img.alt = safeText(options.alt);
+  img.loading = options.eager ? "eager" : "lazy";
+  img.fetchPriority = options.eager ? "high" : "low";
   img.decoding = "async";
-  img.loading = eager ? "eager" : "lazy";
-  img.fetchPriority = eager ? "high" : "low";
-  img.dataset.fallback = normalized;
-
-  if (canUseCloudflareImageTransforms()) {
-    img.src = getCloudflareImageUrl(normalized, {
-      width: widths[0],
-      quality,
-      fit
-    });
-
-    const srcset = buildImageSrcSet(normalized, widths, { quality, fit });
-    if (srcset) {
-      img.srcset = srcset;
-      img.sizes = sizes;
-    }
-  } else {
-    img.src = normalized;
-    img.removeAttribute("srcset");
-    img.removeAttribute("sizes");
-  }
-
-  img.addEventListener("error", handleImageLoadError, { once: true });
+  img.width = Number(options.width) || 640;
+  img.height = Number(options.height) || 640;
 }
 
 function renderResponsiveImageInto(container, src, alt, options = {}) {
   if (!container) return;
-
   container.innerHTML = "";
-  if (!safeText(src)) return;
+
+  const normalized = normalizeImageSourcePath(src);
+  if (!normalized) return;
 
   const img = document.createElement("img");
-  img.alt = alt || "";
-  applyResponsiveImage(img, src, options);
+  applyResponsiveImage(img, normalized, {
+    alt,
+    eager: Boolean(options.eager),
+    width: Number(options.width) || 960,
+    height: Number(options.height) || 960
+  });
+
   container.appendChild(img);
 }
 
 function getCardImageOptions(index = 0) {
   return {
-    widths: [240, 360, 480, 640],
-    sizes: "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 280px",
-    displayWidth: 640,
-    displayHeight: 640,
     eager: index < 1,
-    fit: "cover",
-    quality: CONFIG.imageQuality
+    width: 640,
+    height: 640
   };
 }
 
 function getModalImageOptions() {
   return {
-    widths: [480, 720, 960, 1280],
-    sizes: "(max-width: 768px) 92vw, 560px",
-    displayWidth: 960,
-    displayHeight: 960,
     eager: true,
-    fit: "contain",
-    quality: CONFIG.imageQuality
+    width: 960,
+    height: 960
   };
 }
 
@@ -980,30 +882,6 @@ function getCardReviewSummary(productId) {
   };
 }
 
-async function preloadReviewSummaries() {
-  if (!Array.isArray(PRODUCTS) || !PRODUCTS.length) return;
-
-  await Promise.allSettled(
-    PRODUCTS.map(async (p) => {
-      if (!p?.id || reviewState.cache.has(p.id)) return;
-
-      try {
-        const data = await apiGetJson(getReviewsUrl(p.id));
-        reviewState.cache.set(p.id, data);
-      } catch (err) {
-        reviewState.cache.set(p.id, {
-          product_id: p.id,
-          review_count: 0,
-          average_rating: 0,
-          reviews: []
-        });
-      }
-    })
-  );
-
-  renderProducts();
-}
-
 async function loadReviewsForProduct(productId) {
   const ui = ensureReviewUI();
   if (!ui) return;
@@ -1299,8 +1177,10 @@ function productCard(p, index = 0) {
 
   if (p.image) {
     const img = document.createElement("img");
-    img.alt = `${p.name} photo`;
-    applyResponsiveImage(img, p.image, getCardImageOptions(index));
+    applyResponsiveImage(img, p.image, {
+      alt: `${p.name} photo`,
+      ...getCardImageOptions(index)
+    });
     mediaLink.appendChild(img);
   } else {
     const ph = document.createElement("div");
@@ -1707,8 +1587,7 @@ async function loadProducts() {
 
     window.addEventListener("storage", refreshAllCartUIs);
 
-    // Intentionally not preloading reviews for every product.
-    // That created too many mobile requests.
+    // Intentionally not preloading all product reviews on page load.
   } catch (err) {
     console.error("BASFAY app.js error:", err);
     toast("Site error: open Console (F12) to see why.");

@@ -1461,3 +1461,8 @@ input:focus,select:focus{
   object-fit: contain;
 }
 
+.product {
+  content-visibility: auto;
+  contain-intrinsic-size: 420px;
+}
+

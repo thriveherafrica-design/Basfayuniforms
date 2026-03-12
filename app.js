@@ -14,11 +14,15 @@ const CONFIG = {
   businessName: "BASFAY Uniforms",
   tillNumberPlaceholder: "XXXX",
   turnstileSiteKey: "0x4AAAAAACnvQa10Y55LL_Rg",
+
+  // ✅ review endpoints
+  reviewsListEndpoint: "/api/reviews",
+  reviewSubmitEndpoint: "/api/reviews/submit",
 };
 
 const FUTURE_CATEGORIES = [
-  "Sweater","Shirt","Dress","Socks","Marvin","Tracksuit","Gameskit","PE Shirt",
-  "Trousers","School Bag","Shoes","Blazer","Materials","Cardigan","Accessory",
+  "Sweater", "Shirt", "Dress", "Socks", "Marvin", "Tracksuit", "Gameskit", "PE Shirt",
+  "Trousers", "School Bag", "Shoes", "Blazer", "Materials", "Cardigan", "Accessory",
 ];
 
 const els = {
@@ -92,22 +96,22 @@ const reviewState = {
 };
 
 /* Helpers */
-function safeText(s){ return String(s ?? "").trim(); }
-function normalize(s){ return safeText(s).toLowerCase(); }
-function money(n){ return `${CONFIG.currency} ${Number(n || 0).toLocaleString("en-KE")}`; }
+function safeText(s) { return String(s ?? "").trim(); }
+function normalize(s) { return safeText(s).toLowerCase(); }
+function money(n) { return `${CONFIG.currency} ${Number(n || 0).toLocaleString("en-KE")}`; }
 
-function formatMoney(amount){
+function formatMoney(amount) {
   if (amount == null || Number.isNaN(Number(amount))) return "";
   return money(Number(amount));
 }
 
-function toTypeClass(type){
-  return "type-" + normalize(type).replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+function toTypeClass(type) {
+  return "type-" + normalize(type).replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
-function cleanPhone(raw){ return safeText(raw).replace(/[^\d+]/g, ""); }
+function cleanPhone(raw) { return safeText(raw).replace(/[^\d+]/g, ""); }
 
-function escapeHtml(value){
+function escapeHtml(value) {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -116,42 +120,42 @@ function escapeHtml(value){
     .replace(/'/g, "&#39;");
 }
 
-function starsForRating(rating){
+function starsForRating(rating) {
   const rounded = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
   return "★".repeat(rounded) + "☆".repeat(5 - rounded);
 }
 
-function reviewDateText(ts){
-  if(!ts) return "";
-  try{
+function reviewDateText(ts) {
+  if (!ts) return "";
+  try {
     return new Date(Number(ts) * 1000).toLocaleDateString("en-KE", {
       year: "numeric",
       month: "short",
       day: "numeric"
     });
-  }catch{
+  } catch {
     return "";
   }
 }
 
-function getProductsJsonPath(){
+function getProductsJsonPath() {
   return window.BASFAY_PRODUCTS_JSON || document.body?.dataset?.productsJson || "/products.json";
 }
 
-function getProductPageBase(){
+function getProductPageBase() {
   return window.BASFAY_PRODUCT_PAGE_BASE || document.body?.dataset?.productPageBase || "/product.html?slug=";
 }
 
-function getProductSlug(product){
+function getProductSlug(product) {
   return safeText(product?.slug) || safeText(product?.id);
 }
 
-function getProductUrl(product){
+function getProductUrl(product) {
   const slug = getProductSlug(product);
   return `${getProductPageBase()}${encodeURIComponent(slug)}`;
 }
 
-function getProductBasePrice(product){
+function getProductBasePrice(product) {
   const variants = Array.isArray(product?.variants) ? product.variants : [];
   if (variants.length) {
     const prices = variants
@@ -171,13 +175,13 @@ function getProductBasePrice(product){
   return null;
 }
 
-function isLiveProductEntry(product){
+function isLiveProductEntry(product) {
   const hasIdentity = Boolean(safeText(product?.id) && safeText(product?.name));
   const hasPrice = getProductBasePrice(product) != null;
   return hasIdentity && hasPrice;
 }
 
-function getProductDisplayPrice(product){
+function getProductDisplayPrice(product) {
   const base = getProductBasePrice(product);
   if (base == null) return "Price on request";
   return Array.isArray(product?.variants) && product.variants.length
@@ -185,30 +189,30 @@ function getProductDisplayPrice(product){
     : formatMoney(base);
 }
 
-function toast(msg){
+function toast(msg) {
   const t = document.createElement("div");
   t.textContent = msg;
-  t.style.position="fixed";
-  t.style.left="50%";
-  t.style.bottom="18px";
-  t.style.transform="translateX(-50%)";
-  t.style.padding="10px 12px";
-  t.style.borderRadius="12px";
-  t.style.background="rgba(0,0,0,0.88)";
-  t.style.color="#fff";
-  t.style.fontSize="12px";
-  t.style.zIndex="9999";
-  t.style.maxWidth="90vw";
-  t.style.textAlign="center";
+  t.style.position = "fixed";
+  t.style.left = "50%";
+  t.style.bottom = "18px";
+  t.style.transform = "translateX(-50%)";
+  t.style.padding = "10px 12px";
+  t.style.borderRadius = "12px";
+  t.style.background = "rgba(0,0,0,0.88)";
+  t.style.color = "#fff";
+  t.style.fontSize = "12px";
+  t.style.zIndex = "9999";
+  t.style.maxWidth = "90vw";
+  t.style.textAlign = "center";
   document.body.appendChild(t);
-  setTimeout(()=>t.remove(),1600);
+  setTimeout(() => t.remove(), 1600);
 }
 
-async function copyToClipboard(text){
-  try{
+async function copyToClipboard(text) {
+  try {
     await navigator.clipboard.writeText(String(text));
     toast("Copied ✅");
-  }catch{
+  } catch {
     const ta = document.createElement("textarea");
     ta.value = String(text);
     document.body.appendChild(ta);
@@ -219,84 +223,123 @@ async function copyToClipboard(text){
   }
 }
 
-async function apiGetJson(url){
+async function apiGetJson(url) {
   const res = await fetch(url, { credentials: "include" });
-  const data = await res.json().catch(()=>({}));
-  if(!res.ok) throw new Error(data?.error || "Request failed.");
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    const err = new Error(data?.error || `Request failed (${res.status})`);
+    err.status = res.status;
+    err.data = data;
+    throw err;
+  }
+
   return data;
 }
 
-async function apiPostJson(url, payload){
+async function apiPostJson(url, payload) {
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type":"application/json" },
+    headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify(payload || {})
   });
-  const data = await res.json().catch(()=>({}));
-  if(!res.ok) throw new Error(data?.error || "Request failed.");
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    const err = new Error(data?.error || `Request failed (${res.status})`);
+    err.status = res.status;
+    err.data = data;
+    throw err;
+  }
+
   return data;
 }
 
-async function announceOrderId(orderId){
+function getReviewsUrl(productId) {
+  return `${CONFIG.reviewsListEndpoint}?product_id=${encodeURIComponent(productId)}`;
+}
+
+async function submitReviewRequest(payload) {
+  try {
+    // ✅ preferred route
+    return await apiPostJson(CONFIG.reviewSubmitEndpoint, payload);
+  } catch (err) {
+    // ✅ fallback route if /api/reviews/submit does not exist
+    if (err?.status === 404) {
+      return await apiPostJson(CONFIG.reviewsListEndpoint, {
+        product_id: payload.product_id,
+        customer_name: payload.customer_name,
+        rating: payload.rating,
+        review_text: payload.review_text
+      });
+    }
+    throw err;
+  }
+}
+
+async function announceOrderId(orderId) {
   const id = safeText(orderId);
-  if(!id) return;
+  if (!id) return;
   localStorage.setItem(LAST_ORDER_ID_KEY, id);
 
-  try{
+  try {
     await navigator.clipboard.writeText(id);
-    toast(`Order ID copied ✅ (${id.slice(0,8)}...)`);
-  }catch{
+    toast(`Order ID copied ✅ (${id.slice(0, 8)}...)`);
+  } catch {
     toast(`Order ID: ${id}`);
   }
 }
 
 /* Checkout step */
-function getCheckoutStep(){
+function getCheckoutStep() {
   const s = safeText(localStorage.getItem(CHECKOUT_STEP_KEY));
   return s === "checkout" ? "checkout" : "cart";
 }
 
-function setCheckoutStep(step){
+function setCheckoutStep(step) {
   localStorage.setItem(CHECKOUT_STEP_KEY, step === "checkout" ? "checkout" : "cart");
 }
 
 /* Cart store */
-function getCart(){
-  try{
+function getCart() {
+  try {
     const raw = localStorage.getItem(CART_KEY);
-    if(!raw) return [];
+    if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
-  }catch{ return []; }
+  } catch {
+    return [];
+  }
 }
 
-function cartCountTotal(){
-  return getCart().reduce((sum,i)=>sum + (Number(i.qty)||0),0);
+function cartCountTotal() {
+  return getCart().reduce((sum, i) => sum + (Number(i.qty) || 0), 0);
 }
 
-function calcSubtotal(){
-  return getCart().reduce((sum,i)=>sum + (Number(i.price)||0)*(Number(i.qty)||0),0);
+function calcSubtotal() {
+  return getCart().reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.qty) || 0), 0);
 }
 
-async function saveOrderToDB(payload){
-  try{
+async function saveOrderToDB(payload) {
+  try {
     const res = await fetch("/api/orders", {
       method: "POST",
-      headers: { "Content-Type":"application/json" },
+      headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify(payload),
     });
-    const data = await res.json().catch(()=>({}));
+    const data = await res.json().catch(() => ({}));
     return data.orderId || null;
-  }catch{
+  } catch {
     return null;
   }
 }
 
-function buildOrderItemsPayload(){
+function buildOrderItemsPayload() {
   const cart = getCart();
-  return cart.map(item=>{
+  return cart.map(item => {
     const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
     return {
       product_id: item.id,
@@ -305,25 +348,25 @@ function buildOrderItemsPayload(){
       color: p?.color || "",
       type: p?.type || "",
       size: item.size,
-      qty: Number(item.qty)||1,
-      price: Number(item.price)||0
+      qty: Number(item.qty) || 1,
+      price: Number(item.price) || 0
     };
   });
 }
 
-function setCart(items){
+function setCart(items) {
   localStorage.setItem(CART_KEY, JSON.stringify(items));
   localStorage.removeItem(PENDING_ORDER_ID_KEY);
   setCheckoutStep("cart");
   refreshAllCartUIs();
 }
 
-function addToCart(productId,size,price,qty=1){
+function addToCart(productId, size, price, qty = 1) {
   const cart = getCart();
   const key = `${productId}__${size}`;
-  const found = cart.find(i=>i.key===key);
-  if(found) found.qty = (Number(found.qty)||0) + (Number(qty)||1);
-  else cart.push({ key, id: productId, size: String(size), price: Number(price), qty: Number(qty)||1 });
+  const found = cart.find(i => i.key === key);
+  if (found) found.qty = (Number(found.qty) || 0) + (Number(qty) || 1);
+  else cart.push({ key, id: productId, size: String(size), price: Number(price), qty: Number(qty) || 1 });
 
   setCheckoutStep("cart");
   localStorage.removeItem(PENDING_ORDER_ID_KEY);
@@ -333,34 +376,37 @@ function addToCart(productId,size,price,qty=1){
   toast(`${p?.name || "Item"} added to cart`);
 }
 
-function removeFromCart(key){
-  setCart(getCart().filter(i=>i.key!==key));
+function removeFromCart(key) {
+  setCart(getCart().filter(i => i.key !== key));
 }
 
-function incQty(key){
+function incQty(key) {
   const cart = getCart();
-  const it = cart.find(i=>i.key===key);
-  if(!it) return;
-  it.qty = (Number(it.qty)||1) + 1;
+  const it = cart.find(i => i.key === key);
+  if (!it) return;
+  it.qty = (Number(it.qty) || 1) + 1;
   setCart(cart);
 }
 
-function decQty(key){
+function decQty(key) {
   const cart = getCart();
-  const it = cart.find(i=>i.key===key);
-  if(!it) return;
-  const next = (Number(it.qty)||1) - 1;
-  if(next <= 0) setCart(cart.filter(i=>i.key!==key));
-  else { it.qty = next; setCart(cart); }
+  const it = cart.find(i => i.key === key);
+  if (!it) return;
+  const next = (Number(it.qty) || 1) - 1;
+  if (next <= 0) setCart(cart.filter(i => i.key !== key));
+  else {
+    it.qty = next;
+    setCart(cart);
+  }
 }
 
 /* Payment helpers */
-function getPayMethod(){
-  const checked = [...(els.payRadios||[])].find(r=>r.checked);
+function getPayMethod() {
+  const checked = [...(els.payRadios || [])].find(r => r.checked);
   return checked?.value || "Till";
 }
 
-function togglePaymentUI(){
+function togglePaymentUI() {
   const method = String(getPayMethod()).toLowerCase();
   const isTill = method === "till";
 
@@ -368,11 +414,11 @@ function togglePaymentUI(){
   if (els.mpesaCodeWrap) els.mpesaCodeWrap.classList.add("is-hidden");
 }
 
-function buildWhatsAppLink(message){
+function buildWhatsAppLink(message) {
   return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
 
-function buildCheckoutWhatsAppMessage(){
+function buildCheckoutWhatsAppMessage() {
   const cart = getCart();
   const phone = cleanPhone(els.customerPhone?.value);
   const subtotal = calcSubtotal();
@@ -389,11 +435,11 @@ function buildCheckoutWhatsAppMessage(){
   }
 
   lines.push("");
-  cart.forEach(item=>{
+  cart.forEach(item => {
     const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
     const name = p?.name || `Item (${safeText(item.id)})`;
     const sizeText = item.size && item.size !== "-" ? ` (Size ${item.size})` : "";
-    const lineTotal = (Number(item.price)||0)*(Number(item.qty)||0);
+    const lineTotal = (Number(item.price) || 0) * (Number(item.qty) || 0);
     lines.push(`- ${item.qty} × ${name}${sizeText} — ${money(lineTotal)}`);
   });
 
@@ -405,27 +451,27 @@ function buildCheckoutWhatsAppMessage(){
 }
 
 /* Drawer order list */
-function renderOrderPanel(){
-  if(!els.orderItems || !els.orderSubtotal) return;
+function renderOrderPanel() {
+  if (!els.orderItems || !els.orderSubtotal) return;
 
   const cart = getCart();
 
-  if(!cart.length){
+  if (!cart.length) {
     els.orderItems.innerHTML = `<div style="opacity:.7;padding:8px 0;">No items yet.</div>`;
     els.orderSubtotal.textContent = money(0);
-    if(els.cartEmpty) els.cartEmpty.hidden = false;
+    if (els.cartEmpty) els.cartEmpty.hidden = false;
     return;
   }
 
-  if(els.cartEmpty) els.cartEmpty.hidden = true;
+  if (els.cartEmpty) els.cartEmpty.hidden = true;
 
   let subtotal = 0;
 
-  els.orderItems.innerHTML = cart.map(item=>{
+  els.orderItems.innerHTML = cart.map(item => {
     const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
     const name = p?.name || `Item (${safeText(item.id)})`;
-    const qty = Number(item.qty)||1;
-    const unit = Number(item.price)||0;
+    const qty = Number(item.qty) || 1;
+    const unit = Number(item.price) || 0;
     const line = unit * qty;
     subtotal += line;
     const sizeTxt = item.size && item.size !== "-" ? item.size : "—";
@@ -452,13 +498,13 @@ function renderOrderPanel(){
 
   els.orderSubtotal.textContent = money(subtotal);
 
-  els.orderItems.querySelectorAll("[data-rm]").forEach(btn=>btn.addEventListener("click", ()=>removeFromCart(btn.dataset.rm)));
-  els.orderItems.querySelectorAll("[data-inc]").forEach(btn=>btn.addEventListener("click", ()=>incQty(btn.dataset.inc)));
-  els.orderItems.querySelectorAll("[data-dec]").forEach(btn=>btn.addEventListener("click", ()=>decQty(btn.dataset.dec)));
+  els.orderItems.querySelectorAll("[data-rm]").forEach(btn => btn.addEventListener("click", () => removeFromCart(btn.dataset.rm)));
+  els.orderItems.querySelectorAll("[data-inc]").forEach(btn => btn.addEventListener("click", () => incQty(btn.dataset.inc)));
+  els.orderItems.querySelectorAll("[data-dec]").forEach(btn => btn.addEventListener("click", () => decQty(btn.dataset.dec)));
 }
 
-function renderCartPreview(){
-  if(!els.cartPreviewItems || !els.cartPreviewSubtotal || !els.cartPreviewCount) return;
+function renderCartPreview() {
+  if (!els.cartPreviewItems || !els.cartPreviewSubtotal || !els.cartPreviewCount) return;
 
   const cart = getCart();
   const totalQty = cartCountTotal();
@@ -467,16 +513,16 @@ function renderCartPreview(){
   els.cartPreviewCount.textContent = String(totalQty);
   els.cartPreviewSubtotal.textContent = money(subtotal);
 
-  if(!cart.length){
+  if (!cart.length) {
     els.cartPreviewItems.textContent = "No items yet";
     return;
   }
 
-  els.cartPreviewItems.innerHTML = cart.map(item=>{
+  els.cartPreviewItems.innerHTML = cart.map(item => {
     const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
     const name = p?.name || `Item (${safeText(item.id)})`;
-    const qty = Number(item.qty)||1;
-    const unit = Number(item.price)||0;
+    const qty = Number(item.qty) || 1;
+    const unit = Number(item.price) || 0;
     const line = unit * qty;
     const sizeTxt = item.size && item.size !== "-" ? `• ${item.size}` : "";
 
@@ -489,23 +535,23 @@ function renderCartPreview(){
   }).join("");
 }
 
-function refreshCartBadge(){
-  if(!els.cartCount) return;
+function refreshCartBadge() {
+  if (!els.cartCount) return;
   els.cartCount.textContent = String(cartCountTotal());
 }
 
-function refreshAllCartUIs(){
+function refreshAllCartUIs() {
   refreshCartBadge();
   renderOrderPanel();
   renderCartPreview();
 }
 
 /* Reviews UI */
-function ensureReviewUI(){
-  if(reviewState.ui) return reviewState.ui;
+function ensureReviewUI() {
+  if (reviewState.ui) return reviewState.ui;
 
   const modalInfo = els.modal?.querySelector(".modal-info") || els.modalDesc?.parentElement;
-  if(!modalInfo) return null;
+  if (!modalInfo) return null;
 
   const wrap = document.createElement("div");
   wrap.id = "modalReviewsBlock";
@@ -619,19 +665,19 @@ function ensureReviewUI(){
     cancelBtn: wrap.querySelector("#reviewCancelBtn"),
   };
 
-  ui.toggleBtn.addEventListener("click", async ()=>{
+  ui.toggleBtn.addEventListener("click", async () => {
     const hidden = ui.formWrap.style.display === "none";
-    if(hidden){
+    if (hidden) {
       ui.formWrap.style.display = "block";
       ui.formWrap.classList.remove("is-hidden");
       prefillReviewForm();
       await mountTurnstileWidget();
-    }else{
+    } else {
       hideReviewForm();
     }
   });
 
-  ui.cancelBtn.addEventListener("click", ()=>{
+  ui.cancelBtn.addEventListener("click", () => {
     hideReviewForm();
   });
 
@@ -641,30 +687,30 @@ function ensureReviewUI(){
   return ui;
 }
 
-function prefillReviewForm(){
+function prefillReviewForm() {
   const ui = ensureReviewUI();
-  if(!ui) return;
+  if (!ui) return;
 
   const lastOrderId = safeText(localStorage.getItem(LAST_ORDER_ID_KEY));
   const lastPhone = safeText(localStorage.getItem(LAST_CUSTOMER_PHONE_KEY));
   const drawerPhone = cleanPhone(els.customerPhone?.value);
 
-  if(!ui.orderId.value && lastOrderId) ui.orderId.value = lastOrderId;
-  if(!ui.phone.value && drawerPhone) ui.phone.value = drawerPhone;
-  if(!ui.phone.value && lastPhone) ui.phone.value = lastPhone;
+  if (!ui.orderId.value && lastOrderId) ui.orderId.value = lastOrderId;
+  if (!ui.phone.value && drawerPhone) ui.phone.value = drawerPhone;
+  if (!ui.phone.value && lastPhone) ui.phone.value = lastPhone;
 }
 
-function hideReviewForm(){
+function hideReviewForm() {
   const ui = ensureReviewUI();
-  if(!ui) return;
+  if (!ui) return;
   ui.formWrap.style.display = "none";
   ui.formWrap.classList.add("is-hidden");
   ui.msg.textContent = "";
 }
 
-function renderModalReviews(data){
+function renderModalReviews(data) {
   const ui = ensureReviewUI();
-  if(!ui) return;
+  if (!ui) return;
 
   const count = Number(data?.review_count || 0);
   const avg = Number(data?.average_rating || 0);
@@ -677,7 +723,7 @@ function renderModalReviews(data){
   `;
 
   const reviews = Array.isArray(data?.reviews) ? data.reviews : [];
-  if(!reviews.length){
+  if (!reviews.length) {
     ui.list.innerHTML = `
       <div
         style="
@@ -727,7 +773,7 @@ function renderModalReviews(data){
   }).join("");
 }
 
-function getCardReviewSummary(productId){
+function getCardReviewSummary(productId) {
   const data = reviewState.cache.get(productId);
   return {
     review_count: Number(data?.review_count || 0),
@@ -735,17 +781,17 @@ function getCardReviewSummary(productId){
   };
 }
 
-async function preloadReviewSummaries(){
-  if(!Array.isArray(PRODUCTS) || !PRODUCTS.length) return;
+async function preloadReviewSummaries() {
+  if (!Array.isArray(PRODUCTS) || !PRODUCTS.length) return;
 
   await Promise.allSettled(
-    PRODUCTS.map(async (p)=>{
-      if(!p?.id || reviewState.cache.has(p.id)) return;
+    PRODUCTS.map(async (p) => {
+      if (!p?.id || reviewState.cache.has(p.id)) return;
 
-      try{
-        const data = await apiGetJson(`/api/reviews?product_id=${encodeURIComponent(p.id)}`);
+      try {
+        const data = await apiGetJson(getReviewsUrl(p.id));
         reviewState.cache.set(p.id, data);
-      }catch{
+      } catch (err) {
         reviewState.cache.set(p.id, {
           product_id: p.id,
           review_count: 0,
@@ -759,21 +805,41 @@ async function preloadReviewSummaries(){
   renderProducts();
 }
 
-async function loadReviewsForProduct(productId){
+async function loadReviewsForProduct(productId) {
   const ui = ensureReviewUI();
-  if(!ui) return;
+  if (!ui) return;
 
   reviewState.currentProductId = safeText(productId);
   ui.summary.innerHTML = `<strong style="font-size:14px;">Reviews</strong><span class="muted" style="font-size:13px;">Loading...</span>`;
   ui.list.innerHTML = "";
   ui.msg.textContent = "";
 
-  try{
-    const data = await apiGetJson(`/api/reviews?product_id=${encodeURIComponent(productId)}`);
+  try {
+    const data = await apiGetJson(getReviewsUrl(productId));
     reviewState.cache.set(productId, data);
     renderModalReviews(data);
     renderProducts();
-  }catch(err){
+  } catch (err) {
+    if (err?.status === 404) {
+      ui.summary.innerHTML = `<strong style="font-size:14px;">Reviews</strong><span class="muted" style="font-size:13px;">API route not found.</span>`;
+      ui.list.innerHTML = `
+        <div
+          style="
+            border:1px solid rgba(15,28,43,0.08);
+            border-radius:14px;
+            padding:12px;
+            background:#fff;
+            color:rgba(15,28,43,0.72);
+            font-size:13px;
+            line-height:1.6;
+          "
+        >
+          Cloudflare is not returning <strong>/api/reviews</strong> yet.
+        </div>
+      `;
+      return;
+    }
+
     ui.summary.innerHTML = `<strong style="font-size:14px;">Reviews</strong><span class="muted" style="font-size:13px;">Could not load reviews.</span>`;
     ui.list.innerHTML = `
       <div
@@ -793,15 +859,15 @@ async function loadReviewsForProduct(productId){
   }
 }
 
-async function ensureTurnstileScript(){
-  if(window.turnstile) return;
-  if(reviewState.scriptPromise) return reviewState.scriptPromise;
+async function ensureTurnstileScript() {
+  if (window.turnstile) return;
+  if (reviewState.scriptPromise) return reviewState.scriptPromise;
 
-  reviewState.scriptPromise = new Promise((resolve, reject)=>{
+  reviewState.scriptPromise = new Promise((resolve, reject) => {
     const existing = document.querySelector('script[data-basfay-turnstile="1"]');
-    if(existing){
-      existing.addEventListener("load", ()=>resolve(), { once:true });
-      existing.addEventListener("error", ()=>reject(new Error("Could not load Turnstile.")), { once:true });
+    if (existing) {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(new Error("Could not load Turnstile.")), { once: true });
       return;
     }
 
@@ -810,22 +876,22 @@ async function ensureTurnstileScript(){
     script.async = true;
     script.defer = true;
     script.dataset.basfayTurnstile = "1";
-    script.onload = ()=>resolve();
-    script.onerror = ()=>reject(new Error("Could not load Turnstile."));
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Could not load Turnstile."));
     document.head.appendChild(script);
   });
 
   return reviewState.scriptPromise;
 }
 
-async function mountTurnstileWidget(){
+async function mountTurnstileWidget() {
   const ui = ensureReviewUI();
-  if(!ui || !CONFIG.turnstileSiteKey) return;
+  if (!ui || !CONFIG.turnstileSiteKey) return;
 
-  try{
+  try {
     await ensureTurnstileScript();
 
-    if(window.turnstile && reviewState.widgetId !== null){
+    if (window.turnstile && reviewState.widgetId !== null) {
       ui.turnstileWrap.dataset.token = "";
       window.turnstile.reset(reviewState.widgetId);
       return;
@@ -834,42 +900,42 @@ async function mountTurnstileWidget(){
     ui.turnstileWrap.innerHTML = "";
     ui.turnstileWrap.dataset.token = "";
 
-    if(window.turnstile){
+    if (window.turnstile) {
       reviewState.widgetId = window.turnstile.render(ui.turnstileWrap, {
         sitekey: CONFIG.turnstileSiteKey,
         theme: "light",
-        callback(token){
+        callback(token) {
           ui.turnstileWrap.dataset.token = token || "";
         },
-        "expired-callback"(){
+        "expired-callback"() {
           ui.turnstileWrap.dataset.token = "";
         },
-        "error-callback"(){
+        "error-callback"() {
           ui.turnstileWrap.dataset.token = "";
         }
       });
     }
-  }catch(err){
+  } catch (err) {
     ui.msg.textContent = "Could not load review verification. Please refresh and try again.";
   }
 }
 
-function resetTurnstileWidget(){
+function resetTurnstileWidget() {
   const ui = ensureReviewUI();
-  if(!ui) return;
+  if (!ui) return;
   ui.turnstileWrap.dataset.token = "";
-  if(window.turnstile && reviewState.widgetId !== null){
-    try{
+  if (window.turnstile && reviewState.widgetId !== null) {
+    try {
       window.turnstile.reset(reviewState.widgetId);
-    }catch{
+    } catch {
       // leave it
     }
   }
 }
 
-async function submitReviewFromModal(){
+async function submitReviewFromModal() {
   const ui = ensureReviewUI();
-  if(!ui) return;
+  if (!ui) return;
 
   const productId = safeText(reviewState.currentProductId);
   const orderId = safeText(ui.orderId.value);
@@ -879,27 +945,27 @@ async function submitReviewFromModal(){
   const reviewText = safeText(ui.text.value);
   const turnstileToken = safeText(ui.turnstileWrap.dataset.token);
 
-  if(!productId){
+  if (!productId) {
     ui.msg.textContent = "Product not selected.";
     return;
   }
-  if(!orderId){
+  if (!orderId) {
     ui.msg.textContent = "Please enter your Order ID.";
     return;
   }
-  if(!phone || phone.length < 9){
+  if (!phone || phone.length < 9) {
     ui.msg.textContent = "Please enter a valid phone number.";
     return;
   }
-  if(!rating || rating < 1 || rating > 5){
+  if (!rating || rating < 1 || rating > 5) {
     ui.msg.textContent = "Please select a rating.";
     return;
   }
-  if(reviewText.length < 8){
+  if (reviewText.length < 8) {
     ui.msg.textContent = "Please write a slightly longer review.";
     return;
   }
-  if(!turnstileToken){
+  if (!turnstileToken) {
     ui.msg.textContent = "Please complete the verification first.";
     return;
   }
@@ -908,8 +974,8 @@ async function submitReviewFromModal(){
   ui.submitBtn.textContent = "Submitting...";
   ui.msg.textContent = "Submitting your review...";
 
-  try{
-    await apiPostJson("/api/reviews/submit", {
+  try {
+    await submitReviewRequest({
       product_id: productId,
       order_id: orderId,
       customer_phone: phone,
@@ -922,71 +988,84 @@ async function submitReviewFromModal(){
     localStorage.setItem(LAST_ORDER_ID_KEY, orderId);
     localStorage.setItem(LAST_CUSTOMER_PHONE_KEY, phone);
 
-    ui.msg.textContent = "Review submitted ✅ It will appear after approval.";
+    ui.msg.textContent = "Review submitted ✅";
     ui.text.value = "";
     ui.rating.value = "";
     resetTurnstileWidget();
     toast("Review submitted ✅");
-  }catch(err){
-    ui.msg.textContent = err.message || "Could not submit review.";
+
+    try {
+      const refreshed = await apiGetJson(getReviewsUrl(productId));
+      reviewState.cache.set(productId, refreshed);
+      renderModalReviews(refreshed);
+      renderProducts();
+    } catch {
+      // ignore refresh failure
+    }
+  } catch (err) {
+    if (err?.status === 404) {
+      ui.msg.textContent = "Cloudflare review route is missing. Fix backend route first.";
+    } else {
+      ui.msg.textContent = err.message || "Could not submit review.";
+    }
     resetTurnstileWidget();
-  }finally{
+  } finally {
     ui.submitBtn.disabled = false;
     ui.submitBtn.textContent = "Submit review";
   }
 }
 
 /* Render products */
-function renderProducts(){
-  if(!els.productGrid) return;
+function renderProducts() {
+  if (!els.productGrid) return;
 
-  const filtered = PRODUCTS.filter(p=>{
-    if(state.color && p.color !== state.color) return false;
-    if(state.type && normalize(p.type) !== normalize(state.type)) return false;
+  const filtered = PRODUCTS.filter(p => {
+    if (state.color && p.color !== state.color) return false;
+    if (state.type && normalize(p.type) !== normalize(state.type)) return false;
     return true;
   });
 
   const sorted = applySort(filtered);
 
-  if(els.resultsCount) els.resultsCount.textContent = String(sorted.length);
+  if (els.resultsCount) els.resultsCount.textContent = String(sorted.length);
 
   els.productGrid.innerHTML = "";
-  if(els.emptyState) els.emptyState.hidden = sorted.length !== 0;
+  if (els.emptyState) els.emptyState.hidden = sorted.length !== 0;
 
-  sorted.forEach(p=>els.productGrid.appendChild(productCard(p)));
+  sorted.forEach(p => els.productGrid.appendChild(productCard(p)));
 }
 
-function applySort(list){
+function applySort(list) {
   const sort = state.sort;
 
-  const byNameAsc = (a,b)=>safeText(a.name).localeCompare(safeText(b.name));
-  const byNameDesc = (a,b)=>safeText(b.name).localeCompare(safeText(a.name));
+  const byNameAsc = (a, b) => safeText(a.name).localeCompare(safeText(b.name));
+  const byNameDesc = (a, b) => safeText(b.name).localeCompare(safeText(a.name));
 
-  const minPrice = (p)=>{
+  const minPrice = (p) => {
     const base = getProductBasePrice(p);
     return base == null ? 1e15 : base;
   };
 
-  const maxPrice = (p)=>{
+  const maxPrice = (p) => {
     const variants = Array.isArray(p.variants) ? p.variants : [];
     if (variants.length) {
-      return Math.max(...variants.map(v=>Number(v.price)||-1));
+      return Math.max(...variants.map(v => Number(v.price) || -1));
     }
     if (p.price != null) return Number(p.price);
     if (p.basePrice != null) return Number(p.basePrice);
     return -1;
   };
 
-  if(sort==="name_asc") return [...list].sort(byNameAsc);
-  if(sort==="name_desc") return [...list].sort(byNameDesc);
-  if(sort==="price_asc") return [...list].sort((a,b)=>minPrice(a)-minPrice(b));
-  if(sort==="price_desc") return [...list].sort((a,b)=>maxPrice(b)-maxPrice(a));
+  if (sort === "name_asc") return [...list].sort(byNameAsc);
+  if (sort === "name_desc") return [...list].sort(byNameDesc);
+  if (sort === "price_asc") return [...list].sort((a, b) => minPrice(a) - minPrice(b));
+  if (sort === "price_desc") return [...list].sort((a, b) => maxPrice(b) - maxPrice(a));
 
-  const featuredScore = (p)=> (p.featured?10:0) + (p.hasPhoto?2:0);
-  return [...list].sort((a,b)=>featuredScore(b)-featuredScore(a) || byNameAsc(a,b));
+  const featuredScore = (p) => (p.featured ? 10 : 0) + (p.hasPhoto ? 2 : 0);
+  return [...list].sort((a, b) => featuredScore(b) - featuredScore(a) || byNameAsc(a, b));
 }
 
-function productCard(p){
+function productCard(p) {
   const wrap = document.createElement("article");
   wrap.className = "product";
 
@@ -1018,13 +1097,13 @@ function productCard(p){
   mediaLink.style.color = "inherit";
   mediaLink.style.textDecoration = "none";
 
-  if(p.image){
+  if (p.image) {
     const img = document.createElement("img");
     img.src = p.image;
     img.alt = `${p.name} photo`;
     img.loading = "lazy";
     mediaLink.appendChild(img);
-  }else{
+  } else {
     const ph = document.createElement("div");
     ph.className = "placeholder";
     ph.innerHTML = "<div>Image coming soon</div>";
@@ -1069,28 +1148,28 @@ function productCard(p){
   price.textContent = getProductDisplayPrice(p);
 
   const sizeWrap = document.createElement("div");
-  if(variants.length){
+  if (variants.length) {
     const select = document.createElement("select");
     select.className = "size-select";
     select.innerHTML = `<option value="" disabled selected>Select size</option>`;
 
-    const sortedV = [...variants].sort((a,b)=>{
+    const sortedV = [...variants].sort((a, b) => {
       const na = Number(a.size), nb = Number(b.size);
-      if(!Number.isNaN(na) && !Number.isNaN(nb)) return na-nb;
+      if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
       return String(a.size).localeCompare(String(b.size));
     });
 
-    sortedV.forEach(v=>{
+    sortedV.forEach(v => {
       const opt = document.createElement("option");
       opt.value = String(v.size);
       opt.textContent = String(v.size);
       select.appendChild(opt);
     });
 
-    select.addEventListener("change", ()=>{
-      const found = sortedV.find(v=>String(v.size)===select.value);
-      if(!found) return;
-      selected = { size:String(found.size), price:Number(found.price) };
+    select.addEventListener("change", () => {
+      const found = sortedV.find(v => String(v.size) === select.value);
+      if (!found) return;
+      selected = { size: String(found.size), price: Number(found.price) };
       price.textContent = formatMoney(selected.price);
     });
 
@@ -1109,15 +1188,15 @@ function productCard(p){
   addBtn.type = "button";
   addBtn.className = "btn small primary";
   addBtn.textContent = "Add to cart";
-  addBtn.addEventListener("click", (e)=>{
+  addBtn.addEventListener("click", (e) => {
     e.stopPropagation();
 
-    if(variants.length){
-      if(!selected) return alert("Please select a size first.");
+    if (variants.length) {
+      if (!selected) return alert("Please select a size first.");
       addToCart(p.id, selected.size, selected.price, 1);
-    }else{
+    } else {
       const fallbackPrice = getProductBasePrice(p);
-      if(fallbackPrice == null) return alert("Price on request. Please message us on WhatsApp.");
+      if (fallbackPrice == null) return alert("Price on request. Please message us on WhatsApp.");
       addToCart(p.id, "-", fallbackPrice, 1);
     }
   });
@@ -1128,7 +1207,7 @@ function productCard(p){
   wrap.appendChild(media);
   wrap.appendChild(title);
   wrap.appendChild(cardRating);
-  if(variants.length) wrap.appendChild(sizeWrap);
+  if (variants.length) wrap.appendChild(sizeWrap);
   wrap.appendChild(price);
   wrap.appendChild(actions);
 
@@ -1136,23 +1215,23 @@ function productCard(p){
 }
 
 /* Drawer / modal */
-function openDrawer(){ els.drawer?.setAttribute("aria-hidden","false"); }
-function closeDrawer(){ els.drawer?.setAttribute("aria-hidden","true"); }
+function openDrawer() { els.drawer?.setAttribute("aria-hidden", "false"); }
+function closeDrawer() { els.drawer?.setAttribute("aria-hidden", "true"); }
 
-function bindModal(){
-  els.closeModal?.addEventListener("click", ()=>{
-    els.modal?.setAttribute("aria-hidden","true");
+function bindModal() {
+  els.closeModal?.addEventListener("click", () => {
+    els.modal?.setAttribute("aria-hidden", "true");
     hideReviewForm();
   });
-  els.modalBackdrop?.addEventListener("click", ()=>{
-    els.modal?.setAttribute("aria-hidden","true");
+  els.modalBackdrop?.addEventListener("click", () => {
+    els.modal?.setAttribute("aria-hidden", "true");
     hideReviewForm();
   });
 }
 
-async function openModal(productId){
+async function openModal(productId) {
   const p = PRODUCTS.find(x => normalize(x.id) === normalize(productId));
-  if(!p || !els.modal) return;
+  if (!p || !els.modal) return;
 
   els.modalTitle.textContent = p.name;
   els.modalDesc.textContent = p.description || "Durable, comfortable uniform item.";
@@ -1165,17 +1244,17 @@ async function openModal(productId){
   const variants = Array.isArray(p.variants) ? p.variants : [];
   let selected = null;
 
-  if(els.modalSizeField && els.modalSize){
+  if (els.modalSizeField && els.modalSize) {
     els.modalSize.innerHTML = `<option value="" selected disabled>Select size</option>`;
-    if(variants.length){
+    if (variants.length) {
       els.modalSizeField.classList.remove("is-hidden");
-      const sorted = [...variants].sort((a,b)=>{
-        const na=Number(a.size), nb=Number(b.size);
-        if(!Number.isNaN(na) && !Number.isNaN(nb)) return na-nb;
+      const sorted = [...variants].sort((a, b) => {
+        const na = Number(a.size), nb = Number(b.size);
+        if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
         return String(a.size).localeCompare(String(b.size));
       });
 
-      sorted.forEach(v=>{
+      sorted.forEach(v => {
         const opt = document.createElement("option");
         opt.value = String(v.size);
         opt.textContent = String(v.size);
@@ -1183,26 +1262,26 @@ async function openModal(productId){
       });
 
       els.modalPrice.textContent = getProductDisplayPrice(p);
-      els.modalSize.onchange = ()=>{
-        const found = sorted.find(v=>String(v.size)===els.modalSize.value);
-        if(!found) return;
-        selected = { size:String(found.size), price:Number(found.price) };
+      els.modalSize.onchange = () => {
+        const found = sorted.find(v => String(v.size) === els.modalSize.value);
+        if (!found) return;
+        selected = { size: String(found.size), price: Number(found.price) };
         els.modalPrice.textContent = formatMoney(selected.price);
       };
-    }else{
+    } else {
       els.modalSizeField.classList.add("is-hidden");
       const fallbackPrice = getProductBasePrice(p);
       els.modalPrice.textContent = fallbackPrice != null ? formatMoney(fallbackPrice) : "";
     }
   }
 
-  els.modalAdd.onclick = ()=>{
-    if(variants.length){
-      if(!selected) return alert("Please select a size first.");
+  els.modalAdd.onclick = () => {
+    if (variants.length) {
+      if (!selected) return alert("Please select a size first.");
       addToCart(p.id, selected.size, selected.price, 1);
-    }else{
+    } else {
       const fallbackPrice = getProductBasePrice(p);
-      if(fallbackPrice == null) return alert("Price on request. Please message us on WhatsApp.");
+      if (fallbackPrice == null) return alert("Price on request. Please message us on WhatsApp.");
       addToCart(p.id, "-", fallbackPrice, 1);
     }
   };
@@ -1211,30 +1290,30 @@ async function openModal(productId){
   hideReviewForm();
   await loadReviewsForProduct(p.id);
 
-  els.modal.setAttribute("aria-hidden","false");
+  els.modal.setAttribute("aria-hidden", "false");
 }
 
-function hydrateFiltersOptions(){
+function hydrateFiltersOptions() {
   const colors = new Set();
   const types = new Set();
 
-  PRODUCTS.forEach(p=>{
-    if(p.color) colors.add(p.color);
-    if(p.type) types.add(p.type);
+  PRODUCTS.forEach(p => {
+    if (p.color) colors.add(p.color);
+    if (p.type) types.add(p.type);
   });
 
   const colorList = ["", ...Array.from(colors).sort()];
   const existing = Array.from(types).filter(Boolean);
-  const extras = existing.filter(c=>!FUTURE_CATEGORIES.includes(c)).sort();
+  const extras = existing.filter(c => !FUTURE_CATEGORIES.includes(c)).sort();
   const typeList = ["", ...FUTURE_CATEGORIES, ...extras];
 
-  const fillSelect = (selectEl, options, allLabel="All")=>{
-    if(!selectEl) return;
+  const fillSelect = (selectEl, options, allLabel = "All") => {
+    if (!selectEl) return;
     selectEl.innerHTML = "";
-    options.forEach(v=>{
+    options.forEach(v => {
       const o = document.createElement("option");
       o.value = v;
-      o.textContent = v==="" ? allLabel : v;
+      o.textContent = v === "" ? allLabel : v;
       selectEl.appendChild(o);
     });
   };
@@ -1243,28 +1322,28 @@ function hydrateFiltersOptions(){
   fillSelect(els.categoryDropdown, typeList, "All");
 }
 
-function bindFilters(){
-  els.categoryDropdown?.addEventListener("change", ()=>{
+function bindFilters() {
+  els.categoryDropdown?.addEventListener("change", () => {
     state.type = els.categoryDropdown.value || "";
     renderProducts();
   });
-  els.colorFilterTop?.addEventListener("change", ()=>{
+  els.colorFilterTop?.addEventListener("change", () => {
     state.color = els.colorFilterTop.value || "";
     renderProducts();
   });
-  els.sortByTop?.addEventListener("change", ()=>{
+  els.sortByTop?.addEventListener("change", () => {
     state.sort = els.sortByTop.value || "featured";
     renderProducts();
   });
 }
 
-function bindCart(){
-  els.openCart?.addEventListener("click", ()=>{
+function bindCart() {
+  els.openCart?.addEventListener("click", () => {
     renderOrderPanel();
     openDrawer();
   });
 
-  els.openCartPreview?.addEventListener("click", ()=>{
+  els.openCartPreview?.addEventListener("click", () => {
     renderOrderPanel();
     openDrawer();
   });
@@ -1272,7 +1351,7 @@ function bindCart(){
   els.closeDrawer?.addEventListener("click", closeDrawer);
   els.drawerBackdrop?.addEventListener("click", closeDrawer);
 
-  els.clearCart?.addEventListener("click", ()=>{
+  els.clearCart?.addEventListener("click", () => {
     localStorage.removeItem(PENDING_ORDER_ID_KEY);
     setCheckoutStep("cart");
     setCart([]);
@@ -1282,22 +1361,22 @@ function bindCart(){
 
   togglePaymentUI();
 
-  els.copyTillBtn?.addEventListener("click", ()=>copyToClipboard(CONFIG.tillNumberPlaceholder));
-  els.copyAmountBtn?.addEventListener("click", ()=>copyToClipboard(String(calcSubtotal())));
+  els.copyTillBtn?.addEventListener("click", () => copyToClipboard(CONFIG.tillNumberPlaceholder));
+  els.copyAmountBtn?.addEventListener("click", () => copyToClipboard(String(calcSubtotal())));
 
-  (els.payRadios||[]).forEach(r=>{
-    r.addEventListener("change", ()=>{
+  (els.payRadios || []).forEach(r => {
+    r.addEventListener("change", () => {
       togglePaymentUI();
       localStorage.removeItem(PENDING_ORDER_ID_KEY);
       setCheckoutStep("cart");
     });
   });
 
-  els.checkoutBtn?.addEventListener("click", async (e)=>{
+  els.checkoutBtn?.addEventListener("click", async (e) => {
     e.preventDefault();
 
     const cart = getCart();
-    if(!cart.length){
+    if (!cart.length) {
       toast("No items in cart.");
       return;
     }
@@ -1306,7 +1385,7 @@ function bindCart(){
     const methodLower = String(method).toLowerCase();
 
     const phone = cleanPhone(els.customerPhone?.value);
-    if(!phone || phone.length < 9){
+    if (!phone || phone.length < 9) {
       alert("Please enter a valid phone number.");
       return;
     }
@@ -1316,9 +1395,9 @@ function bindCart(){
     const subtotal = calcSubtotal();
     const itemsPayload = buildOrderItemsPayload();
 
-    async function ensureOrderId(noteLabel){
+    async function ensureOrderId(noteLabel) {
       let existing = safeText(localStorage.getItem(PENDING_ORDER_ID_KEY));
-      if(existing){
+      if (existing) {
         localStorage.setItem(LAST_ORDER_ID_KEY, existing);
         return existing;
       }
@@ -1331,7 +1410,7 @@ function bindCart(){
         note: `Pickup: ${CONFIG.pickup} | ${noteLabel}`
       });
 
-      if(orderId){
+      if (orderId) {
         localStorage.setItem(PENDING_ORDER_ID_KEY, orderId);
         localStorage.setItem(LAST_ORDER_ID_KEY, orderId);
         await announceOrderId(orderId);
@@ -1339,18 +1418,18 @@ function bindCart(){
       return orderId;
     }
 
-    if(methodLower.includes("cash")){
+    if (methodLower.includes("cash")) {
       localStorage.removeItem(PENDING_ORDER_ID_KEY);
       const orderId = await ensureOrderId("Payment: Cash");
 
       let msg = buildCheckoutWhatsAppMessage();
-      if(orderId) msg += `\n\nOrder ID: ${orderId}`;
+      if (orderId) msg += `\n\nOrder ID: ${orderId}`;
 
       window.open(buildWhatsAppLink(msg), "_blank", "noopener,noreferrer");
       return;
     }
 
-    if(getCheckoutStep()==="cart"){
+    if (getCheckoutStep() === "cart") {
       const orderId = await ensureOrderId(`Payment: M-Pesa Till (${CONFIG.tillNumberPlaceholder})`);
       setCheckoutStep("checkout");
       toast(orderId
@@ -1363,23 +1442,23 @@ function bindCart(){
     const orderId = await ensureOrderId(`Payment: M-Pesa Till (${CONFIG.tillNumberPlaceholder})`);
 
     let msg = buildCheckoutWhatsAppMessage();
-    if(orderId) msg += `\n\nOrder ID: ${orderId}`;
+    if (orderId) msg += `\n\nOrder ID: ${orderId}`;
 
     window.open(buildWhatsAppLink(msg), "_blank", "noopener,noreferrer");
   });
 }
 
-async function loadProducts(){
-  const res = await fetch(getProductsJsonPath(), { cache:"no-store" });
-  if(!res.ok) throw new Error("Could not load products.json");
+async function loadProducts() {
+  const res = await fetch(getProductsJsonPath(), { cache: "no-store" });
+  if (!res.ok) throw new Error("Could not load products.json");
   const data = await res.json();
-  if(!Array.isArray(data)) throw new Error("products.json must be an array");
+  if (!Array.isArray(data)) throw new Error("products.json must be an array");
 
   PRODUCTS = data
-    .map(p=>{
+    .map(p => {
       const variants = Array.isArray(p.variants)
-        ? p.variants.map(v=>({ size:safeText(v.size), price:Number(v.price) }))
-            .filter(v=>v.size && !Number.isNaN(v.price))
+        ? p.variants.map(v => ({ size: safeText(v.size), price: Number(v.price) }))
+          .filter(v => v.size && !Number.isNaN(v.price))
         : [];
 
       return {
@@ -1389,8 +1468,8 @@ async function loadProducts(){
         color: safeText(p.color),
         type: safeText(p.type),
         pattern: safeText(p.pattern),
-        price: p.price==null ? null : Number(p.price),
-        basePrice: p.basePrice==null ? null : Number(p.basePrice),
+        price: p.price == null ? null : Number(p.price),
+        basePrice: p.basePrice == null ? null : Number(p.basePrice),
         variants,
         image: safeText(p.image),
         hasPhoto: Boolean(safeText(p.image)),
@@ -1406,8 +1485,8 @@ async function loadProducts(){
 }
 
 /* Init */
-(async function main(){
-  try{
+(async function main() {
+  try {
     if (els.year) els.year.textContent = String(new Date().getFullYear());
 
     await loadProducts();
@@ -1419,12 +1498,12 @@ async function loadProducts(){
     renderProducts();
     refreshAllCartUIs();
 
-    if(!getCart().length) setCheckoutStep("cart");
+    if (!getCart().length) setCheckoutStep("cart");
 
     window.addEventListener("storage", refreshAllCartUIs);
 
     await preloadReviewSummaries();
-  }catch(err){
+  } catch (err) {
     console.error("BASFAY app.js error:", err);
     toast("Site error: open Console (F12) to see why.");
   }

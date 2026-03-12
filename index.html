@@ -4,17 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Basfay Product | Basfay Uniforms Kenya</title>
+    <!-- ✅ SEO -->
+    <title>Basfay Uniforms Kenya | School Uniforms, Scrubs, Bags & Workwear (Nairobi)</title>
     <meta
-      id="metaDescription"
       name="description"
-      content="Shop quality and affordable uniforms from Basfay Uniforms Kenya."
+      content="Basfay Uniforms Kenya — Quality & Affordable. Shop school uniforms, scrubs, workwear and school bags in Nairobi. Sweaters, tracksuits, PE kits, shirts, dresses, socks, blazers, trousers and more. Pickup Kangemi. Order via WhatsApp 0119667836."
     />
-    <link id="canonicalLink" rel="canonical" href="https://basfayuniforms.co.ke/product.html" />
+    <link rel="canonical" href="https://basfayuniforms.co.ke/" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="theme-color" content="#f5cc00" />
 
-    <!-- ✅ FAVICON -->
+    <!-- ✅ BRIGHT FAVICON -->
     <link rel="icon" href="/favicon.ico?v=20260312" sizes="any" />
     <link rel="icon" type="image/png" href="/favicon-32.png?v=20260312" sizes="32x32" />
     <link rel="icon" type="image/png" href="/favicon-16.png?v=20260312" sizes="16x16" />
@@ -22,35 +22,43 @@
     <link rel="manifest" href="/site.webmanifest?v=20260312" />
 
     <meta property="og:locale" content="en_KE" />
-    <meta property="og:type" content="product" />
+    <meta property="og:type" content="website" />
     <meta property="og:site_name" content="BASFAY Uniforms" />
-    <meta id="ogTitle" property="og:title" content="Basfay Product | BASFAY Uniforms" />
+    <meta property="og:title" content="BASFAY Uniforms Kenya | Quality & Affordable" />
     <meta
-      id="ogDescription"
       property="og:description"
-      content="Shop quality and affordable uniforms from Basfay Uniforms Kenya."
+      content="School uniforms, scrubs, workwear and school bags in Nairobi. Pickup Kangemi. Order via WhatsApp 0119667836."
     />
-    <meta id="ogUrl" property="og:url" content="https://basfayuniforms.co.ke/product.html" />
-    <meta id="ogImage" property="og:image" content="https://basfayuniforms.co.ke/apple-touch-icon.png" />
+    <meta property="og:url" content="https://basfayuniforms.co.ke/" />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta id="twitterTitle" name="twitter:title" content="Basfay Product | BASFAY Uniforms" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="BASFAY Uniforms Kenya" />
     <meta
-      id="twitterDescription"
       name="twitter:description"
-      content="Shop quality and affordable uniforms from Basfay Uniforms Kenya."
+      content="School uniforms, scrubs, workwear and school bags in Nairobi. Pickup Kangemi. WhatsApp 0119667836."
     />
-    <meta id="twitterImage" name="twitter:image" content="https://basfayuniforms.co.ke/apple-touch-icon.png" />
 
-    <script id="productSchema" type="application/ld+json">
+    <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "Product",
-        "name": "Basfay Product",
-        "brand": {
-          "@type": "Brand",
-          "name": "BASFAY Uniforms"
-        }
+        "@type": "ClothingStore",
+        "name": "BASFAY Uniforms",
+        "url": "https://basfayuniforms.co.ke/",
+        "description": "Quality & affordable uniforms in Nairobi, Kenya. Pickup available in Kangemi.",
+        "telephone": "+254119667836",
+        "currenciesAccepted": "KES",
+        "areaServed": "KE",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Kangemi",
+          "addressRegion": "Nairobi County",
+          "addressCountry": "KE"
+        },
+        "sameAs": [
+          "https://www.instagram.com/basfayuniforms",
+          "https://www.tiktok.com/@basfayuniforms",
+          "https://www.facebook.com/basfayuniforms"
+        ]
       }
     </script>
 
@@ -62,17 +70,17 @@
       rel="stylesheet"
     />
 
-    <link rel="stylesheet" href="./styles.css?v=20260312-01" />
-
     <style>
-      [hidden]{ display:none !important; }
-      img[hidden]{ display:none !important; }
-
       .header .brand-title,
       .header .brand-tagline {
         font-family: "Cinzel", serif !important;
       }
 
+      .header {
+        border-bottom: 1px solid rgba(30, 136, 229, 0.22) !important;
+      }
+
+      /* Header layout helpers */
       .header-left{
         display:flex;
         align-items:center;
@@ -80,7 +88,6 @@
         min-width:0;
         flex: 1 1 auto;
       }
-
       .header-right{
         display:flex;
         align-items:center;
@@ -88,13 +95,13 @@
         flex: 0 0 auto;
       }
 
+      /* ✅ Desktop Shop/Contact (only on desktop) */
       .header-quicklinks{
         display:none;
         align-items:center;
         gap:10px;
         white-space:nowrap;
       }
-
       .header-link{
         text-decoration:none;
         font-weight:800;
@@ -104,13 +111,16 @@
         padding:6px 8px;
         border-radius:10px;
       }
-
       .header-link:hover{ opacity:1; }
-
+      .header-link:focus-visible{
+        outline: 3px solid rgba(30,136,229,0.25);
+        outline-offset: 2px;
+      }
       @media (min-width: 769px){
         .header-quicklinks{ display:flex; }
       }
 
+      /* Hamburger (match cart vibe) */
       #menuBtn.header-menu{
         position: relative;
         display:inline-flex;
@@ -124,9 +134,9 @@
         cursor: pointer;
         color: inherit;
       }
-
       #menuBtn.header-menu svg{ width:20px; height:20px; }
 
+      /* Top auth pill */
       #authBtn{
         border:1px solid rgba(30, 136, 229, 0.22);
         background: rgba(30, 136, 229, 0.08);
@@ -146,6 +156,7 @@
         text-overflow:ellipsis;
       }
 
+      /* Cart icon in header */
       .header-cart{
         position: relative;
         display:inline-flex;
@@ -158,12 +169,8 @@
         background: rgba(255,255,255,0.55);
         cursor: pointer;
         flex-shrink:0;
-        color: inherit;
-        text-decoration: none;
       }
-
       .header-cart svg{ width:20px; height:20px; }
-
       .cart-badge{
         position:absolute;
         top:-6px;
@@ -182,6 +189,99 @@
         border: 2px solid rgba(255,255,255,0.9);
       }
 
+      /* HERO */
+      .brand-hero .brand-logo {
+        width: 56px !important;
+        height: 56px !important;
+        border-radius: 16px !important;
+        background: rgba(255, 255, 255, 0.55) !important;
+        border: 1px solid rgba(15, 47, 74, 0.14) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+      }
+
+      .brand-hero .brand-logo img {
+        width: 86% !important;
+        height: 86% !important;
+        object-fit: contain !important;
+        display: block !important;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18)) !important;
+      }
+
+      .brand-hero .hero-inline {
+        margin: 0 !important;
+        display: flex !important;
+        align-items: baseline !important;
+        gap: 10px !important;
+        flex-wrap: nowrap !important;
+        line-height: 1.05 !important;
+      }
+
+      .brand-hero .hero-name {
+        font-family: "Great Vibes", cursive !important;
+        font-weight: 400 !important;
+        font-size: clamp(30px, 4.2vw, 52px) !important;
+        color: #0F2F4A !important;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+      }
+
+      .brand-hero .hero-divider {
+        font-family: "Cinzel", serif !important;
+        font-weight: 800 !important;
+        font-size: clamp(14px, 1.6vw, 18px) !important;
+        opacity: 0.55 !important;
+        color: #0F2F4A !important;
+      }
+
+      .brand-hero .hero-tagline {
+        font-family: "Cinzel", serif !important;
+        font-weight: 700 !important;
+        font-size: clamp(12px, 1.6vw, 16px) !important;
+        letter-spacing: 0.10em !important;
+        text-transform: uppercase !important;
+        opacity: 0.72 !important;
+        color: #0F2F4A !important;
+      }
+
+      @media (max-width: 520px) {
+        .brand-text{
+          display:flex !important;
+          flex-direction:column !important;
+          align-items:flex-start !important;
+          justify-content:center !important;
+          min-width:0 !important;
+          line-height:1.05 !important;
+        }
+
+        .brand-title {
+          font-size: 12px !important;
+          letter-spacing: 0.08em !important;
+          max-width: none !important;
+          overflow: visible !important;
+          text-overflow: unset !important;
+          white-space: normal !important;
+          display: block !important;
+        }
+
+        .brand-tagline {
+          display: block !important;
+          font-size: 10.5px !important;
+          max-width: none !important;
+          overflow: visible !important;
+          text-overflow: unset !important;
+          white-space: normal !important;
+        }
+
+        #authBtn { font-size: 12px !important; padding: 6px 9px !important; max-width: 88px !important; }
+      }
+
+      #authMsg{ font-size: 12px; opacity: .85; margin-top: 10px; }
+      .auth-row{ display:flex; gap:10px; flex-wrap:wrap; }
+      .auth-row .btn{ flex: 1 1 auto; }
+
+      /* ✅ FORCE Sign in visible on phone */
       @media (max-width: 768px){
         .header .container.header-inner{
           display:flex !important;
@@ -224,316 +324,72 @@
           line-height:1 !important;
           max-width:none !important;
         }
+
+        .header-cart{
+          display:inline-flex !important;
+          flex-shrink:0 !important;
+        }
       }
 
-      .breadcrumb{
-        display:flex;
-        align-items:center;
-        gap:8px;
-        flex-wrap:wrap;
-        margin-bottom:18px;
-        font-size:13px;
-        color: rgba(15,28,43,0.72);
+      @media (max-width: 520px){
+        .brand-text{
+          display:flex !important;
+          flex-direction:column !important;
+          align-items:flex-start !important;
+          justify-content:center !important;
+          min-width:0 !important;
+          line-height:1.05 !important;
+        }
+
+        .brand-tagline{
+          display:block !important;
+          max-width:none !important;
+          overflow:visible !important;
+          text-overflow:unset !important;
+          white-space:normal !important;
+        }
+
+        .brand-title{
+          max-width:none !important;
+          overflow:visible !important;
+          text-overflow:unset !important;
+          white-space:normal !important;
+        }
+
+        #authBtn{
+          padding:6px 8px !important;
+          font-size:11.5px !important;
+        }
       }
 
-      .breadcrumb a{
-        color: inherit;
-        text-decoration:none;
-        font-weight:700;
+      @media (max-width: 390px){
+        .brand-title{
+          font-size:11px !important;
+          max-width:none !important;
+          overflow:visible !important;
+          text-overflow:unset !important;
+          white-space:normal !important;
+        }
+
+        .brand-tagline{
+          font-size:10px !important;
+          display:block !important;
+          max-width:none !important;
+          overflow:visible !important;
+          text-overflow:unset !important;
+          white-space:normal !important;
+        }
+
+        #authBtn{
+          max-width:78px !important;
+          padding:6px 7px !important;
+          font-size:11px !important;
+        }
       }
 
-      .breadcrumb a:hover{ text-decoration:underline; }
-
-      .product-shell{
-        display:grid;
-        grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-        gap: 22px;
-        align-items:start;
-      }
-
-      .product-card-shell{
-        border-radius: 24px;
-        background: rgba(255,255,255,0.88);
-        border: 1px solid rgba(15,28,43,0.08);
-        box-shadow: 0 18px 50px rgba(17,16,25,0.08);
-        padding: 20px;
-      }
-
-      .product-gallery{
-        position:relative;
-        overflow:hidden;
-      }
-
-      .product-image-box{
-        aspect-ratio: 1 / 1;
-        border-radius: 20px;
-        background: #fff;
-        border:1px solid rgba(15,28,43,0.08);
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        overflow:hidden;
-      }
-
-      .product-image-box img{
-        width:100%;
-        height:100%;
-        object-fit:contain;
-        display:block;
-      }
-
-      .product-placeholder{
-        width:100%;
-        height:100%;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        color: rgba(15,28,43,0.55);
-        font-weight: 800;
-      }
-
-      .product-badge{
-        display:inline-flex;
-        align-items:center;
-        gap:8px;
-        border-radius:999px;
-        background: rgba(245, 204, 0, 0.18);
-        color:#0F2F4A;
-        border:1px solid rgba(15,47,74,0.10);
-        padding:8px 12px;
-        font-size:12px;
-        font-weight:900;
-        margin-bottom:14px;
-      }
-
-      .product-name{
-        margin: 0 0 10px;
-        font-size: clamp(26px, 3vw, 40px);
-        line-height:1.08;
-        color:#0F2F4A;
-      }
-
-      .product-review-summary{
-        display:flex;
-        align-items:center;
-        gap:8px;
-        flex-wrap:wrap;
-        margin-bottom:12px;
-      }
-
-      .product-stars{
-        color:#B8860B;
-        font-size:15px;
-        letter-spacing:0.06em;
-      }
-
-      .product-price{
-        font-size: clamp(24px, 3vw, 34px);
-        font-weight: 900;
-        color:#0b6b57;
-        margin-bottom:12px;
-      }
-
-      .product-meta{
-        display:flex;
-        flex-wrap:wrap;
-        gap:10px;
-        margin-bottom:14px;
-      }
-
-      .meta-chip{
-        display:inline-flex;
-        align-items:center;
-        border-radius:999px;
-        padding:8px 12px;
-        background: rgba(15,47,74,0.06);
-        border:1px solid rgba(15,47,74,0.08);
-        font-size:13px;
-        font-weight:800;
-        color:#0F2F4A;
-      }
-
-      .product-desc{
-        margin:0 0 16px;
-        color: rgba(15,28,43,0.76);
-        line-height:1.75;
-        font-size:14.5px;
-      }
-
-      .product-size-wrap{
-        margin-bottom:16px;
-      }
-
-      .product-size-wrap label{
-        display:block;
-        margin-bottom:8px;
-        font-weight:900;
-        color:#0F2F4A;
-      }
-
-      .product-size-wrap select{
-        width:100%;
-      }
-
-      .product-actions{
-        display:flex;
-        gap:12px;
-        flex-wrap:wrap;
-        margin-bottom:16px;
-      }
-
-      .product-actions .btn,
-      .product-actions a.btn{
-        flex: 1 1 200px;
-        text-align:center;
-      }
-
-      .product-trust{
-        display:flex;
-        flex-wrap:wrap;
-        gap:10px;
-      }
-
-      .trust-chip{
-        display:inline-flex;
-        align-items:center;
-        border-radius:999px;
-        padding:8px 12px;
-        background: rgba(255,255,255,0.92);
-        border:1px solid rgba(15,28,43,0.08);
-        font-size:13px;
-        font-weight:800;
-        color:#0F2F4A;
-      }
-
-      .product-section-title{
-        margin: 0 0 14px;
-        font-size: 22px;
-        color:#0F2F4A;
-      }
-
-      .review-list{
-        display:grid;
-        gap:12px;
-      }
-
-      .review-card{
-        border:1px solid rgba(15,28,43,0.08);
-        border-radius:16px;
-        padding:14px;
-        background:#fff;
-      }
-
-      .review-head{
-        display:flex;
-        justify-content:space-between;
-        gap:10px;
-        align-items:flex-start;
-        flex-wrap:wrap;
-        margin-bottom:8px;
-      }
-
-      .review-name{
-        font-size:14px;
-        font-weight:900;
-        color:#0F2F4A;
-      }
-
-      .review-verified{
-        font-size:12px;
-        font-weight:900;
-        color:#0F2F4A;
-        margin-top:2px;
-      }
-
-      .review-date{
-        font-size:12px;
-        color: rgba(15,28,43,0.58);
-        margin-top:3px;
-      }
-
-      .review-text{
-        margin:0;
-        font-size:13px;
-        line-height:1.7;
-        color: rgba(15,28,43,0.78);
-      }
-
-      .related-grid{
-        display:grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap:14px;
-      }
-
-      .related-card{
-        border-radius:18px;
-        background: rgba(255,255,255,0.88);
-        border:1px solid rgba(15,28,43,0.08);
-        box-shadow: 0 12px 30px rgba(17,16,25,0.06);
-        overflow:hidden;
-      }
-
-      .related-card a{
-        color:inherit;
-        text-decoration:none;
-        display:block;
-      }
-
-      .related-media{
-        aspect-ratio: 1 / 1;
-        background:#fff;
-        border-bottom:1px solid rgba(15,28,43,0.08);
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        overflow:hidden;
-      }
-
-      .related-media img{
-        width:100%;
-        height:100%;
-        object-fit:contain;
-        display:block;
-      }
-
-      .related-body{
-        padding:12px;
-      }
-
-      .related-name{
-        margin:0 0 8px;
-        font-size:16px;
-        line-height:1.3;
-        color:#0F2F4A;
-      }
-
-      .related-price{
-        font-size:15px;
-        font-weight:900;
-        color:#0b6b57;
-      }
-
-      .state-card{
-        border-radius: 20px;
-        background: rgba(255,255,255,0.88);
-        border:1px solid rgba(15,28,43,0.08);
-        box-shadow: 0 18px 50px rgba(17,16,25,0.08);
-        padding: 20px;
-      }
-
-      .state-card h2{
-        margin:0 0 10px;
-        color:#0F2F4A;
-      }
-
-      .state-card p{
-        margin:0;
-        color: rgba(15,28,43,0.74);
-        line-height:1.75;
-      }
-
+      /* ✅ FULL-WIDTH NAVY FOOTER */
       .site-footer{
-        margin-top: 40px;
+        margin-top: 38px;
         padding: 0;
         background: #0F2F4A;
         color: #ffffff;
@@ -541,57 +397,92 @@
       }
 
       .site-footer .footer-shell{
-        padding: 32px 0 22px;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 34px 0 24px;
       }
 
       .site-footer .footer-grid{
         display:grid;
         grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-        gap: 26px;
+        gap: 28px;
+        align-items:start;
       }
 
       .site-footer .footer-title{
-        margin:0 0 10px;
+        margin: 0 0 10px;
         font-size: clamp(20px, 2vw, 28px);
+        color:#ffffff;
       }
 
       .site-footer .footer-copy{
-        margin:0;
+        margin: 0;
         color: rgba(255,255,255,0.82);
-        line-height:1.75;
-        font-size:14.5px;
+        line-height: 1.75;
+        font-size: 14.5px;
+        max-width: 760px;
+      }
+
+      .site-footer .footer-meta{
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        margin-top: 16px;
+      }
+
+      .site-footer .footer-chip{
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        border-radius: 999px;
+        padding: 8px 12px;
+        text-decoration:none;
+        color:#ffffff;
+        background: rgba(255,255,255,0.08);
+        border:1px solid rgba(255,255,255,0.14);
+        font-weight:800;
+        font-size:13px;
       }
 
       .site-footer .footer-social{
         display:flex;
         flex-wrap:wrap;
         gap:12px;
-        margin-top:18px;
+        margin-top: 18px;
       }
 
       .site-footer .footer-social-link{
-        width:46px;
-        height:46px;
+        width: 46px;
+        height: 46px;
         display:inline-flex;
         align-items:center;
         justify-content:center;
-        border-radius:14px;
+        border-radius: 14px;
         text-decoration:none;
         color:#ffffff;
         background: rgba(255,255,255,0.08);
         border:1px solid rgba(255,255,255,0.12);
+        transition: transform .15s ease, background .15s ease, border-color .15s ease;
+      }
+
+      .site-footer .footer-social-link:hover{
+        transform: translateY(-2px);
+        background: rgba(255,255,255,0.14);
+        border-color: rgba(255,255,255,0.22);
       }
 
       .site-footer .footer-social-link svg{
-        width:20px;
-        height:20px;
+        width: 20px;
+        height: 20px;
         fill: currentColor;
       }
 
       .site-footer .footer-links-wrap{
         display:grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap:18px;
+        gap: 18px;
       }
 
       .site-footer .footer-links-group{
@@ -612,7 +503,7 @@
       .site-footer .footer-links{
         display:flex;
         flex-direction:column;
-        gap:10px;
+        gap: 10px;
       }
 
       .site-footer .footer-links a{
@@ -625,6 +516,48 @@
       .site-footer .footer-links a:hover{
         color:#ffffff;
         text-decoration:underline;
+      }
+
+      .site-footer .footer-detail-grid{
+        display:grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 22px;
+      }
+
+      .site-footer .footer-detail-card{
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 18px;
+        padding: 18px;
+        scroll-margin-top: 100px;
+      }
+
+      .site-footer .footer-detail-card h3{
+        margin:0 0 10px;
+        color:#ffffff;
+        font-size: 17px;
+      }
+
+      .site-footer .footer-detail-card p{
+        margin:0;
+        color: rgba(255,255,255,0.82);
+        line-height: 1.7;
+        font-size: 14px;
+      }
+
+      .site-footer .footer-inline-cta{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        margin-top: 12px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background:#ffffff;
+        color:#0F2F4A;
+        text-decoration:none;
+        font-weight:800;
+        font-size:13px;
       }
 
       .site-footer .footer-bottom{
@@ -644,41 +577,78 @@
         font-size:13px;
       }
 
-      #authMsg{ font-size: 12px; opacity: .85; margin-top: 10px; }
-      .auth-row{ display:flex; gap:10px; flex-wrap:wrap; }
-      .auth-row .btn{ flex: 1 1 auto; }
+      /* ✅ product page support */
+      #modalViewDetails{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        text-decoration:none;
+      }
 
-      @media (max-width: 980px){
-        .product-shell{
-          grid-template-columns: 1fr;
-        }
+      #modalSeoNote{
+        font-size:12px;
+        opacity:.85;
+        margin-top: 6px;
+      }
 
-        .related-grid{
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
+      @media (max-width: 900px){
         .site-footer .footer-grid{
           grid-template-columns: 1fr;
         }
       }
 
-      @media (max-width: 520px){
-        .related-grid{
+      /* ✅ keep 2 blocks on phone */
+      @media (max-width: 700px){
+        .site-footer .footer-shell{
+          padding: 24px 0 22px;
+        }
+
+        .site-footer .footer-links-wrap,
+        .site-footer .footer-detail-grid{
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 12px;
+        }
+
+        .site-footer .footer-links-group,
+        .site-footer .footer-detail-card{
+          padding: 14px;
+        }
+      }
+
+      /* only collapse to 1 column on very tiny phones */
+      @media (max-width: 380px){
+        .site-footer .footer-links-wrap,
+        .site-footer .footer-detail-grid{
           grid-template-columns: 1fr;
         }
+      }
 
-        .product-card-shell{
-          padding:16px;
+      @media (max-width: 520px){
+        .site-footer .footer-title{
+          font-size: 20px;
         }
 
-        .product-actions{
-          flex-direction:column;
+        .site-footer .footer-copy,
+        .site-footer .footer-detail-card p{
+          font-size: 13.5px;
+        }
+
+        .site-footer .footer-social-link{
+          width: 42px;
+          height: 42px;
+        }
+
+        .site-footer .footer-links a{
+          font-size: 13.5px;
         }
       }
     </style>
+
+    <!-- cache bust -->
+    <link rel="stylesheet" href="./styles.css?v=20260307-11" />
   </head>
 
-  <body data-products-json="/products.json">
+  <body data-product-page-base="./product.html?slug=" data-products-json="./products.json">
     <a class="skip" href="#main">Skip to content</a>
 
     <!-- Header -->
@@ -704,6 +674,7 @@
           flex-wrap: nowrap;
         "
       >
+        <!-- LEFT: hamburger + brand text (NO header logo) -->
         <div class="header-left">
           <button id="menuBtn" class="header-menu" type="button" aria-label="Menu">
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -713,7 +684,7 @@
 
           <a
             class="brand"
-            href="./index.html"
+            href="#main"
             aria-label="Basfay home"
             style="
               display: flex;
@@ -743,15 +714,16 @@
           </a>
         </div>
 
+        <!-- RIGHT: desktop Shop/Contact + Sign in + Cart -->
         <div class="header-right" aria-label="Header actions">
           <nav class="header-quicklinks" aria-label="Quick links">
-            <a class="header-link" href="./index.html#shop">Shop</a>
+            <a class="header-link" href="#shop">Shop</a>
             <a class="header-link" href="#contact">Contact</a>
           </nav>
 
           <button id="authBtn" type="button" aria-label="Account">Sign in</button>
 
-          <a class="header-cart" id="cartLink" href="./index.html#shop" aria-label="Go to cart">
+          <button class="header-cart" id="openCart" aria-label="Open cart" type="button">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path
                 fill="currentColor"
@@ -759,113 +731,116 @@
               />
             </svg>
             <span class="cart-badge" id="cartCount" aria-live="polite">0</span>
-          </a>
+          </button>
         </div>
       </div>
     </header>
 
     <main id="main">
-      <section class="section">
+      <!-- Brand hero -->
+      <section class="brand-hero" aria-label="BASFAY brand banner">
+        <div class="container brand-hero-inner">
+          <div class="brand-badge">
+            <div class="brand-logo" aria-hidden="true">
+              <img src="./images/basfay-logo.png" alt="" loading="eager" decoding="async" />
+            </div>
+
+            <div class="brand-lines">
+              <h1 class="hero-inline">
+                <span class="hero-name">Basfay Uniforms</span>
+                <span class="hero-divider">|</span>
+                <span class="hero-tagline">Quality &amp; Affordable</span>
+              </h1>
+            </div>
+          </div>
+
+          <div class="brand-right"></div>
+        </div>
+      </section>
+
+      <!-- Shop -->
+      <section class="section" id="shop">
         <div class="container">
-          <nav class="breadcrumb" aria-label="Breadcrumb">
-            <a href="./index.html">Home</a>
-            <span>/</span>
-            <a href="./index.html#shop">Shop</a>
-            <span>/</span>
-            <span id="breadcrumbCurrent">Product</span>
-          </nav>
-
-          <div id="productLoading" class="state-card">
-            <h2>Loading product…</h2>
-            <p>Give the page a second. Humanity keeps insisting on images.</p>
+          <div class="section-head">
+            <h2>Catalog</h2>
+            <p class="muted">Select size, add to order, or open full item details.</p>
           </div>
 
-          <div id="productNotFound" class="state-card" hidden>
-            <h2>Product not found</h2>
-            <p id="productNotFoundText">
-              That item could not be found. The link may be outdated, the slug may be wrong, or the product is not currently live in your catalog.
-            </p>
-            <div style="margin-top:14px;">
-              <a class="btn primary" href="./index.html#shop">Back to shop</a>
-            </div>
-          </div>
+          <!-- Top toolbar -->
+          <div class="card soft" style="margin-bottom: 16px;">
+            <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:end; justify-content:space-between;">
+              <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:end;">
+                <div class="field" style="min-width:220px;">
+                  <label for="categoryDropdown">Category</label>
+                  <select id="categoryDropdown">
+                    <option value="">All</option>
+                  </select>
+                </div>
 
-          <div id="productShell" class="product-shell" hidden>
-            <div class="product-card-shell product-gallery">
-              <div class="product-image-box" id="productImageBox">
-                <img
-                  id="productImage"
-                  src=""
-                  alt=""
-                  loading="eager"
-                  decoding="async"
-                  fetchpriority="high"
-                  width="1200"
-                  height="1200"
-                />
-              </div>
-            </div>
+                <div class="field" style="min-width:170px;">
+                  <label for="colorFilterTop">Color</label>
+                  <select id="colorFilterTop">
+                    <option value="">All</option>
+                  </select>
+                </div>
 
-            <div class="product-card-shell">
-              <div class="product-badge" id="productBadge">Uniform</div>
-
-              <h1 class="product-name" id="productName">Product</h1>
-
-              <div class="product-review-summary" id="productReviewSummary">
-                <span class="product-stars">☆☆☆☆☆</span>
-                <strong>0.0</strong>
-                <span class="muted">(0)</span>
+                <div class="field" style="min-width:170px;">
+                  <label for="sortByTop">Sort</label>
+                  <select id="sortByTop">
+                    <option value="featured">Featured</option>
+                    <option value="price_asc">Price (Low–High)</option>
+                    <option value="price_desc">Price (High–Low)</option>
+                  </select>
+                </div>
               </div>
 
-              <div class="product-price" id="productPrice">KES 0</div>
-
-              <div class="product-meta" id="productMeta"></div>
-
-              <p class="product-desc" id="productDescription">
-                Durable, comfortable uniform item.
-              </p>
-
-              <div class="product-size-wrap" id="productSizeField" hidden>
-                <label for="productSize">Select size</label>
-                <select class="size-select" id="productSize">
-                  <option value="" selected disabled>Select size</option>
-                </select>
-              </div>
-
-              <div class="product-actions">
-                <button class="btn primary" id="productAddBtn" type="button">Add to cart</button>
-                <a
-                  class="btn ghost"
-                  id="productWhatsAppBtn"
-                  href="https://wa.me/254119667836"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Ask on WhatsApp
-                </a>
-              </div>
-
-              <div class="product-trust">
-                <span class="trust-chip">Pickup: Kangemi</span>
-                <span class="trust-chip">M-Pesa &amp; Cash</span>
-                <span class="trust-chip">Same-day Nairobi delivery available</span>
+              <div style="display:flex; gap:14px; align-items:center; justify-content:flex-end;">
+                <div><strong id="resultsCount">0</strong> items</div>
+                <div class="muted">KES</div>
               </div>
             </div>
           </div>
 
-          <section id="reviewsSection" class="section" hidden>
-            <h2 class="product-section-title">Customer Reviews</h2>
-            <div class="review-list" id="reviewList"></div>
-          </section>
+          <div class="shop-layout">
+            <div class="catalog" id="catalog" aria-label="Product catalog">
+              <div
+                class="grid"
+                id="productGrid"
+                aria-live="polite"
+                data-product-grid="true"
+                data-product-page-base="./product.html?slug="
+              ></div>
 
-          <section id="relatedSection" class="section" hidden>
-            <h2 class="product-section-title">Related Items</h2>
-            <div class="related-grid" id="relatedGrid"></div>
-          </section>
+              <div class="empty" id="emptyState" hidden>
+                <h3>No matches</h3>
+                <p class="muted">Reset filters or try a broader search.</p>
+              </div>
+            </div>
+
+            <div class="cart-preview" id="cartPreview">
+              <h3>Your Cart</h3>
+
+              <div class="muted" style="margin-bottom:8px;">
+                <strong id="cartPreviewCount">0</strong> items
+              </div>
+
+              <div class="cart-preview-items" id="cartPreviewItems">No items yet</div>
+
+              <div class="cart-preview-total">
+                <span>Subtotal</span>
+                <strong id="cartPreviewSubtotal">KES 0</strong>
+              </div>
+
+              <button class="btn primary full" id="openCartPreview" type="button">
+                Go to Cart
+              </button>
+            </div>
+          </div>
         </div>
       </section>
     </main>
 
+    <!-- ✅ FOOTER / BOTTOM PART -->
     <footer class="site-footer" id="contact" aria-label="Footer">
       <div class="container">
         <div class="footer-shell">
@@ -873,25 +848,22 @@
             <div>
               <h2 class="footer-title">Basfay Uniforms</h2>
               <p class="footer-copy">
-                Basfay Uniforms is a Nairobi-based uniforms and workwear store offering quality and affordable
-                school uniforms, scrubs, workwear, school bags, sweaters, tracksuits, PE kits, shirts,
-                dresses, blazers, trousers, socks and other essentials.
+                Basfay Uniforms is a Nairobi-based uniforms and workwear store offering quality and affordable school uniforms, scrubs, workwear, school bags, sweaters, tracksuits, PE kits, shirts, dresses, blazers, trousers, socks and other essentials. Customers can shop online, place orders easily, and arrange pickup in Kangemi through WhatsApp for a simple and reliable buying experience in Kenya.
               </p>
 
-              <div class="footer-social">
-                <a
-                  class="footer-social-link"
-                  href="https://www.instagram.com/basfayuniforms"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                  title="Instagram"
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5Zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5Zm5.75-4.25a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25Z"/>
-                  </svg>
-                </a>
-
+             
+             <a
+  class="footer-social-link"
+  href="https://www.instagram.com/basfayuniforms"
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Instagram"
+  title="Instagram"
+>
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5Zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5Zm5.75-4.25a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25Z"/>
+  </svg>
+</a>
                 <a
                   class="footer-social-link"
                   href="https://www.tiktok.com/@basfayuniforms"
@@ -937,22 +909,69 @@
               <div class="footer-links-group">
                 <h3>Explore</h3>
                 <div class="footer-links">
-                  <a href="./index.html#shop">Shop</a>
-                  <a href="./index.html">Home</a>
-                  <a href="https://wa.me/254119667836" target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a>
-                  <a href="#contact">Contact</a>
+                  <a href="#about-us">About Us</a>
+                  <a href="#work-with-us">Work With Us</a>
+                  <a href="#sell-at-basfay">Sell at Basfay</a>
+                  <a href="https://www.notion.so/T-C-s-31cf38d2fb1e808181cfe85f5c97d3c4?source=copy_link" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a>
                 </div>
               </div>
 
               <div class="footer-links-group">
-                <h3>Policies</h3>
+                <h3>Quick Links</h3>
                 <div class="footer-links">
-                  <a href="https://www.notion.so/T-C-s-31cf38d2fb1e808181cfe85f5c97d3c4?source=copy_link" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a>
-                  <a href="#contact">Support</a>
-                  <a href="./index.html#shop">More Products</a>
+                  <a href="#shop">Shop</a>
+                  <a href="#main">Back to Top</a>
+                  <a href="https://wa.me/254119667836" target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a>
+                  <a href="#contact">Contact</a>
                 </div>
               </div>
             </div>
+          </div>
+
+          <div class="footer-detail-grid">
+            <article class="footer-detail-card" id="about-us">
+              <h3>About Us</h3>
+              <p>
+                Basfay Uniforms focuses on making uniforms and related essentials more accessible through quality products, fair pricing and convenient ordering. We serve parents, schools, institutions and everyday buyers looking for reliable uniforms, workwear, scrubs and accessories in Kenya.
+              </p>
+            </article>
+
+            <article class="footer-detail-card" id="work-with-us">
+              <h3>Work With Us</h3>
+              <p>
+                We are open to working with schools, institutions, resellers, bulk buyers and business partners who need consistent supply and dependable service. For collaborations, school supply conversations or partnership opportunities, reach out directly and share your requirements.
+              </p>
+              <a
+                class="footer-inline-cta"
+                href="https://wa.me/254119667836?text=Hi%20BASFAY%20Uniforms%2C%20I%20would%20like%20to%20work%20with%20you."
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Get in touch
+              </a>
+            </article>
+
+            <article class="footer-detail-card" id="sell-at-basfay">
+              <h3>Sell at Basfay</h3>
+              <p>
+                If you supply quality uniforms, fabric, school accessories, workwear or related products and would like to sell through Basfay or supply to us, reach out through any platform.
+              </p>
+              <a
+                class="footer-inline-cta"
+                href="https://wa.me/254119667836?text=Hi%20BASFAY%20Uniforms%2C%20I%20would%20like%20to%20sell%20at%20BASFAY."
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Submit enquiry
+              </a>
+            </article>
+
+            <article class="footer-detail-card">
+              <h3>Contact</h3>
+              <p>
+                Reach Basfay Uniforms through all our platforms for orders, pickup coordination, bulk enquiries and customer support. Pickup is available in Kangemi, same day delivery anywhere in Nairobi, and we aim to keep the ordering process simple, fast and clear.
+              </p>
+            </article>
           </div>
 
           <div class="footer-bottom">
@@ -962,6 +981,118 @@
         </div>
       </div>
     </footer>
+
+    <!-- =========================
+         ✅ CART DRAWER (REQUIRED)
+    ========================== -->
+    <div class="drawer" id="drawer" aria-hidden="true">
+      <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+      <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Order list">
+        <div class="drawer-head">
+          <h3>Your order</h3>
+          <button class="icon-btn" id="closeDrawer" aria-label="Close order list" type="button">✕</button>
+        </div>
+
+        <div class="drawer-body">
+          <div id="orderItems" class="order-items"></div>
+
+          <div class="order-summary">
+            <div class="row">
+              <span>Subtotal</span>
+              <strong id="orderSubtotal">KES 0</strong>
+            </div>
+          </div>
+
+          <div class="cart-empty" id="cartEmpty" hidden>
+            <p><strong>No items yet.</strong></p>
+            <p class="muted">Add products from the catalog.</p>
+          </div>
+        </div>
+
+        <div class="drawer-foot">
+          <div class="cart-note muted">Size included.</div>
+
+          <div class="card soft pay-card">
+            <div class="pay-title">Payment</div>
+
+            <div class="pay-options">
+              <label class="pay-opt">
+                <input type="radio" name="payMethod" value="Till" checked />
+                <span><strong>M-Pesa Buy Goods</strong> (Till: <span id="tillNumberUI">XXXX</span>)</span>
+              </label>
+
+              <label class="pay-opt">
+                <input type="radio" name="payMethod" value="Cash" />
+                <span><strong>Cash</strong> (On pickup / delivery)</span>
+              </label>
+            </div>
+
+            <div id="mpesaBox" class="checkout-field">
+              <div class="muted" style="margin-bottom:10px;">
+                1) Copy Till and Amount<br />
+                2) Pay via M-Pesa Buy Goods<br />
+                3) Tap <strong>Proceed</strong> to open WhatsApp<br />
+                4) Send the message and attach/forward your payment confirmation
+              </div>
+
+              <button class="btn ghost full" id="copyTillBtn" type="button">Copy Till Number</button>
+              <button class="btn ghost full" id="copyAmountBtn" type="button">Copy Amount</button>
+
+              <div id="mpesaCodeWrap" class="is-hidden">
+                <label for="mpesaCode" style="margin-top:10px; display:block; font-weight:800;">M-Pesa Confirmation Code</label>
+                <input type="text" id="mpesaCode" placeholder="e.g. QFT3XYZ123" autocomplete="off" />
+              </div>
+            </div>
+
+            <div class="checkout-field">
+              <label for="customerPhone">Phone Number</label>
+              <input type="tel" id="customerPhone" placeholder="07XXXXXXXX" inputmode="tel" autocomplete="tel" />
+            </div>
+
+            <div class="muted pay-help">Confirm active phone number.</div>
+          </div>
+
+          <a class="btn primary full" id="checkoutBtn" href="#" rel="noopener">Proceed</a>
+          <button class="btn ghost full" id="clearCart" type="button">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         ✅ PRODUCT MODAL (REQUIRED)
+    ========================== -->
+    <div class="modal" id="modal" aria-hidden="true">
+      <div class="modal-backdrop" id="modalBackdrop"></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Product details">
+        <div class="modal-head">
+          <h3 id="modalTitle">Product</h3>
+          <button class="icon-btn" id="closeModal" aria-label="Close product details" type="button">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-media" id="modalMedia"></div>
+          <div class="modal-info">
+            <div class="price" id="modalPrice"></div>
+            <div class="meta" id="modalMeta"></div>
+            <p class="muted" id="modalDesc"></p>
+            <p class="muted" id="modalSeoNote">Open the full product page for a shareable link and more item details.</p>
+
+            <div id="modalSizeField" class="is-hidden" aria-hidden="true">
+              <label class="size-label" for="modalSize">Size</label>
+              <select class="size-select" id="modalSize" required>
+                <option value="" selected disabled>Select size</option>
+              </select>
+            </div>
+
+            <div class="modal-actions">
+              <button class="btn primary" id="modalAdd" type="button">Add</button>
+              <a class="btn ghost" id="modalViewDetails" href="./product.html" type="button">View details</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- =========================
          ✅ AUTH MODAL (email+password + Google)
@@ -1079,30 +1210,34 @@
       </div>
     </div>
 
-    <!--Start of Tawk.to Script-->
-    <script type="text/javascript">
-      var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-      (function(){
-        var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-        s1.async=true;
-        s1.src='https://embed.tawk.to/69abff8ce13b5e1c381beb87/1jj3tsg6n';
-        s1.charset='UTF-8';
-        s1.setAttribute('crossorigin','*');
-        s0.parentNode.insertBefore(s1,s0);
-      })();
-    </script>
-    <!--End of Tawk.to Script-->
-
+    <!-- ✅ product page support config -->
     <script>
-      const y = document.getElementById("year");
-      if (y) y.textContent = new Date().getFullYear();
+      window.BASFAY_PRODUCT_PAGE_BASE = "./product.html?slug=";
+      window.BASFAY_PRODUCTS_JSON = "./products.json";
     </script>
+
+    <!-- ✅ MAIN APP -->
+    <script src="./app.js?v=20260311-01" defer></script>
+    <!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/69abff8ce13b5e1c381beb87/1jj3tsg6n';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
 
     <!-- ✅ AUTH + MENU + ORDERS -->
     <script>
       (function () {
         const $ = (id) => document.getElementById(id);
 
+        // Auth elements
         const authBtn = $("authBtn");
         const authModal = $("authModal");
         const authBackdrop = $("authBackdrop");
@@ -1117,6 +1252,7 @@
         const logoutBtn = $("logoutBtn");
         const authMsg = $("authMsg");
 
+        // Menu elements
         const menuBtn = $("menuBtn");
         const menuModal = $("menuModal");
         const menuBackdrop = $("menuBackdrop");
@@ -1127,6 +1263,7 @@
         const menuReturnsBtn = $("menuReturnsBtn");
         const menuChatBtn = $("menuChatBtn");
 
+        // Orders elements
         const ordersModal = $("ordersModal");
         const ordersBackdrop = $("ordersBackdrop");
         const ordersClose = $("ordersClose");
@@ -1151,11 +1288,13 @@
         function openOrders() { ordersModal?.setAttribute("aria-hidden", "false"); }
         function closeOrders() { ordersModal?.setAttribute("aria-hidden", "true"); }
 
+        // ✅ Hi, ONE name only (from email or name)
         function getSingleFirstName(user) {
           const raw = String(user?.name || user?.email || "").trim();
           if (!raw) return "there";
 
           const base = raw.includes("@") ? raw.split("@")[0] : raw;
+
           const cleaned = base
             .replace(/[._+\-]+/g, " ")
             .replace(/[^a-zA-Z\s]/g, " ")
@@ -1163,6 +1302,7 @@
             .trim();
 
           if (!cleaned) return "there";
+
           const first = cleaned.split(" ")[0];
           return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
         }
@@ -1273,6 +1413,7 @@
           }
         }
 
+        // Auth bindings
         authBtn?.addEventListener("click", openAuth);
         authBackdrop?.addEventListener("click", closeAuth);
         authClose?.addEventListener("click", closeAuth);
@@ -1319,6 +1460,7 @@
           }
         });
 
+        // Menu bindings
         menuBtn?.addEventListener("click", openMenu);
         menuBackdrop?.addEventListener("click", closeMenu);
         menuClose?.addEventListener("click", closeMenu);
@@ -1345,6 +1487,7 @@
           window.open(waLink("Hi Basfay Uniforms, I need help."), "_blank", "noopener,noreferrer");
         });
 
+        // Orders bindings
         ordersBackdrop?.addEventListener("click", closeOrders);
         ordersClose?.addEventListener("click", closeOrders);
 
@@ -1396,547 +1539,9 @@
       })();
     </script>
 
-    <!-- ✅ PRODUCT PAGE SCRIPT -->
     <script>
-      (function () {
-        const CART_KEY = "basfay_cart_v1";
-
-        const ui = {
-          loading: document.getElementById("productLoading"),
-          notFound: document.getElementById("productNotFound"),
-          notFoundText: document.getElementById("productNotFoundText"),
-          shell: document.getElementById("productShell"),
-          imageBox: document.getElementById("productImageBox"),
-          image: document.getElementById("productImage"),
-          badge: document.getElementById("productBadge"),
-          name: document.getElementById("productName"),
-          price: document.getElementById("productPrice"),
-          meta: document.getElementById("productMeta"),
-          desc: document.getElementById("productDescription"),
-          sizeField: document.getElementById("productSizeField"),
-          size: document.getElementById("productSize"),
-          addBtn: document.getElementById("productAddBtn"),
-          waBtn: document.getElementById("productWhatsAppBtn"),
-          breadcrumbCurrent: document.getElementById("breadcrumbCurrent"),
-          reviewSummary: document.getElementById("productReviewSummary"),
-          reviewList: document.getElementById("reviewList"),
-          reviewsSection: document.getElementById("reviewsSection"),
-          relatedSection: document.getElementById("relatedSection"),
-          relatedGrid: document.getElementById("relatedGrid"),
-          cartCount: document.getElementById("cartCount"),
-
-          metaDescription: document.getElementById("metaDescription"),
-          canonicalLink: document.getElementById("canonicalLink"),
-          ogTitle: document.getElementById("ogTitle"),
-          ogDescription: document.getElementById("ogDescription"),
-          ogUrl: document.getElementById("ogUrl"),
-          ogImage: document.getElementById("ogImage"),
-          twitterTitle: document.getElementById("twitterTitle"),
-          twitterDescription: document.getElementById("twitterDescription"),
-          twitterImage: document.getElementById("twitterImage"),
-          schema: document.getElementById("productSchema"),
-        };
-
-        let allProducts = [];
-        let currentProduct = null;
-        let selectedVariant = null;
-
-        function safeText(v){ return String(v ?? "").trim(); }
-        function normalize(v){ return safeText(v).toLowerCase(); }
-        function money(n){ return `KES ${Number(n || 0).toLocaleString("en-KE")}`; }
-
-        function escapeHtml(value){
-          return String(value ?? "")
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#39;");
-        }
-
-        function starsForRating(rating){
-          const rounded = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
-          return "★".repeat(rounded) + "☆".repeat(5 - rounded);
-        }
-
-        function reviewDateText(ts){
-          if(!ts) return "";
-          try{
-            return new Date(Number(ts) * 1000).toLocaleDateString("en-KE", {
-              year: "numeric",
-              month: "short",
-              day: "numeric"
-            });
-          }catch{
-            return "";
-          }
-        }
-
-        function getProductsJsonPath(){
-          return document.body?.dataset?.productsJson || "/products.json";
-        }
-
-        function getSlugFromUrl(){
-          const url = new URL(window.location.href);
-          const candidates = [
-            url.searchParams.get("slug"),
-            url.searchParams.get("id")
-          ];
-
-          const hash = safeText(url.hash.replace(/^#/, ""));
-          if (hash && hash.toLowerCase() !== "shop" && hash.toLowerCase() !== "contact") {
-            candidates.push(hash);
-          }
-
-          for (const value of candidates) {
-            const clean = safeText(value);
-            if (clean) return decodeURIComponent(clean);
-          }
-
-          return "";
-        }
-
-        function getBasePrice(product){
-          const variants = Array.isArray(product?.variants) ? product.variants : [];
-          if (variants.length) {
-            const prices = variants.map(v => Number(v.price)).filter(v => !Number.isNaN(v));
-            if (prices.length) return Math.min(...prices);
-          }
-          if (product?.basePrice != null && !Number.isNaN(Number(product.basePrice))) return Number(product.basePrice);
-          if (product?.price != null && !Number.isNaN(Number(product.price))) return Number(product.price);
-          return null;
-        }
-
-        function isLiveProduct(product){
-          const hasIdentity = Boolean(safeText(product?.id) && safeText(product?.name));
-          const hasPrice = getBasePrice(product) != null;
-          return hasIdentity && hasPrice;
-        }
-
-        function getDisplayPrice(product){
-          const base = getBasePrice(product);
-          return base == null
-            ? "Price on request"
-            : (Array.isArray(product?.variants) && product.variants.length ? `From ${money(base)}` : money(base));
-        }
-
-        function getProductUrl(product){
-          return `/product.html?slug=${encodeURIComponent(safeText(product?.slug || product?.id))}`;
-        }
-
-        function absoluteUrl(path){
-          try{
-            return new URL(path, window.location.origin).href;
-          }catch{
-            return path;
-          }
-        }
-
-        function toast(msg){
-          const t = document.createElement("div");
-          t.textContent = msg;
-          t.style.position = "fixed";
-          t.style.left = "50%";
-          t.style.bottom = "18px";
-          t.style.transform = "translateX(-50%)";
-          t.style.padding = "10px 12px";
-          t.style.borderRadius = "12px";
-          t.style.background = "rgba(0,0,0,0.88)";
-          t.style.color = "#fff";
-          t.style.fontSize = "12px";
-          t.style.zIndex = "9999";
-          t.style.maxWidth = "90vw";
-          t.style.textAlign = "center";
-          document.body.appendChild(t);
-          setTimeout(() => t.remove(), 1600);
-        }
-
-        function getCart(){
-          try{
-            const raw = localStorage.getItem(CART_KEY);
-            if(!raw) return [];
-            const parsed = JSON.parse(raw);
-            return Array.isArray(parsed) ? parsed : [];
-          }catch{
-            return [];
-          }
-        }
-
-        function setCart(items){
-          localStorage.setItem(CART_KEY, JSON.stringify(items));
-          refreshCartCount();
-        }
-
-        function refreshCartCount(){
-          const count = getCart().reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
-          if (ui.cartCount) ui.cartCount.textContent = String(count);
-        }
-
-        function addToCart(product, size, price, qty = 1){
-          const cart = getCart();
-          const key = `${product.id}__${size}`;
-          const found = cart.find(i => i.key === key);
-
-          if(found){
-            found.qty = (Number(found.qty) || 0) + (Number(qty) || 1);
-          }else{
-            cart.push({
-              key,
-              id: product.id,
-              size: String(size),
-              price: Number(price),
-              qty: Number(qty) || 1
-            });
-          }
-
-          setCart(cart);
-          toast(`${product.name} added to cart`);
-        }
-
-        function normaliseProducts(data){
-          return data
-            .map(p => {
-              const variants = Array.isArray(p.variants)
-                ? p.variants.map(v => ({
-                    size: safeText(v.size),
-                    price: Number(v.price)
-                  })).filter(v => v.size && !Number.isNaN(v.price))
-                : [];
-
-              return {
-                id: safeText(p.id),
-                slug: safeText(p.slug) || safeText(p.id),
-                name: safeText(p.name),
-                color: safeText(p.color),
-                type: safeText(p.type),
-                pattern: safeText(p.pattern),
-                price: p.price == null ? null : Number(p.price),
-                basePrice: p.basePrice == null ? null : Number(p.basePrice),
-                variants,
-                image: safeText(p.image),
-                thumb: safeText(p.thumb),
-                description: safeText(p.description),
-                seoTitle: safeText(p.seoTitle),
-                seoDescription: safeText(p.seoDescription),
-                featured: Boolean(p.featured)
-              };
-            })
-            .filter(isLiveProduct);
-        }
-
-        function updateHead(product, reviewData){
-          const pageTitle = product.seoTitle || `${product.name} | BASFAY Uniforms`;
-          const pageDescription = product.seoDescription || product.description || `${product.name} available at Basfay Uniforms Kenya. Pickup Kangemi.`;
-          const pageUrl = absoluteUrl(getProductUrl(product));
-          const imageUrl = absoluteUrl(product.image || product.thumb || "/apple-touch-icon.png");
-          const basePrice = getBasePrice(product);
-
-          document.title = pageTitle;
-          if (ui.metaDescription) ui.metaDescription.setAttribute("content", pageDescription);
-          if (ui.canonicalLink) ui.canonicalLink.setAttribute("href", pageUrl);
-          if (ui.ogTitle) ui.ogTitle.setAttribute("content", pageTitle);
-          if (ui.ogDescription) ui.ogDescription.setAttribute("content", pageDescription);
-          if (ui.ogUrl) ui.ogUrl.setAttribute("content", pageUrl);
-          if (ui.ogImage) ui.ogImage.setAttribute("content", imageUrl);
-          if (ui.twitterTitle) ui.twitterTitle.setAttribute("content", pageTitle);
-          if (ui.twitterDescription) ui.twitterDescription.setAttribute("content", pageDescription);
-          if (ui.twitterImage) ui.twitterImage.setAttribute("content", imageUrl);
-
-          const schema = {
-            "@context": "https://schema.org",
-            "@type": "Product",
-            "name": product.name,
-            "description": pageDescription,
-            "sku": product.id,
-            "image": [imageUrl],
-            "brand": {
-              "@type": "Brand",
-              "name": "BASFAY Uniforms"
-            },
-            "offers": {
-              "@type": "Offer",
-              "priceCurrency": "KES",
-              "url": pageUrl,
-              "availability": "https://schema.org/InStock"
-            }
-          };
-
-          if (basePrice != null) {
-            schema.offers.price = Number(basePrice).toString();
-          }
-
-          if (reviewData && Number(reviewData.review_count) > 0) {
-            schema.aggregateRating = {
-              "@type": "AggregateRating",
-              "ratingValue": Number(reviewData.average_rating || 0).toFixed(1),
-              "reviewCount": Number(reviewData.review_count || 0)
-            };
-          }
-
-          if (ui.schema) {
-            ui.schema.textContent = JSON.stringify(schema, null, 2);
-          }
-        }
-
-        function renderMetaChips(product){
-          const chips = [];
-          if (product.color) chips.push(`Color: ${product.color}`);
-          if (product.type) chips.push(`Type: ${product.type}`);
-          if (product.pattern) chips.push(`Pattern: ${product.pattern}`);
-
-          ui.meta.innerHTML = chips.map(text => `<span class="meta-chip">${escapeHtml(text)}</span>`).join("");
-        }
-
-        function renderRelated(product){
-          const related = allProducts
-            .filter(item => item.id !== product.id)
-            .filter(item => normalize(item.type) === normalize(product.type) || normalize(item.color) === normalize(product.color))
-            .slice(0, 4);
-
-          if (!related.length) {
-            ui.relatedSection.hidden = true;
-            ui.relatedGrid.innerHTML = "";
-            return;
-          }
-
-          ui.relatedSection.hidden = false;
-          ui.relatedGrid.innerHTML = related.map(item => {
-            const imageHtml = item.image
-              ? `<img src="${escapeHtml(item.thumb || item.image)}" alt="${escapeHtml(item.name)} photo" loading="lazy" decoding="async" width="600" height="600">`
-              : `<div class="product-placeholder">Image coming soon</div>`;
-
-            return `
-              <article class="related-card">
-                <a href="${escapeHtml(getProductUrl(item))}">
-                  <div class="related-media">${imageHtml}</div>
-                  <div class="related-body">
-                    <h3 class="related-name">${escapeHtml(item.name)}</h3>
-                    <div class="related-price">${escapeHtml(getDisplayPrice(item))}</div>
-                  </div>
-                </a>
-              </article>
-            `;
-          }).join("");
-        }
-
-        function renderReviews(reviewData){
-          const count = Number(reviewData?.review_count || 0);
-          const avg = Number(reviewData?.average_rating || 0);
-
-          ui.reviewSummary.innerHTML = `
-            <span class="product-stars">${count > 0 ? starsForRating(avg) : "☆☆☆☆☆"}</span>
-            <strong>${count > 0 ? avg.toFixed(1) : "0.0"}</strong>
-            <span class="muted">(${count})</span>
-          `;
-
-          const reviews = Array.isArray(reviewData?.reviews) ? reviewData.reviews : [];
-          if (!reviews.length) {
-            ui.reviewsSection.hidden = false;
-            ui.reviewList.innerHTML = `
-              <div class="review-card">
-                <p class="review-text">No reviews yet for this item.</p>
-              </div>
-            `;
-            return;
-          }
-
-          ui.reviewsSection.hidden = false;
-          ui.reviewList.innerHTML = reviews.map(r => {
-            const dateText = reviewDateText(r.created_at);
-            const buyerName = safeText(r.customer_name) || "Verified Buyer";
-
-            return `
-              <article class="review-card">
-                <div class="review-head">
-                  <div>
-                    <div class="review-name">${escapeHtml(buyerName)}</div>
-                    ${r.verified_purchase ? `<div class="review-verified">Verified Buyer</div>` : ``}
-                  </div>
-                  <div style="text-align:right;">
-                    <div class="product-stars">${starsForRating(r.rating)}</div>
-                    ${dateText ? `<div class="review-date">${escapeHtml(dateText)}</div>` : ``}
-                  </div>
-                </div>
-                <p class="review-text">${escapeHtml(r.review_text)}</p>
-              </article>
-            `;
-          }).join("");
-        }
-
-        async function loadReviews(product){
-          try{
-            const res = await fetch(`/api/reviews?product_id=${encodeURIComponent(product.id)}`, { credentials: "include" });
-            const data = await res.json().catch(() => ({}));
-            renderReviews(data);
-            updateHead(product, data);
-          }catch{
-            renderReviews({ review_count: 0, average_rating: 0, reviews: [] });
-            updateHead(product, null);
-          }
-        }
-
-        function resetImageBox(){
-          ui.imageBox.innerHTML = `
-            <img
-              id="productImage"
-              src=""
-              alt=""
-              loading="eager"
-              decoding="async"
-              fetchpriority="high"
-              width="1200"
-              height="1200"
-            />
-          `;
-          ui.image = document.getElementById("productImage");
-        }
-
-        function showNotFound(message){
-          ui.loading.hidden = true;
-          ui.shell.hidden = true;
-          ui.notFound.hidden = false;
-          ui.reviewsSection.hidden = true;
-          ui.relatedSection.hidden = true;
-          if (ui.notFoundText && message) ui.notFoundText.textContent = message;
-        }
-
-        function renderProduct(product){
-          currentProduct = product;
-          selectedVariant = null;
-
-          ui.loading.hidden = true;
-          ui.notFound.hidden = true;
-          ui.shell.hidden = false;
-          ui.reviewsSection.hidden = true;
-          ui.relatedSection.hidden = true;
-
-          ui.badge.textContent = product.color || product.type || "Uniform";
-          ui.name.textContent = product.name;
-          ui.price.textContent = getDisplayPrice(product);
-          ui.desc.textContent = product.description || "Durable, comfortable uniform item.";
-          ui.breadcrumbCurrent.textContent = product.name;
-
-          renderMetaChips(product);
-
-          resetImageBox();
-
-          if (product.image) {
-            ui.image.hidden = false;
-            ui.image.src = product.image;
-            ui.image.alt = `${product.name} photo`;
-            ui.image.onerror = () => {
-              ui.imageBox.innerHTML = `<div class="product-placeholder">Image coming soon</div>`;
-            };
-          } else {
-            ui.imageBox.innerHTML = `<div class="product-placeholder">Image coming soon</div>`;
-          }
-
-          const variants = Array.isArray(product.variants) ? product.variants : [];
-          ui.size.innerHTML = `<option value="" selected disabled>Select size</option>`;
-          ui.size.onchange = null;
-          ui.addBtn.textContent = "Add to cart";
-
-          if (variants.length) {
-            ui.sizeField.hidden = false;
-
-            const sorted = [...variants].sort((a, b) => {
-              const na = Number(a.size);
-              const nb = Number(b.size);
-              if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
-              return String(a.size).localeCompare(String(b.size));
-            });
-
-            sorted.forEach(v => {
-              const opt = document.createElement("option");
-              opt.value = String(v.size);
-              opt.textContent = `${v.size} — ${money(v.price)}`;
-              ui.size.appendChild(opt);
-            });
-
-            ui.size.onchange = () => {
-              const found = sorted.find(v => String(v.size) === ui.size.value);
-              if (!found) return;
-              selectedVariant = { size: String(found.size), price: Number(found.price) };
-              ui.price.textContent = money(selectedVariant.price);
-            };
-          } else {
-            ui.sizeField.hidden = true;
-          }
-
-          const waLines = [
-            `Hi BASFAY Uniforms, I would like to ask about this item:`,
-            `${product.name}`,
-            product.color ? `Color: ${product.color}` : ``,
-            product.type ? `Type: ${product.type}` : ``,
-            ``,
-            `Product link: ${window.location.href}`
-          ].filter(Boolean);
-
-          ui.waBtn.href = `https://wa.me/254119667836?text=${encodeURIComponent(waLines.join("\n"))}`;
-
-          ui.addBtn.onclick = () => {
-            if (variants.length) {
-              if (!selectedVariant) {
-                alert("Please select a size first.");
-                return;
-              }
-              addToCart(product, selectedVariant.size, selectedVariant.price, 1);
-              return;
-            }
-
-            const fallbackPrice = getBasePrice(product);
-            if (fallbackPrice == null) {
-              window.open(ui.waBtn.href, "_blank", "noopener,noreferrer");
-              return;
-            }
-
-            addToCart(product, "-", fallbackPrice, 1);
-          };
-
-          renderRelated(product);
-        }
-
-        async function init(){
-          refreshCartCount();
-          window.addEventListener("storage", refreshCartCount);
-
-          const slug = getSlugFromUrl();
-          if (!slug) {
-            document.title = "Product not found | BASFAY Uniforms";
-            showNotFound("No product slug was found in the URL.");
-            return;
-          }
-
-          try{
-            const res = await fetch(getProductsJsonPath(), { cache: "no-store" });
-            if (!res.ok) throw new Error("Could not load products.json");
-
-            const data = await res.json();
-            if (!Array.isArray(data)) throw new Error("products.json must be an array");
-
-            allProducts = normaliseProducts(data);
-
-            const product = allProducts.find(p =>
-              normalize(p.slug) === normalize(slug) || normalize(p.id) === normalize(slug)
-            );
-
-            if (!product) {
-              document.title = "Product not found | BASFAY Uniforms";
-              showNotFound("That product slug does not match any live product in your catalog.");
-              return;
-            }
-
-            renderProduct(product);
-            await loadReviews(product);
-          }catch(err){
-            console.error("Product page error:", err);
-            document.title = "Product not found | BASFAY Uniforms";
-            showNotFound("Could not load this product. Check that products.json is valid and uploaded in the site root.");
-          }
-        }
-
-        init();
-      })();
+      const y = document.getElementById("year");
+      if (y) y.textContent = new Date().getFullYear();
     </script>
   </body>
 </html>

@@ -10,7 +10,7 @@
       name="description"
       content="Shop quality and affordable uniforms from Basfay Uniforms Kenya."
     />
-    <link id="canonicalLink" rel="canonical" href="https://basfayuniforms.co.ke/product.html" />
+    <link id="canonicalLink" rel="canonical" href="https://basfayuniforms.co.ke/product" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="theme-color" content="#f5cc00" />
 
@@ -30,7 +30,7 @@
       property="og:description"
       content="Shop quality and affordable uniforms from Basfay Uniforms Kenya."
     />
-    <meta id="ogUrl" property="og:url" content="https://basfayuniforms.co.ke/product.html" />
+    <meta id="ogUrl" property="og:url" content="https://basfayuniforms.co.ke/product" />
     <meta id="ogImage" property="og:image" content="https://basfayuniforms.co.ke/apple-touch-icon.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
@@ -375,17 +375,75 @@
         width:100%;
       }
 
-      .product-actions{
+      .size-guide-card{
+        margin: 0 0 16px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(15,47,74,0.04);
+        border: 1px solid rgba(15,47,74,0.08);
+        box-shadow: 0 10px 24px rgba(15,28,43,0.04);
+      }
+
+      .size-guide-head{
         display:flex;
+        align-items:center;
+        justify-content:space-between;
         gap:12px;
         flex-wrap:wrap;
+        margin-bottom:8px;
+      }
+
+      .size-guide-head strong{
+        color:#0F2F4A;
+        font-size:14px;
+        font-weight:900;
+      }
+
+      .size-guide-head span{
+        font-size:12px;
+        color: rgba(15,28,43,0.62);
+        font-weight:700;
+      }
+
+      .size-guide-copy{
+        margin:0;
+        font-size:14px;
+        line-height:1.7;
+        color: rgba(15,28,43,0.82);
+      }
+
+      .size-guide-note{
+        margin-top:8px;
+        font-size:12px;
+        line-height:1.6;
+        color: rgba(15,28,43,0.60);
+      }
+
+      .product-actions{
+        display:block;
         margin-bottom:16px;
       }
 
       .product-actions .btn,
       .product-actions a.btn{
-        flex: 1 1 200px;
+        width: 100% !important;
         text-align:center;
+        flex: 0 0 auto !important;
+      }
+
+      .cart-cta{
+        width:100%;
+        min-height:64px;
+        border-radius:18px;
+        font-size:18px;
+        font-weight:900;
+        letter-spacing:0.01em;
+      }
+
+      .cart-cta:disabled{
+        opacity:.58;
+        cursor:not-allowed;
+        transform:none !important;
       }
 
       .product-trust{
@@ -399,7 +457,7 @@
         align-items:center;
         border-radius:999px;
         padding:8px 12px;
-        background: rgba(255,255,255,0.92);
+        background: rgba(255,255,255,0.96);
         border:1px solid rgba(15,28,43,0.08);
         font-size:13px;
         font-weight:800;
@@ -671,8 +729,18 @@
           padding:16px;
         }
 
-        .product-actions{
-          flex-direction:column;
+        .cart-cta{
+          min-height:58px;
+          font-size:17px;
+        }
+
+        .size-guide-card{
+          padding: 13px 14px;
+        }
+
+        .trust-chip{
+          font-size:12.5px;
+          padding:8px 11px;
         }
       }
     </style>
@@ -832,17 +900,25 @@
                 </select>
               </div>
 
+              <div class="size-guide-card" id="sizeGuideCard" hidden>
+                <div class="size-guide-head">
+                  <strong>Approx size guide</strong>
+                  <span>Depends on body fit</span>
+                </div>
+
+                <p class="size-guide-copy" id="sizeGuideCopy">
+                  Select a size to see an approximate age or fit guide.
+                </p>
+
+                <div class="size-guide-note">
+                  Example: size 22 sweaters often fit around 3 to 4 years, but body size and preferred fit can change that.
+                </div>
+              </div>
+
               <div class="product-actions">
-                <button class="btn primary" id="productAddBtn" type="button">Add to cart</button>
-                <a
-                  class="btn ghost"
-                  id="productWhatsAppBtn"
-                  href="https://wa.me/254119667836"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Ask on WhatsApp
-                </a>
+                <button class="btn primary cart-cta" id="productAddBtn" type="button">
+                  Select size to add to cart
+                </button>
               </div>
 
               <div class="product-trust">
@@ -1415,8 +1491,9 @@
           desc: document.getElementById("productDescription"),
           sizeField: document.getElementById("productSizeField"),
           size: document.getElementById("productSize"),
+          sizeGuideCard: document.getElementById("sizeGuideCard"),
+          sizeGuideCopy: document.getElementById("sizeGuideCopy"),
           addBtn: document.getElementById("productAddBtn"),
-          waBtn: document.getElementById("productWhatsAppBtn"),
           breadcrumbCurrent: document.getElementById("breadcrumbCurrent"),
           reviewSummary: document.getElementById("productReviewSummary"),
           reviewList: document.getElementById("reviewList"),
@@ -1521,7 +1598,7 @@
         }
 
         function getProductUrl(product){
-          return `/product.html?slug=${encodeURIComponent(safeText(product?.slug || product?.id))}`;
+          return `/product?slug=${encodeURIComponent(safeText(product?.slug || product?.id))}`;
         }
 
         function absoluteUrl(path){
@@ -1800,6 +1877,88 @@
           if (ui.notFoundText && message) ui.notFoundText.textContent = message;
         }
 
+        function setSizeGuide(text){
+          if (!ui.sizeGuideCard || !ui.sizeGuideCopy) return;
+          ui.sizeGuideCard.hidden = false;
+          ui.sizeGuideCopy.textContent = text;
+        }
+
+        function getSizeGuide(product, size){
+          const raw = safeText(size);
+          if (!raw) {
+            return "Select a size to see an approximate age or fit guide. Fit can vary depending on body build and whether you want a closer or roomier fit.";
+          }
+
+          const n = Number(raw);
+          if (!Number.isNaN(n)) {
+            const map = {
+              "20": "about 2 to 3 years",
+              "22": "about 3 to 4 years",
+              "24": "about 4 to 5 years",
+              "26": "about 5 to 6 years",
+              "28": "about 7 to 8 years",
+              "30": "about 9 to 10 years",
+              "32": "about 11 to 12 years",
+              "34": "about 13 to 14 years",
+              "36": "about 15 to 16 years or a petite adult fit",
+              "38": "older teen or adult small fit",
+              "40": "adult medium fit",
+              "42": "adult large fit"
+            };
+
+            const label = map[raw] || "an older child or adult, depending on build";
+
+            return `Size ${raw} is usually around ${label}. This is approximate and can change depending on height, body size, and how loose or fitted you want it.`;
+          }
+
+          const upper = raw.toUpperCase();
+
+          if (upper === "S") {
+            return "Size S is usually the smaller fit. It often works for younger or slimmer wearers, depending on body size.";
+          }
+
+          if (upper === "M") {
+            return "Size M is usually the middle fit. It often suits growing children or pre-teens, depending on build.";
+          }
+
+          if (upper === "L") {
+            return "Size L is usually the roomier fit. It often works for older children, teens, or anyone who prefers more space.";
+          }
+
+          if (normalize(raw) === "one size") {
+            return "This item comes in one size. Fit can still vary a little depending on body size and styling preference.";
+          }
+
+          return `Size ${raw} is approximate. Fit can vary depending on body size and how you want the item to sit.`;
+        }
+
+        function updateAddButtonText(product, variant){
+          if (!ui.addBtn) return;
+
+          const variants = Array.isArray(product?.variants) ? product.variants : [];
+
+          if (variants.length) {
+            if (variant) {
+              ui.addBtn.disabled = false;
+              ui.addBtn.textContent = `Add size ${variant.size} to cart • ${money(variant.price)}`;
+            } else {
+              ui.addBtn.disabled = true;
+              ui.addBtn.textContent = "Select size to add to cart";
+            }
+            return;
+          }
+
+          const fallbackPrice = getBasePrice(product);
+
+          if (fallbackPrice == null) {
+            ui.addBtn.disabled = true;
+            ui.addBtn.textContent = "Price on request";
+          } else {
+            ui.addBtn.disabled = false;
+            ui.addBtn.textContent = `Add to cart • ${money(fallbackPrice)}`;
+          }
+        }
+
         function renderProduct(product){
           currentProduct = product;
           selectedVariant = null;
@@ -1834,10 +1993,11 @@
           const variants = Array.isArray(product.variants) ? product.variants : [];
           ui.size.innerHTML = `<option value="" selected disabled>Select size</option>`;
           ui.size.onchange = null;
-          ui.addBtn.textContent = "Add to cart";
 
           if (variants.length) {
             ui.sizeField.hidden = false;
+            setSizeGuide(getSizeGuide(product, ""));
+            updateAddButtonText(product, null);
 
             const sorted = [...variants].sort((a, b) => {
               const na = Number(a.size);
@@ -1856,23 +2016,21 @@
             ui.size.onchange = () => {
               const found = sorted.find(v => String(v.size) === ui.size.value);
               if (!found) return;
+
               selectedVariant = { size: String(found.size), price: Number(found.price) };
               ui.price.textContent = money(selectedVariant.price);
+              setSizeGuide(getSizeGuide(product, selectedVariant.size));
+              updateAddButtonText(product, selectedVariant);
             };
           } else {
             ui.sizeField.hidden = true;
+
+            if (ui.sizeGuideCard) {
+              ui.sizeGuideCard.hidden = true;
+            }
+
+            updateAddButtonText(product, null);
           }
-
-          const waLines = [
-            `Hi BASFAY Uniforms, I would like to ask about this item:`,
-            `${product.name}`,
-            product.color ? `Color: ${product.color}` : ``,
-            product.type ? `Type: ${product.type}` : ``,
-            ``,
-            `Product link: ${window.location.href}`
-          ].filter(Boolean);
-
-          ui.waBtn.href = `https://wa.me/254119667836?text=${encodeURIComponent(waLines.join("\n"))}`;
 
           ui.addBtn.onclick = () => {
             if (variants.length) {
@@ -1880,13 +2038,14 @@
                 alert("Please select a size first.");
                 return;
               }
+
               addToCart(product, selectedVariant.size, selectedVariant.price, 1);
               return;
             }
 
             const fallbackPrice = getBasePrice(product);
             if (fallbackPrice == null) {
-              window.open(ui.waBtn.href, "_blank", "noopener,noreferrer");
+              toast("Pricing is not available yet for this item.");
               return;
             }
 

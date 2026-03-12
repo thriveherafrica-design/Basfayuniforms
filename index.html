@@ -645,10 +645,10 @@
     </style>
 
     <!-- cache bust -->
-    <link rel="stylesheet" href="./styles.css?v=20260307-11" />
+    <link rel="stylesheet" href="./styles.css?v=20260312-02" />
   </head>
 
-  <body data-product-page-base="./product.html?slug=" data-products-json="./products.json">
+  <body data-product-page-base="/product.html?slug=" data-products-json="/products.json">
     <a class="skip" href="#main">Skip to content</a>
 
     <!-- Header -->
@@ -684,7 +684,7 @@
 
           <a
             class="brand"
-            href="#main"
+            href="/"
             aria-label="Basfay home"
             style="
               display: flex;
@@ -808,7 +808,7 @@
                 id="productGrid"
                 aria-live="polite"
                 data-product-grid="true"
-                data-product-page-base="./product.html?slug="
+                data-product-page-base="/product.html?slug="
               ></div>
 
               <div class="empty" id="emptyState" hidden>
@@ -851,19 +851,20 @@
                 Basfay Uniforms is a Nairobi-based uniforms and workwear store offering quality and affordable school uniforms, scrubs, workwear, school bags, sweaters, tracksuits, PE kits, shirts, dresses, blazers, trousers, socks and other essentials. Customers can shop online, place orders easily, and arrange pickup in Kangemi through WhatsApp for a simple and reliable buying experience in Kenya.
               </p>
 
-             
-             <a
-  class="footer-social-link"
-  href="https://www.instagram.com/basfayuniforms"
-  target="_blank"
-  rel="noopener noreferrer"
-  aria-label="Instagram"
-  title="Instagram"
->
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5Zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5Zm5.75-4.25a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25Z"/>
-  </svg>
-</a>
+              <div class="footer-social">
+                <a
+                  class="footer-social-link"
+                  href="https://www.instagram.com/basfayuniforms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  title="Instagram"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5Zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5Zm5.75-4.25a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25Z"/>
+                  </svg>
+                </a>
+
                 <a
                   class="footer-social-link"
                   href="https://www.tiktok.com/@basfayuniforms"
@@ -1087,7 +1088,7 @@
 
             <div class="modal-actions">
               <button class="btn primary" id="modalAdd" type="button">Add</button>
-              <a class="btn ghost" id="modalViewDetails" href="./product.html" type="button">View details</a>
+              <a class="btn ghost" id="modalViewDetails" href="/product.html" type="button">View details</a>
             </div>
           </div>
         </div>
@@ -1212,25 +1213,26 @@
 
     <!-- ✅ product page support config -->
     <script>
-      window.BASFAY_PRODUCT_PAGE_BASE = "./product.html?slug=";
-      window.BASFAY_PRODUCTS_JSON = "./products.json";
+      window.BASFAY_PRODUCT_PAGE_BASE = "/product.html?slug=";
+      window.BASFAY_PRODUCTS_JSON = "/products.json";
     </script>
 
     <!-- ✅ MAIN APP -->
-    <script src="./app.js?v=20260311-01" defer></script>
+    <script src="./app.js?v=20260312-02" defer></script>
+
     <!--Start of Tawk.to Script-->
-<script type="text/javascript">
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-(function(){
-var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-s1.async=true;
-s1.src='https://embed.tawk.to/69abff8ce13b5e1c381beb87/1jj3tsg6n';
-s1.charset='UTF-8';
-s1.setAttribute('crossorigin','*');
-s0.parentNode.insertBefore(s1,s0);
-})();
-</script>
-<!--End of Tawk.to Script-->
+    <script type="text/javascript">
+      var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+      (function(){
+        var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+        s1.async=true;
+        s1.src='https://embed.tawk.to/69abff8ce13b5e1c381beb87/1jj3tsg6n';
+        s1.charset='UTF-8';
+        s1.setAttribute('crossorigin','*');
+        s0.parentNode.insertBefore(s1,s0);
+      })();
+    </script>
+    <!--End of Tawk.to Script-->
 
     <!-- ✅ AUTH + MENU + ORDERS -->
     <script>
@@ -1288,7 +1290,6 @@ s0.parentNode.insertBefore(s1,s0);
         function openOrders() { ordersModal?.setAttribute("aria-hidden", "false"); }
         function closeOrders() { ordersModal?.setAttribute("aria-hidden", "true"); }
 
-        // ✅ Hi, ONE name only (from email or name)
         function getSingleFirstName(user) {
           const raw = String(user?.name || user?.email || "").trim();
           if (!raw) return "there";

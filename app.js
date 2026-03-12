@@ -26,8 +26,8 @@ const FUTURE_CATEGORIES = [
   "Trousers", "School Bag", "Shoes", "Blazer", "Materials", "Cardigan", "Accessory",
 ];
 
-const INITIAL_VISIBLE_PRODUCTS = 12;
-const LOAD_MORE_PRODUCTS_STEP = 12;
+const INITIAL_VISIBLE_PRODUCTS = 9999;
+const LOAD_MORE_PRODUCTS_STEP = 9999;
 
 const els = {
   year: document.getElementById("year"),

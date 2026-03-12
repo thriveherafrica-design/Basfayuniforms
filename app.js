@@ -990,12 +990,19 @@ function productCard(p){
   if (normalize(p.type) === "socks") wrap.classList.add("product-socks");
 
   const productUrl = getProductUrl(p);
+  wrap.style.cursor = "pointer";
+
+  wrap.addEventListener("click", (e) => {
+    const interactive = e.target.closest("button, select, option, a, input, label, textarea");
+    if (interactive) return;
+    window.location.href = productUrl;
+  });
 
   const media = document.createElement("div");
   media.className = "media";
 
   const tag = document.createElement("div");
-  tag.className="tag";
+  tag.className = "tag";
   tag.textContent = p.color || "Uniform";
   media.appendChild(tag);
 
@@ -1091,17 +1098,18 @@ function productCard(p){
   const actions = document.createElement("div");
   actions.className = "product-actions";
 
-  const viewBtn = document.createElement("button");
-  viewBtn.type = "button";
+  const viewBtn = document.createElement("a");
+  viewBtn.href = productUrl;
   viewBtn.className = "btn small ghost";
-  viewBtn.textContent = "View";
-  viewBtn.addEventListener("click", ()=>openModal(p.id));
+  viewBtn.textContent = "View details";
 
   const addBtn = document.createElement("button");
   addBtn.type = "button";
   addBtn.className = "btn small primary";
   addBtn.textContent = "Add to cart";
-  addBtn.addEventListener("click", ()=>{
+  addBtn.addEventListener("click", (e)=>{
+    e.stopPropagation();
+
     if(variants.length){
       if(!selected) return alert("Please select a size first.");
       addToCart(p.id, selected.size, selected.price, 1);

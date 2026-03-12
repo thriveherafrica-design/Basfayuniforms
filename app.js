@@ -3,9 +3,10 @@
    Cart + Two-step Checkout
    Product page links via slug
    Dead products auto-filtered
+   Faster product images via Cloudflare transforms
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (LIVE PRODUCTS + PRODUCT LINKS + REVIEWS)");
+console.log("✅ BASFAY app.js LOADED (LIVE PRODUCTS + PRODUCT LINKS + REVIEWS + IMAGE SPEED)");
 
 const CONFIG = {
   currency: "KES",
@@ -14,6 +15,7 @@ const CONFIG = {
   businessName: "BASFAY Uniforms",
   tillNumberPlaceholder: "XXXX",
   turnstileSiteKey: "0x4AAAAAACnvQa10Y55LL_Rg",
+  imageQuality: 75,
 
   // ✅ review endpoints
   reviewsListEndpoint: "/api/reviews",
@@ -153,6 +155,161 @@ function getProductSlug(product) {
 function getProductUrl(product) {
   const slug = getProductSlug(product);
   return `${getProductPageBase()}${encodeURIComponent(slug)}`;
+}
+
+/* Image speed helpers */
+function isAbsoluteUrl(url) {
+  return /^https?:\/\//i.test(safeText(url));
+}
+
+function normalizeImageSourcePath(src) {
+  const value = safeText(src);
+  if (!value) return "";
+  if (isAbsoluteUrl(value)) return value;
+  if (value.startsWith("/")) return value;
+  if (value.startsWith("./")) return `/${value.slice(2)}`;
+  return `/${value.replace(/^\/+/, "")}`;
+}
+
+function canUseCloudflareImageTransforms() {
+  const host = safeText(window.location.hostname);
+  return Boolean(host) && !host.endsWith(".pages.dev");
+}
+
+function getCloudflareImageUrl(src, options = {}) {
+  const normalized = normalizeImageSourcePath(src);
+  if (!normalized) return "";
+
+  if (!canUseCloudflareImageTransforms()) {
+    return normalized;
+  }
+
+  const width = Number(options.width);
+  const height = Number(options.height);
+  const quality = Number(options.quality || CONFIG.imageQuality || 75);
+  const fit = safeText(options.fit) || "cover";
+
+  const params = [];
+  if (!Number.isNaN(width) && width > 0) params.push(`width=${Math.round(width)}`);
+  if (!Number.isNaN(height) && height > 0) params.push(`height=${Math.round(height)}`);
+  if (!Number.isNaN(quality) && quality > 0) params.push(`quality=${Math.round(quality)}`);
+  params.push("format=auto");
+  params.push(`fit=${fit}`);
+
+  const source = normalized.startsWith("/") ? normalized.slice(1) : normalized;
+  return `/cdn-cgi/image/${params.join(",")}/${source}`;
+}
+
+function buildImageSrcSet(src, widths = [], options = {}) {
+  const normalized = normalizeImageSourcePath(src);
+  if (!normalized || !canUseCloudflareImageTransforms()) return "";
+
+  return widths
+    .filter(w => Number(w) > 0)
+    .map(w => `${getCloudflareImageUrl(normalized, { ...options, width: Number(w) })} ${Number(w)}w`)
+    .join(", ");
+}
+
+function handleImageLoadError(event) {
+  const img = event?.currentTarget;
+  if (!img) return;
+
+  const fallback = safeText(img.dataset.fallback);
+  if (!fallback) return;
+
+  img.removeAttribute("srcset");
+  img.removeAttribute("sizes");
+
+  try {
+    const current = img.currentSrc || img.src;
+    const fallbackAbsolute = new URL(fallback, window.location.origin).href;
+    if (current !== fallbackAbsolute) {
+      img.src = fallback;
+    }
+  } catch {
+    img.src = fallback;
+  }
+}
+
+function applyResponsiveImage(img, src, options = {}) {
+  if (!img) return;
+
+  const normalized = normalizeImageSourcePath(src);
+  if (!normalized) return;
+
+  const widths = Array.isArray(options.widths) && options.widths.length
+    ? options.widths.map(Number).filter(w => !Number.isNaN(w) && w > 0)
+    : [320, 480, 640];
+
+  const displayWidth = Number(options.displayWidth) || widths[widths.length - 1] || 640;
+  const displayHeight = Number(options.displayHeight) || displayWidth;
+  const eager = Boolean(options.eager);
+  const fit = safeText(options.fit) || "cover";
+  const quality = Number(options.quality || CONFIG.imageQuality || 75);
+  const sizes = safeText(options.sizes) || "100vw";
+
+  img.width = displayWidth;
+  img.height = displayHeight;
+  img.decoding = "async";
+  img.loading = eager ? "eager" : "lazy";
+  img.fetchPriority = eager ? "high" : "low";
+  img.dataset.fallback = normalized;
+
+  if (canUseCloudflareImageTransforms()) {
+    img.src = getCloudflareImageUrl(normalized, {
+      width: widths[0],
+      quality,
+      fit
+    });
+
+    const srcset = buildImageSrcSet(normalized, widths, { quality, fit });
+    if (srcset) {
+      img.srcset = srcset;
+      img.sizes = sizes;
+    }
+  } else {
+    img.src = normalized;
+    img.removeAttribute("srcset");
+    img.removeAttribute("sizes");
+  }
+
+  img.addEventListener("error", handleImageLoadError, { once: true });
+}
+
+function renderResponsiveImageInto(container, src, alt, options = {}) {
+  if (!container) return;
+
+  container.innerHTML = "";
+  if (!safeText(src)) return;
+
+  const img = document.createElement("img");
+  img.alt = alt || "";
+  applyResponsiveImage(img, src, options);
+  container.appendChild(img);
+}
+
+function getCardImageOptions(index = 0) {
+  return {
+    widths: [240, 360, 480, 640],
+    sizes: "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 280px",
+    displayWidth: 640,
+    displayHeight: 640,
+    eager: index < 4,
+    fit: "cover",
+    quality: CONFIG.imageQuality
+  };
+}
+
+function getModalImageOptions() {
+  return {
+    widths: [480, 720, 960, 1280],
+    sizes: "(max-width: 768px) 92vw, 560px",
+    displayWidth: 960,
+    displayHeight: 960,
+    eager: true,
+    fit: "contain",
+    quality: CONFIG.imageQuality
+  };
 }
 
 function getProductBasePrice(product) {
@@ -1032,7 +1189,7 @@ function renderProducts() {
   els.productGrid.innerHTML = "";
   if (els.emptyState) els.emptyState.hidden = sorted.length !== 0;
 
-  sorted.forEach(p => els.productGrid.appendChild(productCard(p)));
+  sorted.forEach((p, index) => els.productGrid.appendChild(productCard(p, index)));
 }
 
 function applySort(list) {
@@ -1065,7 +1222,7 @@ function applySort(list) {
   return [...list].sort((a, b) => featuredScore(b) - featuredScore(a) || byNameAsc(a, b));
 }
 
-function productCard(p) {
+function productCard(p, index = 0) {
   const wrap = document.createElement("article");
   wrap.className = "product";
 
@@ -1099,9 +1256,8 @@ function productCard(p) {
 
   if (p.image) {
     const img = document.createElement("img");
-    img.src = p.image;
     img.alt = `${p.name} photo`;
-    img.loading = "lazy";
+    applyResponsiveImage(img, p.image, getCardImageOptions(index));
     mediaLink.appendChild(img);
   } else {
     const ph = document.createElement("div");
@@ -1235,7 +1391,7 @@ async function openModal(productId) {
 
   els.modalTitle.textContent = p.name;
   els.modalDesc.textContent = p.description || "Durable, comfortable uniform item.";
-  els.modalMedia.innerHTML = p.image ? `<img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)} photo">` : "";
+  renderResponsiveImageInto(els.modalMedia, p.image, `${p.name} photo`, getModalImageOptions());
   els.modalMeta.textContent = [p.color && `Color: ${p.color}`, p.type && `Type: ${p.type}`].filter(Boolean).join(" • ");
   if (els.modalViewDetails) {
     els.modalViewDetails.href = getProductUrl(p);
@@ -1449,7 +1605,7 @@ function bindCart() {
 }
 
 async function loadProducts() {
-  const res = await fetch(getProductsJsonPath(), { cache: "no-store" });
+  const res = await fetch(getProductsJsonPath(), { cache: "default" });
   if (!res.ok) throw new Error("Could not load products.json");
   const data = await res.json();
   if (!Array.isArray(data)) throw new Error("products.json must be an array");
@@ -1461,6 +1617,8 @@ async function loadProducts() {
           .filter(v => v.size && !Number.isNaN(v.price))
         : [];
 
+      const image = safeText(p.image);
+
       return {
         id: safeText(p.id),
         slug: safeText(p.slug) || safeText(p.id),
@@ -1471,8 +1629,8 @@ async function loadProducts() {
         price: p.price == null ? null : Number(p.price),
         basePrice: p.basePrice == null ? null : Number(p.basePrice),
         variants,
-        image: safeText(p.image),
-        hasPhoto: Boolean(safeText(p.image)),
+        image,
+        hasPhoto: Boolean(image),
         featured: Boolean(p.featured),
         description: safeText(p.description),
         seoTitle: safeText(p.seoTitle),

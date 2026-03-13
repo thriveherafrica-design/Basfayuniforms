@@ -85,6 +85,7 @@ const els = {
 let PRODUCTS = [];
 let state = { color: "", type: "", sort: "featured" };
 let visibleProductCount = INITIAL_VISIBLE_PRODUCTS;
+let revealObserver = null;
 
 const CART_KEY = "basfay_cart_v1";
 const CHECKOUT_STEP_KEY = "basfay_checkout_step_v1";
@@ -290,6 +291,31 @@ function createLoadMoreCard(totalCount, visibleCount) {
 
   wrap.appendChild(btn);
   return wrap;
+}
+
+function initRevealAnimations(scope = document) {
+  if (revealObserver) {
+    revealObserver.disconnect();
+    revealObserver = null;
+  }
+
+  const revealEls = scope.querySelectorAll(".reveal:not(.show)");
+  if (!revealEls.length) return;
+
+  if (!("IntersectionObserver" in window)) {
+    revealEls.forEach(el => el.classList.add("show"));
+    return;
+  }
+
+  revealObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("show");
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.12 });
+
+  revealEls.forEach(el => revealObserver.observe(el));
 }
 
 function toast(msg) {
@@ -1108,6 +1134,8 @@ function renderProducts() {
   if (visible.length < sorted.length) {
     els.productGrid.appendChild(createLoadMoreCard(sorted.length, visible.length));
   }
+
+  initRevealAnimations(els.productGrid);
 }
 
 function applySort(list) {
@@ -1142,7 +1170,7 @@ function applySort(list) {
 
 function productCard(p, index = 0) {
   const wrap = document.createElement("article");
-  wrap.className = "product";
+  wrap.className = "product reveal";
 
   wrap.classList.add(toTypeClass(p.type));
   if (normalize(p.type) === "tracksuit") wrap.classList.add("product-tracksuit");

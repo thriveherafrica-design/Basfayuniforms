@@ -1493,3 +1493,47 @@ input:focus,select:focus{
   object-fit: contain;
   background: #fff;
 }
+
+.card{
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.10);
+}
+
+.card img{
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.card:hover img{
+  transform: scale(1.03);
+}
+
+.btn, .icon-btn{
+  transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.btn:active, .icon-btn:active{
+  transform: scale(0.97);
+}
+
+.reveal{
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.reveal.show{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

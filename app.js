@@ -1,12 +1,12 @@
 /* ============================
    BASFAY Catalog Site
-   Cart + Direct Checkout
+   Step-by-step Checkout
    Product page links via slug
    Dead products auto-filtered
    Safer image loading + lighter mobile rendering
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (DIRECT CHECKOUT + DELIVERY + MPESA)");
+console.log("✅ BASFAY app.js LOADED (STEP CHECKOUT + DIRECT MPESA)");
 
 const CONFIG = {
   currency: "KES",
@@ -56,24 +56,6 @@ const els = {
   cartEmpty: document.getElementById("cartEmpty"),
   clearCart: document.getElementById("clearCart"),
 
-  checkoutBtn: document.getElementById("checkoutBtn"),
-
-  customerName: document.getElementById("customerName"),
-  customerPhone: document.getElementById("customerPhone"),
-  customerEmail: document.getElementById("customerEmail"),
-
-  payRadios: document.querySelectorAll('input[name="payMethod"]'),
-  fulfillmentRadios: document.querySelectorAll('input[name="fulfillmentMethod"]'),
-
-  mpesaBox: document.getElementById("mpesaBox"),
-  cashBox: document.getElementById("cashBox"),
-
-  pickupBox: document.getElementById("pickupBox"),
-  deliveryBox: document.getElementById("deliveryBox"),
-  deliveryArea: document.getElementById("deliveryArea"),
-  deliveryAddress: document.getElementById("deliveryAddress"),
-  deliveryLandmark: document.getElementById("deliveryLandmark"),
-
   orderItems: document.getElementById("orderItems"),
   orderSubtotal: document.getElementById("orderSubtotal"),
   deliveryFeeDisplay: document.getElementById("deliveryFeeDisplay"),
@@ -83,6 +65,48 @@ const els = {
   cartPreviewItems: document.getElementById("cartPreviewItems"),
   cartPreviewSubtotal: document.getElementById("cartPreviewSubtotal"),
   openCartPreview: document.getElementById("openCartPreview"),
+
+  checkoutBtn: document.getElementById("checkoutBtn"),
+  checkoutNextBtn: document.getElementById("checkoutNextBtn"),
+  checkoutBackBtn: document.getElementById("checkoutBackBtn"),
+  checkoutStepTitle: document.getElementById("checkoutStepTitle"),
+  checkoutStepMeta: document.getElementById("checkoutStepMeta"),
+
+  checkoutStep1: document.getElementById("checkoutStep1"),
+  checkoutStep2: document.getElementById("checkoutStep2"),
+  checkoutStep3: document.getElementById("checkoutStep3"),
+  checkoutStep4: document.getElementById("checkoutStep4"),
+
+  fulfillmentRadios: document.querySelectorAll('input[name="fulfillmentMethod"]'),
+  payRadios: document.querySelectorAll('input[name="payMethod"]'),
+
+  pickupBox: document.getElementById("pickupBox"),
+  deliveryBox: document.getElementById("deliveryBox"),
+  deliveryArea: document.getElementById("deliveryArea"),
+  deliveryAddress: document.getElementById("deliveryAddress"),
+  deliveryLandmark: document.getElementById("deliveryLandmark"),
+
+  mpesaBox: document.getElementById("mpesaBox"),
+  cashBox: document.getElementById("cashBox"),
+
+  customerPhone: document.getElementById("customerPhone"),
+  customerName: document.getElementById("customerName"),
+  customerEmail: document.getElementById("customerEmail"),
+
+  phoneStepWrap: document.getElementById("phoneStepWrap"),
+  nameStepWrap: document.getElementById("nameStepWrap"),
+  emailStepWrap: document.getElementById("emailStepWrap"),
+
+  reviewFulfillment: document.getElementById("reviewFulfillment"),
+  reviewPayment: document.getElementById("reviewPayment"),
+  reviewPhoneRow: document.getElementById("reviewPhoneRow"),
+  reviewPhone: document.getElementById("reviewPhone"),
+  reviewAreaRow: document.getElementById("reviewAreaRow"),
+  reviewArea: document.getElementById("reviewArea"),
+  reviewAddressRow: document.getElementById("reviewAddressRow"),
+  reviewAddress: document.getElementById("reviewAddress"),
+  reviewLandmarkRow: document.getElementById("reviewLandmarkRow"),
+  reviewLandmark: document.getElementById("reviewLandmark"),
 
   modal: document.getElementById("modal"),
   modalBackdrop: document.getElementById("modalBackdrop"),
@@ -102,10 +126,11 @@ let PRODUCTS = [];
 let state = { color: "", type: "", sort: "featured" };
 let visibleProductCount = INITIAL_VISIBLE_PRODUCTS;
 let revealObserver = null;
+let checkoutStep = 1;
 
-const CART_KEY = "basfay_cart_v2";
-const LAST_ORDER_ID_KEY = "basfay_last_order_id_v2";
-const LAST_CUSTOMER_PHONE_KEY = "basfay_last_customer_phone_v2";
+const CART_KEY = "basfay_cart_v3";
+const LAST_ORDER_ID_KEY = "basfay_last_order_id_v3";
+const LAST_CUSTOMER_PHONE_KEY = "basfay_last_customer_phone_v3";
 
 const reviewState = {
   currentProductId: "",
@@ -137,7 +162,8 @@ function normalizeKenyanPhone(raw) {
 
   if (phone.startsWith("+254")) return `254${phone.slice(4)}`;
   if (phone.startsWith("254")) return phone;
-  if (phone.startsWith("07") || phone.startsWith("01")) return `254${phone.slice(1)}`;
+  if ((phone.startsWith("07") || phone.startsWith("01")) && phone.length === 10) return `254${phone.slice(1)}`;
+  if ((phone.startsWith("7") || phone.startsWith("1")) && phone.length === 9) return `254${phone}`;
   return phone;
 }
 
@@ -546,7 +572,20 @@ function toggleFulfillmentUI() {
   if (els.pickupBox) els.pickupBox.classList.toggle("is-hidden", isDelivery);
   if (els.deliveryBox) els.deliveryBox.classList.toggle("is-hidden", !isDelivery);
 
+  updateStep3Visibility();
   updateTotalsUI();
+}
+
+function updateStep3Visibility() {
+  const payment = getSelectedPayMethod();
+  const fulfillment = getSelectedFulfillmentMethod();
+
+  const needsPhone = payment === "mpesa" || fulfillment === "delivery";
+
+  if (els.phoneStepWrap) els.phoneStepWrap.classList.toggle("is-hidden", !needsPhone);
+
+  if (els.nameStepWrap) els.nameStepWrap.classList.add("is-hidden");
+  if (els.emailStepWrap) els.emailStepWrap.classList.add("is-hidden");
 }
 
 function updateTotalsUI() {
@@ -561,58 +600,133 @@ function updateTotalsUI() {
 }
 
 function getCheckoutPayload() {
-  const cart = getCart();
-  const customerName = safeText(els.customerName?.value);
-  const rawPhone = cleanPhone(els.customerPhone?.value);
-  const customerPhone = normalizeKenyanPhone(rawPhone);
-  const customerEmail = safeText(els.customerEmail?.value);
-
   const paymentMethod = getSelectedPayMethod();
   const fulfillmentMethod = getSelectedFulfillmentMethod();
 
-  const deliveryArea = fulfillmentMethod === "delivery" ? safeText(els.deliveryArea?.value) : "";
-  const deliveryAddress = fulfillmentMethod === "delivery" ? safeText(els.deliveryAddress?.value) : "";
-  const deliveryLandmark = fulfillmentMethod === "delivery" ? safeText(els.deliveryLandmark?.value) : "";
+  const rawPhone = cleanPhone(els.customerPhone?.value);
+  const customerPhone = normalizeKenyanPhone(rawPhone);
 
-  const subtotal = calcSubtotal();
-  const deliveryFee = getDeliveryFee();
-  const total = subtotal + deliveryFee;
-  const items = buildOrderItemsPayload();
-
-  return {
-    customer_name: customerName,
+  const payload = {
+    customer_name: safeText(els.customerName?.value),
     customer_phone: customerPhone,
-    customer_email: customerEmail,
+    customer_email: safeText(els.customerEmail?.value),
     payment_method: paymentMethod,
     fulfillment_method: fulfillmentMethod,
     pickup_location: fulfillmentMethod === "pickup" ? CONFIG.pickup : "",
-    delivery_area: deliveryArea,
-    delivery_address: deliveryAddress,
-    delivery_landmark: deliveryLandmark,
-    subtotal_kes: Math.round(subtotal),
-    delivery_fee_kes: Math.round(deliveryFee),
-    total_kes: Math.round(total),
+    delivery_area: fulfillmentMethod === "delivery" ? safeText(els.deliveryArea?.value) : "",
+    delivery_address: fulfillmentMethod === "delivery" ? safeText(els.deliveryAddress?.value) : "",
+    delivery_landmark: fulfillmentMethod === "delivery" ? safeText(els.deliveryLandmark?.value) : "",
+    subtotal_kes: Math.round(calcSubtotal()),
+    delivery_fee_kes: Math.round(getDeliveryFee()),
+    total_kes: Math.round(calcOrderTotal()),
     currency: CONFIG.currency,
     status: paymentMethod === "cash" ? "cash_pending" : "pending_payment",
-    items
+    items: buildOrderItemsPayload()
   };
+
+  return payload;
 }
 
-function validateCheckoutPayload(payload) {
-  if (!payload.items.length) return "No items in cart.";
-  if (!payload.customer_name) return "Please enter full name.";
-  if (!payload.customer_phone || payload.customer_phone.length < 12) return "Please enter a valid Kenyan phone number.";
+function validateStep(step) {
+  const cart = getCart();
+  if (!cart.length) return "No items in cart.";
 
-  if (payload.payment_method === "mpesa" && !/^254(7|1)\d{8}$/.test(payload.customer_phone)) {
-    return "For M-Pesa, enter a valid Safaricom-format number like 07... or 01...";
+  const fulfillment = getSelectedFulfillmentMethod();
+  const payment = getSelectedPayMethod();
+  const phone = normalizeKenyanPhone(cleanPhone(els.customerPhone?.value));
+
+  if (step === 1) {
+    if (fulfillment === "delivery") {
+      if (!safeText(els.deliveryArea?.value)) return "Please select a delivery area.";
+      if (!safeText(els.deliveryAddress?.value)) return "Please enter the delivery location.";
+    }
   }
 
-  if (payload.fulfillment_method === "delivery") {
-    if (!payload.delivery_area) return "Please select a delivery area.";
-    if (!payload.delivery_address) return "Please enter the delivery address.";
+  if (step === 2) {
+    if (!payment) return "Please select a payment method.";
+  }
+
+  if (step === 3) {
+    const needsPhone = payment === "mpesa" || fulfillment === "delivery";
+    if (needsPhone) {
+      if (!phone) return "Please enter your phone number.";
+      if (phone.length < 12) return "Please enter a valid Kenyan phone number.";
+    }
+    if (payment === "mpesa" && !/^254(7|1)\d{8}$/.test(phone)) {
+      return "For M-Pesa, use a valid number like 07... or 01...";
+    }
   }
 
   return "";
+}
+
+function updateReviewStep() {
+  const fulfillment = getSelectedFulfillmentMethod();
+  const payment = getSelectedPayMethod();
+  const phone = normalizeKenyanPhone(cleanPhone(els.customerPhone?.value));
+  const area = safeText(els.deliveryArea?.value);
+  const address = safeText(els.deliveryAddress?.value);
+  const landmark = safeText(els.deliveryLandmark?.value);
+
+  if (els.reviewFulfillment) {
+    els.reviewFulfillment.textContent = fulfillment === "delivery" ? "Delivery" : "Pickup";
+  }
+
+  if (els.reviewPayment) {
+    els.reviewPayment.textContent = payment === "mpesa" ? "M-Pesa" : "Cash";
+  }
+
+  const showPhone = Boolean(phone);
+  if (els.reviewPhoneRow) els.reviewPhoneRow.classList.toggle("is-hidden", !showPhone);
+  if (els.reviewPhone) els.reviewPhone.textContent = phone || "-";
+
+  const showArea = fulfillment === "delivery" && Boolean(area);
+  if (els.reviewAreaRow) els.reviewAreaRow.classList.toggle("is-hidden", !showArea);
+  if (els.reviewArea) els.reviewArea.textContent = area || "-";
+
+  const showAddress = fulfillment === "delivery" && Boolean(address);
+  if (els.reviewAddressRow) els.reviewAddressRow.classList.toggle("is-hidden", !showAddress);
+  if (els.reviewAddress) els.reviewAddress.textContent = address || "-";
+
+  const showLandmark = fulfillment === "delivery" && Boolean(landmark);
+  if (els.reviewLandmarkRow) els.reviewLandmarkRow.classList.toggle("is-hidden", !showLandmark);
+  if (els.reviewLandmark) els.reviewLandmark.textContent = landmark || "-";
+}
+
+function showCheckoutStep(step) {
+  checkoutStep = Math.max(1, Math.min(4, Number(step) || 1));
+
+  const steps = [
+    els.checkoutStep1,
+    els.checkoutStep2,
+    els.checkoutStep3,
+    els.checkoutStep4
+  ];
+
+  steps.forEach((el, index) => {
+    const show = index === checkoutStep - 1;
+    if (!el) return;
+    el.hidden = !show;
+    el.classList.toggle("is-hidden", !show);
+  });
+
+  const titles = {
+    1: "How should we send your order?",
+    2: "How would you like to pay?",
+    3: "Final details",
+    4: "Review your order"
+  };
+
+  if (els.checkoutStepTitle) els.checkoutStepTitle.textContent = titles[checkoutStep] || "Checkout";
+  if (els.checkoutStepMeta) els.checkoutStepMeta.textContent = `Step ${checkoutStep} of 4`;
+
+  if (els.checkoutBackBtn) els.checkoutBackBtn.classList.toggle("is-hidden", checkoutStep === 1);
+  if (els.checkoutNextBtn) els.checkoutNextBtn.classList.toggle("is-hidden", checkoutStep === 4);
+  if (els.checkoutBtn) els.checkoutBtn.classList.toggle("is-hidden", checkoutStep !== 4);
+
+  if (checkoutStep === 4) updateReviewStep();
+  updateStep3Visibility();
+  updateTotalsUI();
 }
 
 /* Drawer order list */
@@ -1365,8 +1479,13 @@ function productCard(p, index = 0) {
 }
 
 /* Drawer / modal */
-function openDrawer() { els.drawer?.setAttribute("aria-hidden", "false"); }
-function closeDrawer() { els.drawer?.setAttribute("aria-hidden", "true"); }
+function openDrawer() {
+  els.drawer?.setAttribute("aria-hidden", "false");
+  showCheckoutStep(1);
+}
+function closeDrawer() {
+  els.drawer?.setAttribute("aria-hidden", "true");
+}
 
 function bindModal() {
   els.closeModal?.addEventListener("click", () => {
@@ -1506,38 +1625,76 @@ function bindCart() {
 
   els.clearCart?.addEventListener("click", () => {
     setCart([]);
+    showCheckoutStep(1);
   });
 
   togglePaymentUI();
   toggleFulfillmentUI();
+  updateStep3Visibility();
   updateTotalsUI();
 
   (els.payRadios || []).forEach(r => {
     r.addEventListener("change", () => {
       togglePaymentUI();
+      updateStep3Visibility();
+      updateReviewStep();
     });
   });
 
   (els.fulfillmentRadios || []).forEach(r => {
     r.addEventListener("change", () => {
       toggleFulfillmentUI();
+      updateReviewStep();
     });
   });
 
-  els.deliveryArea?.addEventListener("change", updateTotalsUI);
+  els.deliveryArea?.addEventListener("change", () => {
+    updateTotalsUI();
+    updateReviewStep();
+  });
+
+  els.deliveryAddress?.addEventListener("input", updateReviewStep);
+  els.deliveryLandmark?.addEventListener("input", updateReviewStep);
+  els.customerPhone?.addEventListener("input", updateReviewStep);
+
+  els.checkoutNextBtn?.addEventListener("click", () => {
+    const err = validateStep(checkoutStep);
+    if (err) {
+      alert(err);
+      return;
+    }
+    showCheckoutStep(checkoutStep + 1);
+  });
+
+  els.checkoutBackBtn?.addEventListener("click", () => {
+    showCheckoutStep(checkoutStep - 1);
+  });
 
   els.checkoutBtn?.addEventListener("click", async (e) => {
     e.preventDefault();
 
-    const payload = getCheckoutPayload();
-    const validationError = validateCheckoutPayload(payload);
-
-    if (validationError) {
-      alert(validationError);
+    const err = validateStep(3);
+    if (err) {
+      alert(err);
+      showCheckoutStep(3);
       return;
     }
 
-    localStorage.setItem(LAST_CUSTOMER_PHONE_KEY, payload.customer_phone);
+    const payload = {
+      ...getCheckoutPayload(),
+      note: getSelectedFulfillmentMethod() === "pickup"
+        ? `Pickup at ${CONFIG.pickup} | Payment: ${getSelectedPayMethod()}`
+        : `Delivery to ${safeText(els.deliveryArea?.value)} | Payment: ${getSelectedPayMethod()}`
+    };
+
+    if (!payload.items.length) {
+      alert("No items in cart.");
+      return;
+    }
+
+    if (payload.customer_phone) {
+      localStorage.setItem(LAST_CUSTOMER_PHONE_KEY, payload.customer_phone);
+    }
 
     const originalBtnText = els.checkoutBtn.textContent;
     els.checkoutBtn.disabled = true;
@@ -1560,6 +1717,7 @@ function bindCart() {
 
         setCart([]);
         closeDrawer();
+        showCheckoutStep(1);
         return;
       }
 
@@ -1581,9 +1739,10 @@ function bindCart() {
 
       setCart([]);
       closeDrawer();
-    } catch (err) {
-      console.error("Checkout error:", err);
-      alert(err.message || "Could not place order.");
+      showCheckoutStep(1);
+    } catch (err2) {
+      console.error("Checkout error:", err2);
+      alert(err2.message || "Could not place order.");
     } finally {
       els.checkoutBtn.disabled = false;
       els.checkoutBtn.textContent = originalBtnText;
@@ -1644,6 +1803,7 @@ async function loadProducts() {
     resetVisibleProducts();
     renderProducts();
     refreshAllCartUIs();
+    showCheckoutStep(1);
 
     window.addEventListener("storage", refreshAllCartUIs);
   } catch (err) {

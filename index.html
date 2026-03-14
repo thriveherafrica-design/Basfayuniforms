@@ -80,7 +80,6 @@
         border-bottom: 1px solid rgba(30, 136, 229, 0.22) !important;
       }
 
-      /* Header layout helpers */
       .header-left{
         display:flex;
         align-items:center;
@@ -95,7 +94,6 @@
         flex: 0 0 auto;
       }
 
-      /* ✅ Desktop Shop/Contact (only on desktop) */
       .header-quicklinks{
         display:none;
         align-items:center;
@@ -120,7 +118,6 @@
         .header-quicklinks{ display:flex; }
       }
 
-      /* Hamburger (match cart vibe) */
       #menuBtn.header-menu{
         position: relative;
         display:inline-flex;
@@ -136,7 +133,6 @@
       }
       #menuBtn.header-menu svg{ width:20px; height:20px; }
 
-      /* Top auth pill */
       #authBtn{
         border:1px solid rgba(30, 136, 229, 0.22);
         background: rgba(30, 136, 229, 0.08);
@@ -156,7 +152,6 @@
         text-overflow:ellipsis;
       }
 
-      /* Cart icon in header */
       .header-cart{
         position: relative;
         display:inline-flex;
@@ -189,7 +184,6 @@
         border: 2px solid rgba(255,255,255,0.9);
       }
 
-      /* HERO */
       .brand-hero .brand-logo {
         width: 56px !important;
         height: 56px !important;
@@ -281,7 +275,6 @@
       .auth-row{ display:flex; gap:10px; flex-wrap:wrap; }
       .auth-row .btn{ flex: 1 1 auto; }
 
-      /* ✅ FORCE Sign in visible on phone */
       @media (max-width: 768px){
         .header .container.header-inner{
           display:flex !important;
@@ -387,7 +380,6 @@
         }
       }
 
-      /* ✅ FULL-WIDTH NAVY FOOTER */
       .site-footer{
         margin-top: 38px;
         padding: 0;
@@ -423,27 +415,6 @@
         line-height: 1.75;
         font-size: 14.5px;
         max-width: 760px;
-      }
-
-      .site-footer .footer-meta{
-        display:flex;
-        flex-wrap:wrap;
-        gap:10px;
-        margin-top: 16px;
-      }
-
-      .site-footer .footer-chip{
-        display:inline-flex;
-        align-items:center;
-        gap:8px;
-        border-radius: 999px;
-        padding: 8px 12px;
-        text-decoration:none;
-        color:#ffffff;
-        background: rgba(255,255,255,0.08);
-        border:1px solid rgba(255,255,255,0.14);
-        font-weight:800;
-        font-size:13px;
       }
 
       .site-footer .footer-social{
@@ -577,7 +548,6 @@
         font-size:13px;
       }
 
-      /* ✅ product page support */
       #modalViewDetails{
         display:inline-flex;
         align-items:center;
@@ -597,7 +567,6 @@
         }
       }
 
-      /* ✅ keep 2 blocks on phone */
       @media (max-width: 700px){
         .site-footer .footer-shell{
           padding: 24px 0 22px;
@@ -615,7 +584,6 @@
         }
       }
 
-      /* only collapse to 1 column on very tiny phones */
       @media (max-width: 380px){
         .site-footer .footer-links-wrap,
         .site-footer .footer-detail-grid{
@@ -644,14 +612,12 @@
       }
     </style>
 
-    <!-- cache bust -->
     <link rel="stylesheet" href="./styles.css?v=20260312-02" />
   </head>
 
   <body data-product-page-base="/product.html?slug=" data-products-json="/products.json">
     <a class="skip" href="#main">Skip to content</a>
 
-    <!-- Header -->
     <header
       class="header"
       style="
@@ -674,7 +640,6 @@
           flex-wrap: nowrap;
         "
       >
-        <!-- LEFT: hamburger + brand text (NO header logo) -->
         <div class="header-left">
           <button id="menuBtn" class="header-menu" type="button" aria-label="Menu">
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -714,7 +679,6 @@
           </a>
         </div>
 
-        <!-- RIGHT: desktop Shop/Contact + Sign in + Cart -->
         <div class="header-right" aria-label="Header actions">
           <nav class="header-quicklinks" aria-label="Quick links">
             <a class="header-link" href="#shop">Shop</a>
@@ -737,7 +701,6 @@
     </header>
 
     <main id="main">
-      <!-- Brand hero -->
       <section class="brand-hero" aria-label="BASFAY brand banner">
         <div class="container brand-hero-inner">
           <div class="brand-badge">
@@ -758,7 +721,6 @@
         </div>
       </section>
 
-      <!-- Shop -->
       <section class="section" id="shop">
         <div class="container">
           <div class="section-head">
@@ -766,7 +728,6 @@
             <p class="muted">Select size, add to order, or open full item details.</p>
           </div>
 
-          <!-- Top toolbar -->
           <div class="card soft" style="margin-bottom: 16px;">
             <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:end; justify-content:space-between;">
               <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:end;">
@@ -840,7 +801,6 @@
       </section>
     </main>
 
-    <!-- ✅ FOOTER / BOTTOM PART -->
     <footer class="site-footer" id="contact" aria-label="Footer">
       <div class="container">
         <div class="footer-shell">
@@ -984,14 +944,17 @@
     </footer>
 
     <!-- =========================
-         ✅ CART DRAWER (UPDATED FOR REAL CHECKOUT)
+         ✅ STEP-BY-STEP CART DRAWER
     ========================== -->
     <div class="drawer" id="drawer" aria-hidden="true">
       <div class="drawer-backdrop" id="drawerBackdrop"></div>
 
       <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Checkout">
         <div class="drawer-head">
-          <h3>Your order</h3>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <h3 id="checkoutStepTitle">Your order</h3>
+            <div class="muted" id="checkoutStepMeta" style="font-size:12px;">Step 1 of 4</div>
+          </div>
           <button class="icon-btn" id="closeDrawer" aria-label="Close checkout" type="button">✕</button>
         </div>
 
@@ -1019,118 +982,206 @@
             <p><strong>No items yet.</strong></p>
             <p class="muted">Add products from the catalog.</p>
           </div>
+
+          <!-- STEP 1 -->
+          <section id="checkoutStep1" class="checkout-step">
+            <div class="card soft pay-card">
+              <div class="pay-title">How would you like to receive your order?</div>
+
+              <div class="pay-options" style="display:grid;gap:12px;">
+                <label class="pay-opt" style="display:flex;align-items:flex-start;gap:12px;">
+                  <input type="radio" name="fulfillmentMethod" value="pickup" checked />
+                  <span>
+                    <strong>Pickup</strong><br />
+                    <span class="muted">Collect from Kangemi</span>
+                  </span>
+                </label>
+
+                <label class="pay-opt" style="display:flex;align-items:flex-start;gap:12px;">
+                  <input type="radio" name="fulfillmentMethod" value="delivery" />
+                  <span>
+                    <strong>Delivery</strong><br />
+                    <span class="muted">Delivered within Nairobi</span>
+                  </span>
+                </label>
+              </div>
+
+              <div id="pickupBox" class="checkout-field" style="margin-top:14px;">
+                <div class="muted">Pickup location: <strong>Kangemi</strong></div>
+              </div>
+
+              <div id="deliveryBox" class="is-hidden" style="margin-top:14px;">
+                <div class="checkout-field">
+                  <label for="deliveryArea">Delivery Area</label>
+                  <select id="deliveryArea">
+                    <option value="">Select delivery area</option>
+                    <option value="Kangemi">Kangemi</option>
+                    <option value="Westlands">Westlands</option>
+                    <option value="Waiyaki Way">Waiyaki Way</option>
+                    <option value="CBD">CBD</option>
+                    <option value="Kilimani">Kilimani</option>
+                    <option value="Ngong Road">Ngong Road</option>
+                    <option value="Kasarani">Kasarani</option>
+                    <option value="Embakasi">Embakasi</option>
+                  </select>
+                </div>
+
+                <div class="checkout-field">
+                  <label for="deliveryAddress">Exact Delivery Location</label>
+                  <textarea
+                    id="deliveryAddress"
+                    rows="3"
+                    placeholder="Estate, apartment/shop, stage, street, or clear directions"
+                  ></textarea>
+                </div>
+
+                <div class="checkout-field">
+                  <label for="deliveryLandmark">Landmark (Optional)</label>
+                  <input
+                    type="text"
+                    id="deliveryLandmark"
+                    placeholder="Nearby school, church, mall, stage, etc."
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- STEP 2 -->
+          <section id="checkoutStep2" class="checkout-step is-hidden" hidden>
+            <div class="card soft pay-card">
+              <div class="pay-title">How would you like to pay?</div>
+
+              <div class="pay-options" style="display:grid;gap:12px;">
+                <label class="pay-opt" style="display:flex;align-items:flex-start;gap:12px;">
+                  <input type="radio" name="payMethod" value="mpesa" checked />
+                  <span>
+                    <strong>M-Pesa</strong><br />
+                    <span class="muted">Pay with STK Push on your phone</span>
+                  </span>
+                </label>
+
+                <label class="pay-opt" style="display:flex;align-items:flex-start;gap:12px;">
+                  <input type="radio" name="payMethod" value="cash" />
+                  <span>
+                    <strong>Cash</strong><br />
+                    <span class="muted">Pay on pickup or delivery</span>
+                  </span>
+                </label>
+              </div>
+
+              <div id="mpesaBox" class="checkout-field" style="margin-top:14px;">
+                <div class="muted">
+                  You will receive an M-Pesa prompt on your phone after placing the order.
+                </div>
+              </div>
+
+              <div id="cashBox" class="checkout-field is-hidden" style="margin-top:14px;">
+                <div class="muted">
+                  You will pay by cash when collecting your order or when it is delivered.
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- STEP 3 -->
+          <section id="checkoutStep3" class="checkout-step is-hidden" hidden>
+            <div class="card soft pay-card">
+              <div class="pay-title">Final details</div>
+
+              <div id="phoneStepWrap" class="checkout-field">
+                <label for="customerPhone">Phone Number</label>
+                <input
+                  type="tel"
+                  id="customerPhone"
+                  placeholder="07XXXXXXXX"
+                  inputmode="tel"
+                  autocomplete="tel"
+                />
+                <div class="muted" style="margin-top:8px;font-size:12px;">
+                  For M-Pesa, use the number that should receive the STK prompt.
+                </div>
+              </div>
+
+              <div id="nameStepWrap" class="checkout-field is-hidden">
+                <label for="customerName">Name (Optional)</label>
+                <input
+                  type="text"
+                  id="customerName"
+                  placeholder="Enter your name"
+                  autocomplete="name"
+                />
+              </div>
+
+              <div id="emailStepWrap" class="checkout-field is-hidden">
+                <label for="customerEmail">Email (Optional)</label>
+                <input
+                  type="email"
+                  id="customerEmail"
+                  placeholder="you@example.com"
+                  autocomplete="email"
+                />
+              </div>
+            </div>
+          </section>
+
+          <!-- STEP 4 -->
+          <section id="checkoutStep4" class="checkout-step is-hidden" hidden>
+            <div class="card soft pay-card">
+              <div class="pay-title">Review order</div>
+
+              <div style="display:grid;gap:12px;">
+                <div class="row">
+                  <span>Receive order</span>
+                  <strong id="reviewFulfillment">Pickup</strong>
+                </div>
+
+                <div class="row">
+                  <span>Payment</span>
+                  <strong id="reviewPayment">M-Pesa</strong>
+                </div>
+
+                <div class="row is-hidden" id="reviewPhoneRow">
+                  <span>Phone</span>
+                  <strong id="reviewPhone">-</strong>
+                </div>
+
+                <div class="row is-hidden" id="reviewAreaRow">
+                  <span>Delivery Area</span>
+                  <strong id="reviewArea">-</strong>
+                </div>
+
+                <div class="row is-hidden" id="reviewAddressRow" style="align-items:flex-start;">
+                  <span>Location</span>
+                  <strong id="reviewAddress" style="text-align:right;max-width:65%;">-</strong>
+                </div>
+
+                <div class="row is-hidden" id="reviewLandmarkRow" style="align-items:flex-start;">
+                  <span>Landmark</span>
+                  <strong id="reviewLandmark" style="text-align:right;max-width:65%;">-</strong>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
 
         <div class="drawer-foot">
           <div class="cart-note muted">Size included.</div>
 
-          <div class="card soft pay-card">
-            <div class="pay-title">Customer Details</div>
-
-            <div class="checkout-field">
-              <label for="customerName">Full Name</label>
-              <input type="text" id="customerName" placeholder="Enter full name" autocomplete="name" />
+          <div style="display:grid;gap:10px;">
+            <div id="stepNavWrap" style="display:flex;gap:10px;">
+              <button class="btn ghost full is-hidden" id="checkoutBackBtn" type="button">Back</button>
+              <button class="btn primary full" id="checkoutNextBtn" type="button">Continue</button>
             </div>
 
-            <div class="checkout-field">
-              <label for="customerPhone">Phone Number</label>
-              <input type="tel" id="customerPhone" placeholder="07XXXXXXXX" inputmode="tel" autocomplete="tel" />
-            </div>
-
-            <div class="checkout-field">
-              <label for="customerEmail">Email (Optional)</label>
-              <input type="email" id="customerEmail" placeholder="you@example.com" autocomplete="email" />
-            </div>
-
-            <div class="muted pay-help">Use an active number. For M-Pesa, this should be the number to receive the STK prompt.</div>
+            <button class="btn primary full is-hidden" id="checkoutBtn" type="button">Place Order</button>
+            <button class="btn ghost full" id="clearCart" type="button">Clear</button>
           </div>
-
-          <div class="card soft pay-card">
-            <div class="pay-title">Fulfilment</div>
-
-            <div class="pay-options">
-              <label class="pay-opt">
-                <input type="radio" name="fulfillmentMethod" value="pickup" checked />
-                <span><strong>Pickup</strong> (Kangemi)</span>
-              </label>
-
-              <label class="pay-opt">
-                <input type="radio" name="fulfillmentMethod" value="delivery" />
-                <span><strong>Delivery</strong> (Within Nairobi)</span>
-              </label>
-            </div>
-
-            <div id="pickupBox" class="checkout-field">
-              <div class="muted">
-                Pickup location: <strong>Kangemi</strong>
-              </div>
-            </div>
-
-            <div id="deliveryBox" class="is-hidden">
-              <div class="checkout-field">
-                <label for="deliveryArea">Delivery Area</label>
-                <select id="deliveryArea">
-                  <option value="">Select delivery area</option>
-                  <option value="Kangemi">Kangemi</option>
-                  <option value="Westlands">Westlands</option>
-                  <option value="Waiyaki Way">Waiyaki Way</option>
-                  <option value="CBD">CBD</option>
-                  <option value="Kilimani">Kilimani</option>
-                  <option value="Ngong Road">Ngong Road</option>
-                  <option value="Kasarani">Kasarani</option>
-                  <option value="Embakasi">Embakasi</option>
-                </select>
-              </div>
-
-              <div class="checkout-field">
-                <label for="deliveryAddress">Exact Delivery Address</label>
-                <textarea id="deliveryAddress" rows="3" placeholder="Estate, building, house/shop number, floor, street, or any clear directions"></textarea>
-              </div>
-
-              <div class="checkout-field">
-                <label for="deliveryLandmark">Landmark (Optional)</label>
-                <input type="text" id="deliveryLandmark" placeholder="Nearest stage, school, church, mall, etc." />
-              </div>
-            </div>
-          </div>
-
-          <div class="card soft pay-card">
-            <div class="pay-title">Payment</div>
-
-            <div class="pay-options">
-              <label class="pay-opt">
-                <input type="radio" name="payMethod" value="mpesa" checked />
-                <span><strong>M-Pesa</strong> (STK Push)</span>
-              </label>
-
-              <label class="pay-opt">
-                <input type="radio" name="payMethod" value="cash" />
-                <span><strong>Cash</strong> (On pickup / delivery)</span>
-              </label>
-            </div>
-
-            <div id="mpesaBox" class="checkout-field">
-              <div class="muted" style="margin-bottom:10px;">
-                When you place the order, an M-Pesa STK prompt will be sent to the phone number entered above.
-              </div>
-            </div>
-
-            <div id="cashBox" class="checkout-field is-hidden">
-              <div class="muted" style="margin-bottom:10px;">
-                You will pay by cash when collecting your order or when it is delivered.
-              </div>
-            </div>
-          </div>
-
-          <button class="btn primary full" id="checkoutBtn" type="button">Place Order</button>
-          <button class="btn ghost full" id="clearCart" type="button">Clear</button>
         </div>
       </div>
     </div>
 
-    <!-- =========================
-         ✅ PRODUCT MODAL (REQUIRED)
-    ========================== -->
+    <!-- PRODUCT MODAL -->
     <div class="modal" id="modal" aria-hidden="true">
       <div class="modal-backdrop" id="modalBackdrop"></div>
       <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Product details">
@@ -1163,9 +1214,7 @@
       </div>
     </div>
 
-    <!-- =========================
-         ✅ AUTH MODAL (email+password + Google)
-    ========================== -->
+    <!-- AUTH MODAL -->
     <div class="modal" id="authModal" aria-hidden="true">
       <div class="modal-backdrop" id="authBackdrop"></div>
       <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Account">
@@ -1199,9 +1248,7 @@
       </div>
     </div>
 
-    <!-- =========================
-         ✅ MENU MODAL (hamburger)
-    ========================== -->
+    <!-- MENU MODAL -->
     <div class="modal" id="menuModal" aria-hidden="true">
       <div class="modal-backdrop" id="menuBackdrop"></div>
       <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Menu">
@@ -1231,9 +1278,7 @@
       </div>
     </div>
 
-    <!-- =========================
-         ✅ ORDERS MODAL
-    ========================== -->
+    <!-- ORDERS MODAL -->
     <div class="modal" id="ordersModal" aria-hidden="true">
       <div class="modal-backdrop" id="ordersBackdrop"></div>
       <div class="modal-panel" role="dialog" aria-modal="true" aria-label="My orders">
@@ -1279,13 +1324,11 @@
       </div>
     </div>
 
-    <!-- ✅ product page support config -->
     <script>
       window.BASFAY_PRODUCT_PAGE_BASE = "/product.html?slug=";
       window.BASFAY_PRODUCTS_JSON = "/products.json";
     </script>
 
-    <!-- ✅ MAIN APP -->
     <script src="./app.js?v=20260312-02" defer></script>
 
     <!--Start of Tawk.to Script-->
@@ -1302,12 +1345,10 @@
     </script>
     <!--End of Tawk.to Script-->
 
-    <!-- ✅ AUTH + MENU + ORDERS -->
     <script>
       (function () {
         const $ = (id) => document.getElementById(id);
 
-        // Auth elements
         const authBtn = $("authBtn");
         const authModal = $("authModal");
         const authBackdrop = $("authBackdrop");
@@ -1322,7 +1363,6 @@
         const logoutBtn = $("logoutBtn");
         const authMsg = $("authMsg");
 
-        // Menu elements
         const menuBtn = $("menuBtn");
         const menuModal = $("menuModal");
         const menuBackdrop = $("menuBackdrop");
@@ -1333,7 +1373,6 @@
         const menuReturnsBtn = $("menuReturnsBtn");
         const menuChatBtn = $("menuChatBtn");
 
-        // Orders elements
         const ordersModal = $("ordersModal");
         const ordersBackdrop = $("ordersBackdrop");
         const ordersClose = $("ordersClose");
@@ -1482,7 +1521,6 @@
           }
         }
 
-        // Auth bindings
         authBtn?.addEventListener("click", openAuth);
         authBackdrop?.addEventListener("click", closeAuth);
         authClose?.addEventListener("click", closeAuth);
@@ -1529,7 +1567,6 @@
           }
         });
 
-        // Menu bindings
         menuBtn?.addEventListener("click", openMenu);
         menuBackdrop?.addEventListener("click", closeMenu);
         menuClose?.addEventListener("click", closeMenu);
@@ -1556,7 +1593,6 @@
           window.open(waLink("Hi Basfay Uniforms, I need help."), "_blank", "noopener,noreferrer");
         });
 
-        // Orders bindings
         ordersBackdrop?.addEventListener("click", closeOrders);
         ordersClose?.addEventListener("click", closeOrders);
 

@@ -3,7 +3,7 @@ function normalizePhone(phone) {
 
   if (digits.startsWith("254") && digits.length === 12) return digits;
   if (digits.startsWith("0") && digits.length === 10) return "254" + digits.slice(1);
-  if (digits.startsWith("7") && digits.length === 9) return "254" + digits;
+  if ((digits.startsWith("7") || digits.startsWith("1")) && digits.length === 9) return "254" + digits;
 
   throw new Error("Phone number must look like 0712345678 or 254712345678");
 }
@@ -63,7 +63,6 @@ export async function onRequest(context) {
   try {
     const { request, env } = context;
 
-    // Temporary: allow GET for quick testing from browser
     let phone, amount, accountReference, transactionDesc;
 
     if (request.method === "GET") {
@@ -75,9 +74,9 @@ export async function onRequest(context) {
     } else if (request.method === "POST") {
       const body = await request.json();
       phone = body.phone;
-      amount = body.amount || "1";
-      accountReference = body.reference || "BASFAYTEST";
-      transactionDesc = body.desc || "BASFAY Test Payment";
+      amount = body.amount_kes || body.amount || "1";
+      accountReference = body.account_reference || body.reference || body.order_id || "BASFAYTEST";
+      transactionDesc = body.transaction_desc || body.desc || "BASFAY Test Payment";
     } else {
       return new Response(
         JSON.stringify({ ok: false, error: "Use GET or POST" }),
@@ -105,6 +104,7 @@ export async function onRequest(context) {
     const cleanPhone = normalizePhone(phone);
     const timestamp = getKenyaTimestamp();
     const password = btoa(`${shortcode}${passkey}${timestamp}`);
+    const finalAmount = Math.max(1, Math.round(Number(amount) || 0));
 
     const { token, baseUrl } = await getAccessToken(env);
 
@@ -113,7 +113,7 @@ export async function onRequest(context) {
       Password: password,
       Timestamp: timestamp,
       TransactionType: "CustomerPayBillOnline",
-      Amount: String(amount),
+      Amount: finalAmount,
       PartyA: cleanPhone,
       PartyB: shortcode,
       PhoneNumber: cleanPhone,
@@ -157,4 +157,4 @@ export async function onRequest(context) {
       }
     );
   }
-    }
+}

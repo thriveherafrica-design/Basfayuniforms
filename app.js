@@ -1,24 +1,32 @@
 /* ============================
    BASFAY Catalog Site
-   Cart + Two-step Checkout
+   Cart + Direct Checkout
    Product page links via slug
    Dead products auto-filtered
    Safer image loading + lighter mobile rendering
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (SAFE IMAGES + MOBILE FIX)");
+console.log("✅ BASFAY app.js LOADED (DIRECT CHECKOUT + DELIVERY + MPESA)");
 
 const CONFIG = {
   currency: "KES",
   pickup: "Kangemi",
-  whatsappNumber: "254119667836",
   businessName: "BASFAY Uniforms",
-  tillNumberPlaceholder: "XXXX",
   turnstileSiteKey: "0x4AAAAAACnvQa10Y55LL_Rg",
 
-  // ✅ review endpoints
   reviewsListEndpoint: "/api/reviews",
   reviewSubmitEndpoint: "/api/reviews/submit",
+
+  deliveryAreas: {
+    "Kangemi": 100,
+    "Westlands": 200,
+    "Waiyaki Way": 150,
+    "CBD": 250,
+    "Kilimani": 250,
+    "Ngong Road": 250,
+    "Kasarani": 350,
+    "Embakasi": 350
+  }
 };
 
 const FUTURE_CATEGORIES = [
@@ -49,19 +57,27 @@ const els = {
   clearCart: document.getElementById("clearCart"),
 
   checkoutBtn: document.getElementById("checkoutBtn"),
+
+  customerName: document.getElementById("customerName"),
   customerPhone: document.getElementById("customerPhone"),
+  customerEmail: document.getElementById("customerEmail"),
 
   payRadios: document.querySelectorAll('input[name="payMethod"]'),
+  fulfillmentRadios: document.querySelectorAll('input[name="fulfillmentMethod"]'),
 
   mpesaBox: document.getElementById("mpesaBox"),
-  mpesaCodeWrap: document.getElementById("mpesaCodeWrap"),
+  cashBox: document.getElementById("cashBox"),
 
-  tillNumberUI: document.getElementById("tillNumberUI"),
-  copyTillBtn: document.getElementById("copyTillBtn"),
-  copyAmountBtn: document.getElementById("copyAmountBtn"),
+  pickupBox: document.getElementById("pickupBox"),
+  deliveryBox: document.getElementById("deliveryBox"),
+  deliveryArea: document.getElementById("deliveryArea"),
+  deliveryAddress: document.getElementById("deliveryAddress"),
+  deliveryLandmark: document.getElementById("deliveryLandmark"),
 
   orderItems: document.getElementById("orderItems"),
   orderSubtotal: document.getElementById("orderSubtotal"),
+  deliveryFeeDisplay: document.getElementById("deliveryFeeDisplay"),
+  orderTotal: document.getElementById("orderTotal"),
 
   cartPreviewCount: document.getElementById("cartPreviewCount"),
   cartPreviewItems: document.getElementById("cartPreviewItems"),
@@ -87,11 +103,9 @@ let state = { color: "", type: "", sort: "featured" };
 let visibleProductCount = INITIAL_VISIBLE_PRODUCTS;
 let revealObserver = null;
 
-const CART_KEY = "basfay_cart_v1";
-const CHECKOUT_STEP_KEY = "basfay_checkout_step_v1";
-const PENDING_ORDER_ID_KEY = "basfay_pending_order_id_v1";
-const LAST_ORDER_ID_KEY = "basfay_last_order_id_v1";
-const LAST_CUSTOMER_PHONE_KEY = "basfay_last_customer_phone_v1";
+const CART_KEY = "basfay_cart_v2";
+const LAST_ORDER_ID_KEY = "basfay_last_order_id_v2";
+const LAST_CUSTOMER_PHONE_KEY = "basfay_last_customer_phone_v2";
 
 const reviewState = {
   currentProductId: "",
@@ -116,6 +130,16 @@ function toTypeClass(type) {
 }
 
 function cleanPhone(raw) { return safeText(raw).replace(/[^\d+]/g, ""); }
+
+function normalizeKenyanPhone(raw) {
+  let phone = cleanPhone(raw);
+  if (!phone) return "";
+
+  if (phone.startsWith("+254")) return `254${phone.slice(4)}`;
+  if (phone.startsWith("254")) return phone;
+  if (phone.startsWith("07") || phone.startsWith("01")) return `254${phone.slice(1)}`;
+  return phone;
+}
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -334,22 +358,7 @@ function toast(msg) {
   t.style.maxWidth = "90vw";
   t.style.textAlign = "center";
   document.body.appendChild(t);
-  setTimeout(() => t.remove(), 1600);
-}
-
-async function copyToClipboard(text) {
-  try {
-    await navigator.clipboard.writeText(String(text));
-    toast("Copied ✅");
-  } catch {
-    const ta = document.createElement("textarea");
-    ta.value = String(text);
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand("copy");
-    ta.remove();
-    toast("Copied ✅");
-  }
+  setTimeout(() => t.remove(), 1800);
 }
 
 async function apiGetJson(url) {
@@ -419,16 +428,6 @@ async function announceOrderId(orderId) {
   }
 }
 
-/* Checkout step */
-function getCheckoutStep() {
-  const s = safeText(localStorage.getItem(CHECKOUT_STEP_KEY));
-  return s === "checkout" ? "checkout" : "cart";
-}
-
-function setCheckoutStep(step) {
-  localStorage.setItem(CHECKOUT_STEP_KEY, step === "checkout" ? "checkout" : "cart");
-}
-
 /* Cart store */
 function getCart() {
   try {
@@ -449,19 +448,26 @@ function calcSubtotal() {
   return getCart().reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.qty) || 0), 0);
 }
 
-async function saveOrderToDB(payload) {
-  try {
-    const res = await fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json().catch(() => ({}));
-    return data.orderId || null;
-  } catch {
-    return null;
-  }
+function getSelectedPayMethod() {
+  const checked = [...(els.payRadios || [])].find(r => r.checked);
+  return safeText(checked?.value).toLowerCase() || "mpesa";
+}
+
+function getSelectedFulfillmentMethod() {
+  const checked = [...(els.fulfillmentRadios || [])].find(r => r.checked);
+  return safeText(checked?.value).toLowerCase() || "pickup";
+}
+
+function getDeliveryFee() {
+  const fulfillment = getSelectedFulfillmentMethod();
+  if (fulfillment !== "delivery") return 0;
+
+  const area = safeText(els.deliveryArea?.value);
+  return Number(CONFIG.deliveryAreas[area] || 0);
+}
+
+function calcOrderTotal() {
+  return calcSubtotal() + getDeliveryFee();
 }
 
 function buildOrderItemsPayload() {
@@ -476,15 +482,14 @@ function buildOrderItemsPayload() {
       type: p?.type || "",
       size: item.size,
       qty: Number(item.qty) || 1,
-      price: Number(item.price) || 0
+      price: Number(item.price) || 0,
+      line_total: (Number(item.price) || 0) * (Number(item.qty) || 0)
     };
   });
 }
 
 function setCart(items) {
   localStorage.setItem(CART_KEY, JSON.stringify(items));
-  localStorage.removeItem(PENDING_ORDER_ID_KEY);
-  setCheckoutStep("cart");
   refreshAllCartUIs();
 }
 
@@ -495,8 +500,6 @@ function addToCart(productId, size, price, qty = 1) {
   if (found) found.qty = (Number(found.qty) || 0) + (Number(qty) || 1);
   else cart.push({ key, id: productId, size: String(size), price: Number(price), qty: Number(qty) || 1 });
 
-  setCheckoutStep("cart");
-  localStorage.removeItem(PENDING_ORDER_ID_KEY);
   setCart(cart);
 
   const p = PRODUCTS.find(x => normalize(x.id) === normalize(productId));
@@ -527,54 +530,89 @@ function decQty(key) {
   }
 }
 
-/* Payment helpers */
-function getPayMethod() {
-  const checked = [...(els.payRadios || [])].find(r => r.checked);
-  return checked?.value || "Till";
-}
-
+/* Checkout UI */
 function togglePaymentUI() {
-  const method = String(getPayMethod()).toLowerCase();
-  const isTill = method === "till";
+  const method = getSelectedPayMethod();
+  const isMpesa = method === "mpesa";
 
-  if (els.mpesaBox) els.mpesaBox.classList.toggle("is-hidden", !isTill);
-  if (els.mpesaCodeWrap) els.mpesaCodeWrap.classList.add("is-hidden");
+  if (els.mpesaBox) els.mpesaBox.classList.toggle("is-hidden", !isMpesa);
+  if (els.cashBox) els.cashBox.classList.toggle("is-hidden", isMpesa);
 }
 
-function buildWhatsAppLink(message) {
-  return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+function toggleFulfillmentUI() {
+  const fulfillment = getSelectedFulfillmentMethod();
+  const isDelivery = fulfillment === "delivery";
+
+  if (els.pickupBox) els.pickupBox.classList.toggle("is-hidden", isDelivery);
+  if (els.deliveryBox) els.deliveryBox.classList.toggle("is-hidden", !isDelivery);
+
+  updateTotalsUI();
 }
 
-function buildCheckoutWhatsAppMessage() {
-  const cart = getCart();
-  const phone = cleanPhone(els.customerPhone?.value);
+function updateTotalsUI() {
   const subtotal = calcSubtotal();
-  const method = getPayMethod();
+  const deliveryFee = getDeliveryFee();
+  const total = subtotal + deliveryFee;
 
-  const lines = [];
-  lines.push(`Hi ${CONFIG.businessName}, I would like to place an order.`);
-  if (phone) lines.push(`Phone: ${phone}`);
-  lines.push(`Payment: ${method.toLowerCase().includes("cash") ? "Cash" : `M-Pesa Buy Goods (Till: ${CONFIG.tillNumberPlaceholder})`}`);
+  if (els.orderSubtotal) els.orderSubtotal.textContent = money(subtotal);
+  if (els.deliveryFeeDisplay) els.deliveryFeeDisplay.textContent = money(deliveryFee);
+  if (els.orderTotal) els.orderTotal.textContent = money(total);
+  if (els.cartPreviewSubtotal) els.cartPreviewSubtotal.textContent = money(subtotal);
+}
 
-  if (!method.toLowerCase().includes("cash")) {
-    lines.push(`Amount Paid: ${money(subtotal)} (delivery fee to be confirmed)`);
-    lines.push(`I will forward/attach the M-Pesa confirmation in this chat.`);
+function getCheckoutPayload() {
+  const cart = getCart();
+  const customerName = safeText(els.customerName?.value);
+  const rawPhone = cleanPhone(els.customerPhone?.value);
+  const customerPhone = normalizeKenyanPhone(rawPhone);
+  const customerEmail = safeText(els.customerEmail?.value);
+
+  const paymentMethod = getSelectedPayMethod();
+  const fulfillmentMethod = getSelectedFulfillmentMethod();
+
+  const deliveryArea = fulfillmentMethod === "delivery" ? safeText(els.deliveryArea?.value) : "";
+  const deliveryAddress = fulfillmentMethod === "delivery" ? safeText(els.deliveryAddress?.value) : "";
+  const deliveryLandmark = fulfillmentMethod === "delivery" ? safeText(els.deliveryLandmark?.value) : "";
+
+  const subtotal = calcSubtotal();
+  const deliveryFee = getDeliveryFee();
+  const total = subtotal + deliveryFee;
+  const items = buildOrderItemsPayload();
+
+  return {
+    customer_name: customerName,
+    customer_phone: customerPhone,
+    customer_email: customerEmail,
+    payment_method: paymentMethod,
+    fulfillment_method: fulfillmentMethod,
+    pickup_location: fulfillmentMethod === "pickup" ? CONFIG.pickup : "",
+    delivery_area: deliveryArea,
+    delivery_address: deliveryAddress,
+    delivery_landmark: deliveryLandmark,
+    subtotal_kes: Math.round(subtotal),
+    delivery_fee_kes: Math.round(deliveryFee),
+    total_kes: Math.round(total),
+    currency: CONFIG.currency,
+    status: paymentMethod === "cash" ? "cash_pending" : "pending_payment",
+    items
+  };
+}
+
+function validateCheckoutPayload(payload) {
+  if (!payload.items.length) return "No items in cart.";
+  if (!payload.customer_name) return "Please enter full name.";
+  if (!payload.customer_phone || payload.customer_phone.length < 12) return "Please enter a valid Kenyan phone number.";
+
+  if (payload.payment_method === "mpesa" && !/^254(7|1)\d{8}$/.test(payload.customer_phone)) {
+    return "For M-Pesa, enter a valid Safaricom-format number like 07... or 01...";
   }
 
-  lines.push("");
-  cart.forEach(item => {
-    const p = PRODUCTS.find(x => normalize(x.id) === normalize(item.id));
-    const name = p?.name || `Item (${safeText(item.id)})`;
-    const sizeText = item.size && item.size !== "-" ? ` (Size ${item.size})` : "";
-    const lineTotal = (Number(item.price) || 0) * (Number(item.qty) || 0);
-    lines.push(`- ${item.qty} × ${name}${sizeText} — ${money(lineTotal)}`);
-  });
+  if (payload.fulfillment_method === "delivery") {
+    if (!payload.delivery_area) return "Please select a delivery area.";
+    if (!payload.delivery_address) return "Please enter the delivery address.";
+  }
 
-  lines.push("");
-  lines.push(`Subtotal: ${money(subtotal)}`);
-  lines.push(`Pickup: ${CONFIG.pickup}`);
-  lines.push("Please confirm delivery fee and total. Thank you.");
-  return lines.join("\n");
+  return "";
 }
 
 /* Drawer order list */
@@ -585,7 +623,9 @@ function renderOrderPanel() {
 
   if (!cart.length) {
     els.orderItems.innerHTML = `<div style="opacity:.7;padding:8px 0;">No items yet.</div>`;
-    els.orderSubtotal.textContent = money(0);
+    if (els.orderSubtotal) els.orderSubtotal.textContent = money(0);
+    if (els.deliveryFeeDisplay) els.deliveryFeeDisplay.textContent = money(0);
+    if (els.orderTotal) els.orderTotal.textContent = money(0);
     if (els.cartEmpty) els.cartEmpty.hidden = false;
     return;
   }
@@ -628,6 +668,8 @@ function renderOrderPanel() {
   els.orderItems.querySelectorAll("[data-rm]").forEach(btn => btn.addEventListener("click", () => removeFromCart(btn.dataset.rm)));
   els.orderItems.querySelectorAll("[data-inc]").forEach(btn => btn.addEventListener("click", () => incQty(btn.dataset.inc)));
   els.orderItems.querySelectorAll("[data-dec]").forEach(btn => btn.addEventListener("click", () => decQty(btn.dataset.dec)));
+
+  updateTotalsUI();
 }
 
 function renderCartPreview() {
@@ -671,6 +713,7 @@ function refreshAllCartUIs() {
   refreshCartBadge();
   renderOrderPanel();
   renderCartPreview();
+  updateTotalsUI();
 }
 
 /* Reviews UI */
@@ -1303,7 +1346,7 @@ function productCard(p, index = 0) {
       addToCart(p.id, selected.size, selected.price, 1);
     } else {
       const fallbackPrice = getProductBasePrice(p);
-      if (fallbackPrice == null) return alert("Price on request. Please message us on WhatsApp.");
+      if (fallbackPrice == null) return alert("Price on request.");
       addToCart(p.id, "-", fallbackPrice, 1);
     }
   });
@@ -1388,7 +1431,7 @@ async function openModal(productId) {
       addToCart(p.id, selected.size, selected.price, 1);
     } else {
       const fallbackPrice = getProductBasePrice(p);
-      if (fallbackPrice == null) return alert("Price on request. Please message us on WhatsApp.");
+      if (fallbackPrice == null) return alert("Price on request.");
       addToCart(p.id, "-", fallbackPrice, 1);
     }
   };
@@ -1462,99 +1505,90 @@ function bindCart() {
   els.drawerBackdrop?.addEventListener("click", closeDrawer);
 
   els.clearCart?.addEventListener("click", () => {
-    localStorage.removeItem(PENDING_ORDER_ID_KEY);
-    setCheckoutStep("cart");
     setCart([]);
   });
 
-  if (els.tillNumberUI) els.tillNumberUI.textContent = CONFIG.tillNumberPlaceholder;
-
   togglePaymentUI();
-
-  els.copyTillBtn?.addEventListener("click", () => copyToClipboard(CONFIG.tillNumberPlaceholder));
-  els.copyAmountBtn?.addEventListener("click", () => copyToClipboard(String(calcSubtotal())));
+  toggleFulfillmentUI();
+  updateTotalsUI();
 
   (els.payRadios || []).forEach(r => {
     r.addEventListener("change", () => {
       togglePaymentUI();
-      localStorage.removeItem(PENDING_ORDER_ID_KEY);
-      setCheckoutStep("cart");
     });
   });
+
+  (els.fulfillmentRadios || []).forEach(r => {
+    r.addEventListener("change", () => {
+      toggleFulfillmentUI();
+    });
+  });
+
+  els.deliveryArea?.addEventListener("change", updateTotalsUI);
 
   els.checkoutBtn?.addEventListener("click", async (e) => {
     e.preventDefault();
 
-    const cart = getCart();
-    if (!cart.length) {
-      toast("No items in cart.");
+    const payload = getCheckoutPayload();
+    const validationError = validateCheckoutPayload(payload);
+
+    if (validationError) {
+      alert(validationError);
       return;
     }
 
-    const method = getPayMethod();
-    const methodLower = String(method).toLowerCase();
+    localStorage.setItem(LAST_CUSTOMER_PHONE_KEY, payload.customer_phone);
 
-    const phone = cleanPhone(els.customerPhone?.value);
-    if (!phone || phone.length < 9) {
-      alert("Please enter a valid phone number.");
-      return;
-    }
+    const originalBtnText = els.checkoutBtn.textContent;
+    els.checkoutBtn.disabled = true;
+    els.checkoutBtn.textContent = payload.payment_method === "mpesa" ? "Sending STK..." : "Placing order...";
 
-    localStorage.setItem(LAST_CUSTOMER_PHONE_KEY, phone);
-
-    const subtotal = calcSubtotal();
-    const itemsPayload = buildOrderItemsPayload();
-
-    async function ensureOrderId(noteLabel) {
-      let existing = safeText(localStorage.getItem(PENDING_ORDER_ID_KEY));
-      if (existing) {
-        localStorage.setItem(LAST_ORDER_ID_KEY, existing);
-        return existing;
-      }
-
-      const orderId = await saveOrderToDB({
-        customer_name: "",
-        customer_phone: phone,
-        total_kes: Math.round(subtotal),
-        items: itemsPayload,
-        note: `Pickup: ${CONFIG.pickup} | ${noteLabel}`
-      });
+    try {
+      const orderRes = await apiPostJson("/api/orders", payload);
+      const orderId = safeText(orderRes?.orderId || orderRes?.order?.id || orderRes?.id);
 
       if (orderId) {
-        localStorage.setItem(PENDING_ORDER_ID_KEY, orderId);
-        localStorage.setItem(LAST_ORDER_ID_KEY, orderId);
         await announceOrderId(orderId);
       }
-      return orderId;
-    }
 
-    if (methodLower.includes("cash")) {
-      localStorage.removeItem(PENDING_ORDER_ID_KEY);
-      const orderId = await ensureOrderId("Payment: Cash");
+      if (payload.payment_method === "cash") {
+        toast("Order placed ✅");
+        alert(orderId
+          ? `Order placed successfully.\n\nOrder ID: ${orderId}\nPayment: Cash\nFulfilment: ${payload.fulfillment_method}`
+          : `Order placed successfully.\nPayment: Cash\nFulfilment: ${payload.fulfillment_method}`
+        );
 
-      let msg = buildCheckoutWhatsAppMessage();
-      if (orderId) msg += `\n\nOrder ID: ${orderId}`;
+        setCart([]);
+        closeDrawer();
+        return;
+      }
 
-      window.open(buildWhatsAppLink(msg), "_blank", "noopener,noreferrer");
-      return;
-    }
+      const mpesaPayload = {
+        order_id: orderId,
+        phone: payload.customer_phone,
+        amount_kes: payload.total_kes,
+        account_reference: orderId || "BASFAY ORDER",
+        transaction_desc: `${CONFIG.businessName} order`
+      };
 
-    if (getCheckoutStep() === "cart") {
-      const orderId = await ensureOrderId(`Payment: M-Pesa Till (${CONFIG.tillNumberPlaceholder})`);
-      setCheckoutStep("checkout");
-      toast(orderId
-        ? "Order created ✅ Order ID copied. Now copy Till + Amount, pay, then tap Proceed."
-        : "Copy Till + Amount, pay, then tap Proceed."
+      const mpesaRes = await apiPostJson("/api/pay/mpesa", mpesaPayload);
+
+      toast("STK prompt sent ✅");
+      alert(
+        mpesaRes?.customerMessage ||
+        "M-Pesa prompt sent to your phone. Enter your PIN to complete payment."
       );
-      return;
+
+      setCart([]);
+      closeDrawer();
+    } catch (err) {
+      console.error("Checkout error:", err);
+      alert(err.message || "Could not place order.");
+    } finally {
+      els.checkoutBtn.disabled = false;
+      els.checkoutBtn.textContent = originalBtnText;
+      refreshAllCartUIs();
     }
-
-    const orderId = await ensureOrderId(`Payment: M-Pesa Till (${CONFIG.tillNumberPlaceholder})`);
-
-    let msg = buildCheckoutWhatsAppMessage();
-    if (orderId) msg += `\n\nOrder ID: ${orderId}`;
-
-    window.open(buildWhatsAppLink(msg), "_blank", "noopener,noreferrer");
   });
 }
 
@@ -1611,11 +1645,7 @@ async function loadProducts() {
     renderProducts();
     refreshAllCartUIs();
 
-    if (!getCart().length) setCheckoutStep("cart");
-
     window.addEventListener("storage", refreshAllCartUIs);
-
-    // Intentionally not preloading all product reviews on page load.
   } catch (err) {
     console.error("BASFAY app.js error:", err);
     toast("Site error: open Console (F12) to see why.");

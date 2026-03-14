@@ -8,7 +8,7 @@
     <title>Basfay Uniforms Kenya | School Uniforms, Scrubs, Bags & Workwear (Nairobi)</title>
     <meta
       name="description"
-      content="Basfay Uniforms Kenya — Quality & Affordable. Shop school uniforms, scrubs, workwear and school bags in Nairobi. Sweaters, tracksuits, PE kits, shirts, dresses, socks, blazers, trousers and more. Pickup Kangemi. Order via WhatsApp 0119667836."
+      content="Basfay Uniforms Kenya — Quality & Affordable. Shop school uniforms, scrubs, workwear and school bags in Nairobi. Sweaters, tracksuits, PE kits, shirts, dresses, socks, blazers, trousers and more. Pickup in Kangemi or delivery within Nairobi."
     />
     <link rel="canonical" href="https://basfayuniforms.co.ke/" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
@@ -27,7 +27,7 @@
     <meta property="og:title" content="BASFAY Uniforms Kenya | Quality & Affordable" />
     <meta
       property="og:description"
-      content="School uniforms, scrubs, workwear and school bags in Nairobi. Pickup Kangemi. Order via WhatsApp 0119667836."
+      content="School uniforms, scrubs, workwear and school bags in Nairobi. Pickup in Kangemi or delivery within Nairobi."
     />
     <meta property="og:url" content="https://basfayuniforms.co.ke/" />
 
@@ -35,7 +35,7 @@
     <meta name="twitter:title" content="BASFAY Uniforms Kenya" />
     <meta
       name="twitter:description"
-      content="School uniforms, scrubs, workwear and school bags in Nairobi. Pickup Kangemi. WhatsApp 0119667836."
+      content="School uniforms, scrubs, workwear and school bags in Nairobi. Pickup in Kangemi or delivery within Nairobi."
     />
 
     <script type="application/ld+json">
@@ -44,7 +44,7 @@
         "@type": "ClothingStore",
         "name": "BASFAY Uniforms",
         "url": "https://basfayuniforms.co.ke/",
-        "description": "Quality & affordable uniforms in Nairobi, Kenya. Pickup available in Kangemi.",
+        "description": "Quality & affordable uniforms in Nairobi, Kenya. Pickup available in Kangemi and delivery within Nairobi.",
         "telephone": "+254119667836",
         "currenciesAccepted": "KES",
         "areaServed": "KE",
@@ -848,7 +848,7 @@
             <div>
               <h2 class="footer-title">Basfay Uniforms</h2>
               <p class="footer-copy">
-                Basfay Uniforms is a Nairobi-based uniforms and workwear store offering quality and affordable school uniforms, scrubs, workwear, school bags, sweaters, tracksuits, PE kits, shirts, dresses, blazers, trousers, socks and other essentials. Customers can shop online, place orders easily, and arrange pickup in Kangemi through WhatsApp for a simple and reliable buying experience in Kenya.
+                Basfay Uniforms is a Nairobi-based uniforms and workwear store offering quality and affordable school uniforms, scrubs, workwear, school bags, sweaters, tracksuits, PE kits, shirts, dresses, blazers, trousers, socks and other essentials. Customers can shop online, place orders easily, and arrange pickup in Kangemi or delivery within Nairobi through a simple and reliable buying experience in Kenya.
               </p>
 
               <div class="footer-social">
@@ -970,7 +970,7 @@
             <article class="footer-detail-card">
               <h3>Contact</h3>
               <p>
-                Reach Basfay Uniforms through all our platforms for orders, pickup coordination, bulk enquiries and customer support. Pickup is available in Kangemi, same day delivery anywhere in Nairobi, and we aim to keep the ordering process simple, fast and clear.
+                Reach Basfay Uniforms through all our platforms for orders, pickup coordination, bulk enquiries and customer support. Pickup is available in Kangemi and delivery can be arranged within Nairobi, while we keep the ordering process simple, fast and clear.
               </p>
             </article>
           </div>
@@ -984,15 +984,15 @@
     </footer>
 
     <!-- =========================
-         ✅ CART DRAWER (REQUIRED)
+         ✅ CART DRAWER (UPDATED FOR REAL CHECKOUT)
     ========================== -->
     <div class="drawer" id="drawer" aria-hidden="true">
       <div class="drawer-backdrop" id="drawerBackdrop"></div>
 
-      <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Order list">
+      <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Checkout">
         <div class="drawer-head">
           <h3>Your order</h3>
-          <button class="icon-btn" id="closeDrawer" aria-label="Close order list" type="button">✕</button>
+          <button class="icon-btn" id="closeDrawer" aria-label="Close checkout" type="button">✕</button>
         </div>
 
         <div class="drawer-body">
@@ -1002,6 +1002,16 @@
             <div class="row">
               <span>Subtotal</span>
               <strong id="orderSubtotal">KES 0</strong>
+            </div>
+
+            <div class="row">
+              <span>Delivery Fee</span>
+              <strong id="deliveryFeeDisplay">KES 0</strong>
+            </div>
+
+            <div class="row">
+              <span>Total</span>
+              <strong id="orderTotal">KES 0</strong>
             </div>
           </div>
 
@@ -1015,35 +1025,11 @@
           <div class="cart-note muted">Size included.</div>
 
           <div class="card soft pay-card">
-            <div class="pay-title">Payment</div>
+            <div class="pay-title">Customer Details</div>
 
-            <div class="pay-options">
-              <label class="pay-opt">
-                <input type="radio" name="payMethod" value="Till" checked />
-                <span><strong>M-Pesa Buy Goods</strong> (Till: <span id="tillNumberUI">XXXX</span>)</span>
-              </label>
-
-              <label class="pay-opt">
-                <input type="radio" name="payMethod" value="Cash" />
-                <span><strong>Cash</strong> (On pickup / delivery)</span>
-              </label>
-            </div>
-
-            <div id="mpesaBox" class="checkout-field">
-              <div class="muted" style="margin-bottom:10px;">
-                1) Copy Till and Amount<br />
-                2) Pay via M-Pesa Buy Goods<br />
-                3) Tap <strong>Proceed</strong> to open WhatsApp<br />
-                4) Send the message and attach/forward your payment confirmation
-              </div>
-
-              <button class="btn ghost full" id="copyTillBtn" type="button">Copy Till Number</button>
-              <button class="btn ghost full" id="copyAmountBtn" type="button">Copy Amount</button>
-
-              <div id="mpesaCodeWrap" class="is-hidden">
-                <label for="mpesaCode" style="margin-top:10px; display:block; font-weight:800;">M-Pesa Confirmation Code</label>
-                <input type="text" id="mpesaCode" placeholder="e.g. QFT3XYZ123" autocomplete="off" />
-              </div>
+            <div class="checkout-field">
+              <label for="customerName">Full Name</label>
+              <input type="text" id="customerName" placeholder="Enter full name" autocomplete="name" />
             </div>
 
             <div class="checkout-field">
@@ -1051,10 +1037,92 @@
               <input type="tel" id="customerPhone" placeholder="07XXXXXXXX" inputmode="tel" autocomplete="tel" />
             </div>
 
-            <div class="muted pay-help">Confirm active phone number.</div>
+            <div class="checkout-field">
+              <label for="customerEmail">Email (Optional)</label>
+              <input type="email" id="customerEmail" placeholder="you@example.com" autocomplete="email" />
+            </div>
+
+            <div class="muted pay-help">Use an active number. For M-Pesa, this should be the number to receive the STK prompt.</div>
           </div>
 
-          <a class="btn primary full" id="checkoutBtn" href="#" rel="noopener">Proceed</a>
+          <div class="card soft pay-card">
+            <div class="pay-title">Fulfilment</div>
+
+            <div class="pay-options">
+              <label class="pay-opt">
+                <input type="radio" name="fulfillmentMethod" value="pickup" checked />
+                <span><strong>Pickup</strong> (Kangemi)</span>
+              </label>
+
+              <label class="pay-opt">
+                <input type="radio" name="fulfillmentMethod" value="delivery" />
+                <span><strong>Delivery</strong> (Within Nairobi)</span>
+              </label>
+            </div>
+
+            <div id="pickupBox" class="checkout-field">
+              <div class="muted">
+                Pickup location: <strong>Kangemi</strong>
+              </div>
+            </div>
+
+            <div id="deliveryBox" class="is-hidden">
+              <div class="checkout-field">
+                <label for="deliveryArea">Delivery Area</label>
+                <select id="deliveryArea">
+                  <option value="">Select delivery area</option>
+                  <option value="Kangemi">Kangemi</option>
+                  <option value="Westlands">Westlands</option>
+                  <option value="Waiyaki Way">Waiyaki Way</option>
+                  <option value="CBD">CBD</option>
+                  <option value="Kilimani">Kilimani</option>
+                  <option value="Ngong Road">Ngong Road</option>
+                  <option value="Kasarani">Kasarani</option>
+                  <option value="Embakasi">Embakasi</option>
+                </select>
+              </div>
+
+              <div class="checkout-field">
+                <label for="deliveryAddress">Exact Delivery Address</label>
+                <textarea id="deliveryAddress" rows="3" placeholder="Estate, building, house/shop number, floor, street, or any clear directions"></textarea>
+              </div>
+
+              <div class="checkout-field">
+                <label for="deliveryLandmark">Landmark (Optional)</label>
+                <input type="text" id="deliveryLandmark" placeholder="Nearest stage, school, church, mall, etc." />
+              </div>
+            </div>
+          </div>
+
+          <div class="card soft pay-card">
+            <div class="pay-title">Payment</div>
+
+            <div class="pay-options">
+              <label class="pay-opt">
+                <input type="radio" name="payMethod" value="mpesa" checked />
+                <span><strong>M-Pesa</strong> (STK Push)</span>
+              </label>
+
+              <label class="pay-opt">
+                <input type="radio" name="payMethod" value="cash" />
+                <span><strong>Cash</strong> (On pickup / delivery)</span>
+              </label>
+            </div>
+
+            <div id="mpesaBox" class="checkout-field">
+              <div class="muted" style="margin-bottom:10px;">
+                When you place the order, an M-Pesa STK prompt will be sent to the phone number entered above.
+              </div>
+            </div>
+
+            <div id="cashBox" class="checkout-field is-hidden">
+              <div class="muted" style="margin-bottom:10px;">
+                You will pay by cash when collecting your order or when it is delivered.
+              </div>
+            </div>
+          </div>
+
+          <button class="btn primary full" id="checkoutBtn" type="button">Place Order</button>
           <button class="btn ghost full" id="clearCart" type="button">Clear</button>
         </div>
       </div>

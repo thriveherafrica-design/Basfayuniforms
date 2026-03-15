@@ -4,9 +4,10 @@
    Product page links via slug
    Dead products auto-filtered
    Safer image loading + lighter mobile rendering
+   School filter support
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (STEP CHECKOUT + DIRECT MPESA)");
+console.log("✅ BASFAY app.js LOADED (STEP CHECKOUT + DIRECT MPESA + SCHOOL FILTER)");
 
 const CONFIG = {
   currency: "KES",
@@ -123,7 +124,7 @@ const els = {
 };
 
 let PRODUCTS = [];
-let state = { color: "", type: "", sort: "featured" };
+let state = { color: "", type: "", school: "", sort: "featured" };
 let visibleProductCount = INITIAL_VISIBLE_PRODUCTS;
 let revealObserver = null;
 let checkoutStep = 1;
@@ -209,6 +210,29 @@ function getProductSlug(product) {
 function getProductUrl(product) {
   const slug = getProductSlug(product);
   return `${getProductPageBase()}${encodeURIComponent(slug)}`;
+}
+
+function getSchoolFromUrl() {
+  try {
+    const url = new URL(window.location.href);
+    return safeText(url.searchParams.get("school"));
+  } catch {
+    return "";
+  }
+}
+
+function productMatchesSchool(product, selectedSchool) {
+  const wanted = normalize(selectedSchool);
+  if (!wanted) return true;
+
+  const singleSchool = normalize(product?.school);
+  if (singleSchool && singleSchool === wanted) return true;
+
+  const schoolList = Array.isArray(product?.schools)
+    ? product.schools.map(normalize).filter(Boolean)
+    : [];
+
+  return schoolList.includes(wanted);
 }
 
 /* Safe image helpers */
@@ -312,6 +336,7 @@ function getFilteredProducts() {
   return PRODUCTS.filter(p => {
     if (state.color && p.color !== state.color) return false;
     if (state.type && normalize(p.type) !== normalize(state.type)) return false;
+    if (state.school && !productMatchesSchool(p, state.school)) return false;
     return true;
   });
 }
@@ -506,6 +531,8 @@ function buildOrderItemsPayload() {
       name: p?.name || safeText(item.id),
       color: p?.color || "",
       type: p?.type || "",
+      school: p?.school || "",
+      schools: Array.isArray(p?.schools) ? p.schools : [],
       size: item.size,
       qty: Number(item.qty) || 1,
       price: Number(item.price) || 0,
@@ -621,6 +648,7 @@ function getCheckoutPayload() {
     total_kes: Math.round(calcOrderTotal()),
     currency: CONFIG.currency,
     status: paymentMethod === "cash" ? "cash_pending" : "pending_payment",
+    school_filter: state.school || "",
     items: buildOrderItemsPayload()
   };
 
@@ -1283,6 +1311,10 @@ function renderProducts() {
 
   if (els.resultsCount) els.resultsCount.textContent = String(sorted.length);
 
+  if (state.school) {
+    document.title = `Shop ${state.school} Uniforms | BASFAY Uniforms Kenya`;
+  }
+
   els.productGrid.innerHTML = "";
   if (els.emptyState) els.emptyState.hidden = sorted.length !== 0;
 
@@ -1505,7 +1537,11 @@ async function openModal(productId) {
   els.modalTitle.textContent = p.name;
   els.modalDesc.textContent = p.description || "Durable, comfortable uniform item.";
   renderResponsiveImageInto(els.modalMedia, p.image, `${p.name} photo`, getModalImageOptions());
-  els.modalMeta.textContent = [p.color && `Color: ${p.color}`, p.type && `Type: ${p.type}`].filter(Boolean).join(" • ");
+
+  const modalBits = [p.color && `Color: ${p.color}`, p.type && `Type: ${p.type}`];
+  if (p.school) modalBits.push(`School: ${p.school}`);
+  els.modalMeta.textContent = modalBits.filter(Boolean).join(" • ");
+
   if (els.modalViewDetails) {
     els.modalViewDetails.href = getProductUrl(p);
   }
@@ -1597,11 +1633,13 @@ function bindFilters() {
     resetVisibleProducts();
     renderProducts();
   });
+
   els.colorFilterTop?.addEventListener("change", () => {
     state.color = els.colorFilterTop.value || "";
     resetVisibleProducts();
     renderProducts();
   });
+
   els.sortByTop?.addEventListener("change", () => {
     state.sort = els.sortByTop.value || "featured";
     resetVisibleProducts();
@@ -1734,25 +1772,26 @@ function bindCart() {
       toast("STK prompt sent ✅");
       alert(
         mpesaRes?.customerMessage ||
+        mpesaRes?.response?.CustomerMessage ||
         "M-Pesa prompt sent to your phone. Enter your PIN to complete payment."
       );
 
       setCart([]);
       closeDrawer();
       showCheckoutStep(1);
-  } catch (err2) {
-  console.error("Checkout error:", err2);
+    } catch (err2) {
+      console.error("Checkout error:", err2);
 
-  const detailedMessage =
-    err2?.data?.error ||
-    err2?.data?.response?.errorMessage ||
-    err2?.data?.response?.ResponseDescription ||
-    err2?.data?.response?.CustomerMessage ||
-    err2?.message ||
-    "Could not place order.";
+      const detailedMessage =
+        err2?.data?.error ||
+        err2?.data?.response?.errorMessage ||
+        err2?.data?.response?.ResponseDescription ||
+        err2?.data?.response?.CustomerMessage ||
+        err2?.message ||
+        "Could not place order.";
 
-  alert(detailedMessage);
-  } finally {
+      alert(detailedMessage);
+    } finally {
       els.checkoutBtn.disabled = false;
       els.checkoutBtn.textContent = originalBtnText;
       refreshAllCartUIs();
@@ -1782,6 +1821,8 @@ async function loadProducts() {
         color: safeText(p.color),
         type: safeText(p.type),
         pattern: safeText(p.pattern),
+        school: safeText(p.school),
+        schools: Array.isArray(p.schools) ? p.schools.map(safeText).filter(Boolean) : [],
         price: p.price == null ? null : Number(p.price),
         basePrice: p.basePrice == null ? null : Number(p.basePrice),
         variants,
@@ -1804,6 +1845,7 @@ async function loadProducts() {
     if (els.year) els.year.textContent = String(new Date().getFullYear());
 
     await loadProducts();
+    state.school = getSchoolFromUrl();
 
     bindFilters();
     bindCart();

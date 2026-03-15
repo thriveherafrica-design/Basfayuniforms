@@ -291,7 +291,15 @@ async function adminRecentOrders(request, env) {
   }
 
   const rows = await env.DB.prepare(`
-    SELECT id, customer_name, customer_phone, total_kes, status, note, created_at
+    SELECT
+      id,
+      customer_name,
+      customer_phone,
+      total_kes,
+      status,
+      note,
+      created_at,
+      items_json
     FROM orders
     ORDER BY created_at DESC
     LIMIT 30
@@ -304,7 +312,8 @@ async function adminRecentOrders(request, env) {
     total_kes: r.total_kes || 0,
     status: r.status || "",
     note: r.note || "",
-    created_at: r.created_at || 0
+    created_at: r.created_at || 0,
+    items: safeParse(r.items_json)
   }));
 
   return json({ ok: true, orders }, 200);

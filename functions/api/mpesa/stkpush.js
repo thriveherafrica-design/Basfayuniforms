@@ -1,3 +1,15 @@
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "content-type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+  });
+}
+
 function normalizePhone(phone) {
   const digits = String(phone || "").replace(/\D/g, "");
 
@@ -33,6 +45,10 @@ async function getAccessToken(env) {
   const secret = env.MPESA_CONSUMER_SECRET;
   const mode = env.MPESA_ENV || "sandbox";
 
+  if (!key || !secret) {
+    throw new Error("Missing MPESA_CONSUMER_KEY or MPESA_CONSUMER_SECRET");
+  }
+
   const baseUrl =
     mode === "production"
       ? "https://api.safaricom.co.ke"
@@ -63,6 +79,17 @@ export async function onRequest(context) {
   try {
     const { request, env } = context;
 
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+      });
+    }
+
     let phone, amount, accountReference, transactionDesc;
 
     if (request.method === "GET") {
@@ -78,10 +105,7 @@ export async function onRequest(context) {
       accountReference = body.account_reference || body.reference || body.order_id || "BASFAYTEST";
       transactionDesc = body.transaction_desc || body.desc || "BASFAY Test Payment";
     } else {
-      return new Response(
-        JSON.stringify({ ok: false, error: "Use GET or POST" }),
-        { status: 405, headers: { "content-type": "application/json" } }
-      );
+      return json({ ok: false, error: "Use GET or POST" }, 405);
     }
 
     const shortcode = env.MPESA_SHORTCODE;
@@ -89,15 +113,12 @@ export async function onRequest(context) {
     const callbackUrl = env.MPESA_CALLBACK_URL;
 
     if (!shortcode || !passkey || !callbackUrl) {
-      return new Response(
-        JSON.stringify({
+      return json(
+        {
           ok: false,
           error: "Missing MPESA_SHORTCODE, MPESA_PASSKEY, or MPESA_CALLBACK_URL",
-        }),
-        {
-          status: 500,
-          headers: { "content-type": "application/json" },
-        }
+        },
+        500
       );
     }
 
@@ -133,28 +154,22 @@ export async function onRequest(context) {
 
     const data = await res.json();
 
-    return new Response(
-      JSON.stringify({
+    return json(
+      {
         ok: res.ok,
         env: env.MPESA_ENV || "sandbox",
         request: payload,
         response: data,
-      }),
-      {
-        status: res.status,
-        headers: { "content-type": "application/json" },
-      }
+      },
+      res.status
     );
   } catch (error) {
-    return new Response(
-      JSON.stringify({
+    return json(
+      {
         ok: false,
         error: error.message || "STK push failed",
-      }),
-      {
-        status: 500,
-        headers: { "content-type": "application/json" },
-      }
+      },
+      500
     );
   }
 }

@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BASFAY Admin Orders</title>
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      background:#f7f9fc;
+      color:#0f1c2b;
+      margin:0;
+      padding:20px;
+    }
+    .wrap{
+      max-width:900px;
+      margin:0 auto;
+    }
+    h1{
+      margin:0 0 8px;
+    }
+    .muted{
+      color:#5f6b7a;
+      font-size:14px;
+    }
+    .bar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin:18px 0 20px;
+    }
+    input, button{
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid #d7deea;
+      font:inherit;
+    }
+    input{
+      flex:1 1 260px;
+      min-width:220px;
+    }
+    button{
+      cursor:pointer;
+      background:#0f2f4a;
+      color:#fff;
+      border:none;
+      font-weight:700;
+    }
+    .status{
+      margin:10px 0 18px;
+      font-size:14px;
+    }
+    .list{
+      display:grid;
+      gap:12px;
+    }
+    .card{
+      background:#fff;
+      border:1px solid #e4e9f2;
+      border-radius:16px;
+      padding:14px;
+      box-shadow:0 6px 18px rgba(15,28,43,0.05);
+    }
+    .row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .id{
+      font-family: monospace;
+      font-size:13px;
+      word-break:break-all;
+    }
+    .badge{
+      display:inline-block;
+      padding:5px 10px;
+      border-radius:999px;
+      background:#eef3f8;
+      font-size:12px;
+      font-weight:700;
+    }
+    .toast{
+      position:fixed;
+      right:16px;
+      bottom:16px;
+      background:#0f2f4a;
+      color:#fff;
+      padding:14px 16px;
+      border-radius:14px;
+      box-shadow:0 10px 24px rgba(0,0,0,0.18);
+      z-index:9999;
+      max-width:320px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>BASFAY Orders Admin</h1>
+    <div class="muted">This page checks for new orders every 10 seconds.</div>
+
+    <div class="bar">
+      <input id="adminKey" type="password" placeholder="Enter admin key" />
+      <button id="saveKeyBtn" type="button">Save key</button>
+      <button id="enableNotifBtn" type="button">Enable notifications</button>
+      <button id="refreshBtn" type="button">Refresh now</button>
+    </div>
+
+    <div class="status" id="statusText">Waiting...</div>
+    <div class="list" id="ordersList"></div>
+  </div>
+
+  <script>
+    const els = {
+      adminKey: document.getElementById("adminKey"),
+      saveKeyBtn: document.getElementById("saveKeyBtn"),
+      enableNotifBtn: document.getElementById("enableNotifBtn"),
+      refreshBtn: document.getElementById("refreshBtn"),
+      statusText: document.getElementById("statusText"),
+      ordersList: document.getElementById("ordersList"),
+    };
+
+    const KEY_STORAGE = "basfay_admin_key_v1";
+    const LAST_SEEN_STORAGE = "basfay_last_seen_order_v1";
+    const POLL_MS = 10000;
+
+    function fmtMoney(n) {
+      return `KES ${Number(n || 0).toLocaleString("en-KE")}`;
+    }
+
+    function fmtDate(ts) {
+      if (!ts) return "";
+      try {
+        return new Date(ts * 1000).toLocaleString();
+      } catch {
+        return "";
+      }
+    }
+
+    function toast(msg) {
+      const div = document.createElement("div");
+      div.className = "toast";
+      div.textContent = msg;
+      document.body.appendChild(div);
+      setTimeout(() => div.remove(), 3500);
+    }
+
+    function beep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = "sine";
+        o.frequency.value = 880;
+        o.connect(g);
+        g.connect(ctx.destination);
+        g.gain.value = 0.03;
+        o.start();
+        setTimeout(() => {
+          o.stop();
+          ctx.close();
+        }, 220);
+      } catch {}
+    }
+
+    function getAdminKey() {
+      return localStorage.getItem(KEY_STORAGE) || "";
+    }
+
+    function setAdminKey(value) {
+      localStorage.setItem(KEY_STORAGE, value);
+    }
+
+    function getLastSeenOrderId() {
+      return localStorage.getItem(LAST_SEEN_STORAGE) || "";
+    }
+
+    function setLastSeenOrderId(id) {
+      localStorage.setItem(LAST_SEEN_STORAGE, id);
+    }
+
+    async function enableNotifications() {
+      if (!("Notification" in window)) {
+        toast("Browser notifications are not supported here.");
+        return;
+      }
+      const res = await Notification.requestPermission();
+      toast(`Notification permission: ${res}`);
+    }
+
+    function notifyNewOrder(order) {
+      const text = `New order: ${fmtMoney(order.total_kes)} • ${order.customer_phone || "No phone"}`;
+      toast(text);
+      beep();
+
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("New BASFAY order", {
+          body: text
+        });
+      }
+    }
+
+    function renderOrders(orders) {
+      els.ordersList.innerHTML = orders.map(o => `
+        <div class="card">
+          <div class="row">
+            <strong>${fmtMoney(o.total_kes)}</strong>
+            <span class="badge">${o.status || "received"}</span>
+          </div>
+          <div style="margin-top:8px;" class="id"><strong>ID:</strong> ${o.id}</div>
+          <div style="margin-top:6px;"><strong>Name:</strong> ${o.customer_name || "-"}</div>
+          <div style="margin-top:6px;"><strong>Phone:</strong> ${o.customer_phone || "-"}</div>
+          <div style="margin-top:6px;"><strong>Note:</strong> ${o.note || "-"}</div>
+          <div style="margin-top:6px;" class="muted"><strong>Placed:</strong> ${fmtDate(o.created_at)}</div>
+        </div>
+      `).join("");
+    }
+
+    async function fetchOrders({ silent = false } = {}) {
+      const key = getAdminKey();
+      if (!key) {
+        els.statusText.textContent = "Enter and save your admin key first.";
+        return;
+      }
+
+      if (!silent) {
+        els.statusText.textContent = "Checking orders...";
+      }
+
+      try {
+        const res = await fetch(`/api/admin/orders/recent?key=${encodeURIComponent(key)}`, {
+          credentials: "include"
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          throw new Error(data.error || "Could not load orders");
+        }
+
+        const orders = Array.isArray(data.orders) ? data.orders : [];
+        renderOrders(orders);
+
+        const newest = orders[0];
+        const lastSeen = getLastSeenOrderId();
+
+        if (newest?.id && !lastSeen) {
+          setLastSeenOrderId(newest.id);
+        } else if (newest?.id && newest.id !== lastSeen) {
+          notifyNewOrder(newest);
+          setLastSeenOrderId(newest.id);
+        }
+
+        els.statusText.textContent = `Last checked: ${new Date().toLocaleTimeString()}`;
+      } catch (err) {
+        els.statusText.textContent = err.message || "Could not check orders.";
+      }
+    }
+
+    els.saveKeyBtn.addEventListener("click", () => {
+      const value = String(els.adminKey.value || "").trim();
+      if (!value) {
+        toast("Enter the admin key first.");
+        return;
+      }
+      setAdminKey(value);
+      toast("Admin key saved.");
+      fetchOrders();
+    });
+
+    els.enableNotifBtn.addEventListener("click", enableNotifications);
+    els.refreshBtn.addEventListener("click", () => fetchOrders());
+
+    document.addEventListener("DOMContentLoaded", () => {
+      els.adminKey.value = getAdminKey();
+      fetchOrders();
+      setInterval(() => fetchOrders({ silent: true }), POLL_MS);
+    });
+  </script>
+</body>
+</html>

@@ -110,8 +110,8 @@ export async function onRequest(context) {
 
     const shortcode = env.MPESA_SHORTCODE;
     const passkey = env.MPESA_PASSKEY;
-    const callbackUrl = env.MPESA_CALLBACK_URL;
-
+    const callbackUrl = String(env.MPESA_CALLBACK_URL || "").trim();
+    
     if (!shortcode || !passkey || !callbackUrl) {
       return json(
         {

@@ -114,8 +114,70 @@
         outline: 3px solid rgba(30,136,229,0.25);
         outline-offset: 2px;
       }
+
+      .header-school-nav{
+        position:relative;
+        display:flex;
+        align-items:center;
+      }
+
+      .header-school-trigger{
+        background:none;
+        border:none;
+        cursor:pointer;
+        font:inherit;
+      }
+
+      .header-school-menu{
+        position:absolute;
+        top:calc(100% + 10px);
+        left:0;
+        min-width:280px;
+        max-height:420px;
+        overflow:auto;
+        padding:10px;
+        background:rgba(255,255,255,0.96);
+        backdrop-filter: blur(10px);
+        border:1px solid rgba(15,47,74,0.10);
+        border-radius:16px;
+        box-shadow:0 16px 40px rgba(15,28,43,0.10);
+        display:grid;
+        gap:4px;
+        opacity:0;
+        visibility:hidden;
+        transform:translateY(8px);
+        transition:opacity .18s ease, transform .18s ease, visibility .18s ease;
+        z-index:80;
+      }
+
+      .header-school-menu a{
+        text-decoration:none;
+        color:#0F2F4A;
+        font-size:13px;
+        font-weight:700;
+        line-height:1.4;
+        padding:10px 12px;
+        border-radius:12px;
+      }
+
+      .header-school-menu a:hover{
+        background:rgba(30,136,229,0.08);
+      }
+
+      .header-school-nav.is-open .header-school-menu{
+        opacity:1;
+        visibility:visible;
+        transform:translateY(0);
+      }
+
       @media (min-width: 769px){
         .header-quicklinks{ display:flex; }
+      }
+
+      @media (max-width: 768px){
+        .header-school-nav{
+          display:none;
+        }
       }
 
       #menuBtn.header-menu{
@@ -274,6 +336,28 @@
       #authMsg{ font-size: 12px; opacity: .85; margin-top: 10px; }
       .auth-row{ display:flex; gap:10px; flex-wrap:wrap; }
       .auth-row .btn{ flex: 1 1 auto; }
+
+      .school-link-list{
+        display:grid;
+        gap:8px;
+        margin-top:12px;
+      }
+
+      .school-link-list a{
+        text-decoration:none;
+        color:#0F2F4A;
+        font-size:13px;
+        font-weight:700;
+        line-height:1.4;
+        padding:10px 12px;
+        border-radius:12px;
+        background:rgba(255,255,255,0.55);
+        border:1px solid rgba(15,47,74,0.08);
+      }
+
+      .school-link-list a:hover{
+        background:rgba(30,136,229,0.08);
+      }
 
       @media (max-width: 768px){
         .header .container.header-inner{
@@ -682,6 +766,35 @@
         <div class="header-right" aria-label="Header actions">
           <nav class="header-quicklinks" aria-label="Quick links">
             <a class="header-link" href="#shop">Shop</a>
+
+            <div class="header-school-nav" id="headerSchoolNav">
+              <button
+                class="header-link header-school-trigger"
+                id="schoolMenuBtn"
+                type="button"
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-controls="schoolMenuPanel"
+              >
+                Shop by School
+              </button>
+
+              <div class="header-school-menu" id="schoolMenuPanel" aria-hidden="true">
+                <a href="/?school=Kangemi%20Primary">Kangemi Primary</a>
+                <a href="/?school=New%20Kihumbuini%20Primary">New Kihumbuini</a>
+                <a href="/?school=Old%20Kihumbuini">Old Kihumbuini</a>
+                <a href="/?school=St%20Joseph%20Primary">St Joseph Primary</a>
+                <a href="/?school=Westlands%20Primary">Westlands Primary</a>
+                <a href="/?school=Uthiru%20Genesis">Uthiru Genesis</a>
+                <a href="/?school=Nairobi%20School">Nairobi School</a>
+                <a href="/?school=Joy%20Shiru">Joy Shiru</a>
+                <a href="/?school=Aga%20Khan">Aga Khan</a>
+                <a href="/?school=Umoja%20Primary">Umoja Primary</a>
+                <a href="/?school=Consolata%20School">Consolata School</a>
+                <a href="/?school=Kianda%20School">Kianda School</a>
+              </div>
+            </div>
+
             <a class="header-link" href="#contact">Contact</a>
           </nav>
 
@@ -1266,8 +1379,29 @@
             <div class="auth-row">
               <button class="btn primary full" id="menuAccountBtn" type="button">Log in</button>
               <button class="btn ghost full" id="menuOrdersBtn" type="button">My Orders</button>
+              <button class="btn ghost full" id="menuSchoolBtn" type="button">Shop by School</button>
               <button class="btn ghost full" id="menuReturnsBtn" type="button">Returns</button>
               <button class="btn ghost full" id="menuChatBtn" type="button">Chat with us</button>
+            </div>
+
+            <div id="menuSchoolList" class="is-hidden" style="margin-top:12px;">
+              <div class="card soft" style="padding:12px;">
+                <div style="font-weight:900;margin-bottom:10px;">Shop by School</div>
+                <div class="school-link-list">
+                  <a href="/?school=Kangemi%20Primary">Kangemi Primary</a>
+                  <a href="/?school=New%20Kihumbuini%20Primary">New Kihumbuini</a>
+                  <a href="/?school=Old%20Kihumbuini">Old Kihumbuini</a>
+                  <a href="/?school=St%20Joseph%20Primary">St Joseph Primary</a>
+                  <a href="/?school=Westlands%20Primary">Westlands Primary</a>
+                  <a href="/?school=Uthiru%20Genesis">Uthiru Genesis</a>
+                  <a href="/?school=Nairobi%20School">Nairobi School</a>
+                  <a href="/?school=Joy%20Shiru">Joy Shiru</a>
+                  <a href="/?school=Aga%20Khan">Aga Khan</a>
+                  <a href="/?school=Umoja%20Primary">Umoja Primary</a>
+                  <a href="/?school=Consolata%20School">Consolata School</a>
+                  <a href="/?school=Kianda%20School">Kianda School</a>
+                </div>
+              </div>
             </div>
 
             <div class="muted" style="margin-top:10px;font-size:12px;">
@@ -1370,8 +1504,14 @@
         const menuGreeting = $("menuGreeting");
         const menuAccountBtn = $("menuAccountBtn");
         const menuOrdersBtn = $("menuOrdersBtn");
+        const menuSchoolBtn = $("menuSchoolBtn");
+        const menuSchoolList = $("menuSchoolList");
         const menuReturnsBtn = $("menuReturnsBtn");
         const menuChatBtn = $("menuChatBtn");
+
+        const headerSchoolNav = $("headerSchoolNav");
+        const schoolMenuBtn = $("schoolMenuBtn");
+        const schoolMenuPanel = $("schoolMenuPanel");
 
         const ordersModal = $("ordersModal");
         const ordersBackdrop = $("ordersBackdrop");
@@ -1570,6 +1710,26 @@
         menuBtn?.addEventListener("click", openMenu);
         menuBackdrop?.addEventListener("click", closeMenu);
         menuClose?.addEventListener("click", closeMenu);
+
+        schoolMenuBtn?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const isOpen = headerSchoolNav?.classList.contains("is-open");
+          headerSchoolNav?.classList.toggle("is-open", !isOpen);
+          schoolMenuBtn.setAttribute("aria-expanded", String(!isOpen));
+          schoolMenuPanel?.setAttribute("aria-hidden", String(isOpen));
+        });
+
+        document.addEventListener("click", (e) => {
+          if (!headerSchoolNav?.contains(e.target)) {
+            headerSchoolNav?.classList.remove("is-open");
+            schoolMenuBtn?.setAttribute("aria-expanded", "false");
+            schoolMenuPanel?.setAttribute("aria-hidden", "true");
+          }
+        });
+
+        menuSchoolBtn?.addEventListener("click", () => {
+          menuSchoolList?.classList.toggle("is-hidden");
+        });
 
         menuAccountBtn?.addEventListener("click", () => {
           closeMenu();

@@ -19,13 +19,13 @@ const CONFIG = {
 
   deliveryAreas: {
     "Kangemi": 100,
-    "Westlands": 200,
-    "Waiyaki Way": 150,
-    "CBD": 250,
-    "Kilimani": 250,
-    "Ngong Road": 250,
-    "Kasarani": 350,
-    "Embakasi": 350
+    "Westlands": 150,
+    "Waiyaki Way": 100,
+    "CBD": 200,
+    "Kilimani": 200,
+    "Ngong Road": 200,
+    "Kasarani": 200,
+    "Embakasi": 200
   }
 };
 
@@ -1740,10 +1740,19 @@ function bindCart() {
       setCart([]);
       closeDrawer();
       showCheckoutStep(1);
-    } catch (err2) {
-      console.error("Checkout error:", err2);
-      alert(err2.message || "Could not place order.");
-    } finally {
+  } catch (err2) {
+  console.error("Checkout error:", err2);
+
+  const detailedMessage =
+    err2?.data?.error ||
+    err2?.data?.response?.errorMessage ||
+    err2?.data?.response?.ResponseDescription ||
+    err2?.data?.response?.CustomerMessage ||
+    err2?.message ||
+    "Could not place order.";
+
+  alert(detailedMessage);
+  } finally {
       els.checkoutBtn.disabled = false;
       els.checkoutBtn.textContent = originalBtnText;
       refreshAllCartUIs();

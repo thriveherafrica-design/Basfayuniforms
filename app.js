@@ -1729,7 +1729,7 @@ function bindCart() {
         transaction_desc: `${CONFIG.businessName} order`
       };
 
-      const mpesaRes = await apiPostJson("/api/pay/mpesa", mpesaPayload);
+      const mpesaRes = await apiPostJson("/api/mpesa/stkpush", mpesaPayload);
 
       toast("STK prompt sent ✅");
       alert(

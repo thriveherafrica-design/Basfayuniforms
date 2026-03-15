@@ -1581,3 +1581,50 @@ input:focus,select:focus{
     scroll-behavior: auto !important;
   }
 }
+
+.school-select {
+  min-width: 220px;
+  height: 44px;
+  padding: 0 42px 0 14px;
+  border: 1px solid rgba(15, 47, 74, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #0F2F4A;
+  font-size: 14px;
+  font-weight: 700;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(15, 47, 74, 0.06);
+}
+
+.school-select:focus {
+  border-color: rgba(30, 136, 229, 0.55);
+  box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.12);
+}
+
+.school-select option {
+  color: #0F2F4A;
+  background: #ffffff;
+}
+
+.school-select-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.school-select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid #0F2F4A;
+  border-bottom: 2px solid #0F2F4A;
+  transform: translateY(-60%) rotate(45deg);
+  pointer-events: none;
+  opacity: 0.7;
+}

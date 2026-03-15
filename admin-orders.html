@@ -92,6 +92,17 @@
       z-index:9999;
       max-width:320px;
     }
+    .items-wrap{
+      margin-top:10px;
+    }
+    .item-chip{
+      padding:8px 10px;
+      background:#f6f8fb;
+      border-radius:10px;
+      font-size:14px;
+      line-height:1.45;
+      border:1px solid #e8edf5;
+    }
   </style>
 </head>
 <body>
@@ -135,6 +146,15 @@
       } catch {
         return "";
       }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
     function toast(msg) {
@@ -189,7 +209,9 @@
     }
 
     function notifyNewOrder(order) {
-      const text = `New order: ${fmtMoney(order.total_kes)} • ${order.customer_phone || "No phone"}`;
+      const orderItems = Array.isArray(order.items) ? order.items : [];
+      const firstItem = orderItems[0]?.name || orderItems[0]?.id || "Order received";
+      const text = `New order: ${fmtMoney(order.total_kes)} • ${firstItem}`;
       toast(text);
       beep();
 
@@ -200,17 +222,45 @@
       }
     }
 
+    function renderOrderItems(items) {
+      if (!Array.isArray(items) || !items.length) {
+        return `<div class="muted">No item details found.</div>`;
+      }
+
+      return items.map(item => {
+        const qty = Number(item.qty || 1);
+        const name = item.name || item.id || "Item";
+        const size = item.size && item.size !== "-" ? ` • Size ${escapeHtml(item.size)}` : "";
+        const price = item.price ? ` • ${fmtMoney(item.price)}` : "";
+
+        return `
+          <div class="item-chip">
+            ${qty} × ${escapeHtml(name)}${size}${price}
+          </div>
+        `;
+      }).join("");
+    }
+
     function renderOrders(orders) {
       els.ordersList.innerHTML = orders.map(o => `
         <div class="card">
           <div class="row">
             <strong>${fmtMoney(o.total_kes)}</strong>
-            <span class="badge">${o.status || "received"}</span>
+            <span class="badge">${escapeHtml(o.status || "received")}</span>
           </div>
-          <div style="margin-top:8px;" class="id"><strong>ID:</strong> ${o.id}</div>
-          <div style="margin-top:6px;"><strong>Name:</strong> ${o.customer_name || "-"}</div>
-          <div style="margin-top:6px;"><strong>Phone:</strong> ${o.customer_phone || "-"}</div>
-          <div style="margin-top:6px;"><strong>Note:</strong> ${o.note || "-"}</div>
+
+          <div style="margin-top:8px;" class="id"><strong>ID:</strong> ${escapeHtml(o.id || "-")}</div>
+          <div style="margin-top:6px;"><strong>Name:</strong> ${escapeHtml(o.customer_name || "-")}</div>
+          <div style="margin-top:6px;"><strong>Phone:</strong> ${escapeHtml(o.customer_phone || "-")}</div>
+
+          <div class="items-wrap">
+            <strong>Order:</strong>
+            <div style="margin-top:6px; display:grid; gap:6px;">
+              ${renderOrderItems(o.items)}
+            </div>
+          </div>
+
+          <div style="margin-top:8px;"><strong>Note:</strong> ${escapeHtml(o.note || "-")}</div>
           <div style="margin-top:6px;" class="muted"><strong>Placed:</strong> ${fmtDate(o.created_at)}</div>
         </div>
       `).join("");

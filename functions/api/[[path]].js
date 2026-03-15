@@ -8,6 +8,8 @@
 // ✅ Reviews:
 //    GET  /api/reviews?product_id=...
 //    POST /api/reviews/submit
+// ✅ Admin recent orders:
+//    GET /api/admin/orders/recent?key=...
 
 const COOKIE_NAME = "basfay_session";
 const SESSION_TTL_DAYS = 30;
@@ -101,6 +103,14 @@ export async function onRequest(context) {
 
     if (endpoint === "orders" && !sub && request.method === "POST") return await createOrder(request, env);
     if (endpoint === "orders" && !sub && request.method === "GET") return await listOrders(request, env);
+
+    /* -----------------------------
+       Admin recent orders
+       - GET /api/admin/orders/recent?key=...
+    ----------------------------- */
+    if (request.method === "GET" && endpoint === "admin" && sub === "orders" && action === "recent") {
+      return await adminRecentOrders(request, env);
+    }
 
     return json({ error: "Not found" }, 404);
   } catch (err) {
@@ -260,6 +270,41 @@ async function listOrders(request, env) {
     customer_phone: r.customer_phone,
     items: safeParse(r.items_json),
     note: r.note
+  }));
+
+  return json({ ok: true, orders }, 200);
+}
+
+async function adminRecentOrders(request, env) {
+  if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
+
+  const url = new URL(request.url);
+  const key = cleanText(url.searchParams.get("key"), 200);
+  const adminKey = cleanText(env.BASFAY_ADMIN_KEY, 200);
+
+  if (!adminKey) {
+    return json({ error: "BASFAY_ADMIN_KEY missing in environment variables." }, 500);
+  }
+
+  if (!key || key !== adminKey) {
+    return json({ error: "Unauthorized" }, 401);
+  }
+
+  const rows = await env.DB.prepare(`
+    SELECT id, customer_name, customer_phone, total_kes, status, note, created_at
+    FROM orders
+    ORDER BY created_at DESC
+    LIMIT 30
+  `).all();
+
+  const orders = (rows.results || []).map((r) => ({
+    id: r.id,
+    customer_name: r.customer_name || "",
+    customer_phone: r.customer_phone || "",
+    total_kes: r.total_kes || 0,
+    status: r.status || "",
+    note: r.note || "",
+    created_at: r.created_at || 0
   }));
 
   return json({ ok: true, orders }, 200);

@@ -121,6 +121,17 @@ const els = {
   modalSizeField: document.getElementById("modalSizeField"),
   modalSize: document.getElementById("modalSize"),
   modalViewDetails: document.getElementById("modalViewDetails"),
+
+  // School filter UI
+  desktopSchoolSearchInput: document.getElementById("desktopSchoolSearchInput"),
+  desktopSchoolSearchBtn: document.getElementById("desktopSchoolSearchBtn"),
+  mobileSchoolSearchInput: document.getElementById("mobileSchoolSearchInput"),
+  mobileSchoolSearchBtn: document.getElementById("mobileSchoolSearchBtn"),
+  catalogSchoolSearchInput: document.getElementById("catalogSchoolSearchInput"),
+  catalogSchoolSearchBtn: document.getElementById("catalogSchoolSearchBtn"),
+  catalogSchoolClearBtn: document.getElementById("catalogSchoolClearBtn"),
+  activeSchoolChip: document.getElementById("activeSchoolChip"),
+  activeSchoolText: document.getElementById("activeSchoolText")
 };
 
 let PRODUCTS = [];
@@ -221,18 +232,48 @@ function getSchoolFromUrl() {
   }
 }
 
+function normalizeLooseText(value) {
+  return normalize(value)
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function schoolTokens(value) {
+  return normalizeLooseText(value).split(" ").filter(Boolean);
+}
+
+function looseTextMatch(a, b) {
+  const aa = normalizeLooseText(a);
+  const bb = normalizeLooseText(b);
+
+  if (!aa || !bb) return false;
+  if (aa === bb) return true;
+  if (aa.includes(bb) || bb.includes(aa)) return true;
+
+  const aTokens = schoolTokens(aa);
+  const bTokens = schoolTokens(bb);
+  if (!aTokens.length || !bTokens.length) return false;
+
+  const common = bTokens.filter(token => aTokens.includes(token));
+  return common.length >= Math.min(2, bTokens.length);
+}
+
 function productMatchesSchool(product, selectedSchool) {
-  const wanted = normalize(selectedSchool);
+  const wanted = safeText(selectedSchool);
   if (!wanted) return true;
 
-  const singleSchool = normalize(product?.school);
-  if (singleSchool && singleSchool === wanted) return true;
+  const candidates = [
+    product?.school,
+    ...(Array.isArray(product?.schools) ? product.schools : [])
+  ]
+    .map(safeText)
+    .filter(Boolean);
 
-  const schoolList = Array.isArray(product?.schools)
-    ? product.schools.map(normalize).filter(Boolean)
-    : [];
+  if (!candidates.length) return false;
 
-  return schoolList.includes(wanted);
+  return candidates.some(candidate => looseTextMatch(candidate, wanted));
 }
 
 /* Safe image helpers */
@@ -477,6 +518,100 @@ async function announceOrderId(orderId) {
   } catch {
     toast(`Order ID: ${id}`);
   }
+}
+
+/* School filter UI */
+function schoolInputsList() {
+  return [
+    els.desktopSchoolSearchInput,
+    els.mobileSchoolSearchInput,
+    els.catalogSchoolSearchInput
+  ].filter(Boolean);
+}
+
+function syncSchoolInputs(value) {
+  const clean = safeText(value);
+  schoolInputsList().forEach(input => {
+    if (input && input.value !== clean) input.value = clean;
+  });
+}
+
+function updateSchoolChip() {
+  if (!els.activeSchoolChip || !els.activeSchoolText) return;
+
+  if (safeText(state.school)) {
+    els.activeSchoolText.textContent = state.school;
+    els.activeSchoolChip.hidden = false;
+  } else {
+    els.activeSchoolText.textContent = "";
+    els.activeSchoolChip.hidden = true;
+  }
+}
+
+function setSchoolInUrl(value) {
+  try {
+    const url = new URL(window.location.href);
+    const clean = safeText(value);
+
+    if (clean) url.searchParams.set("school", clean);
+    else url.searchParams.delete("school");
+
+    window.history.replaceState({}, "", url.toString());
+  } catch {
+    // ignore
+  }
+}
+
+function applySchoolFilter(value) {
+  state.school = safeText(value);
+  syncSchoolInputs(state.school);
+  updateSchoolChip();
+  setSchoolInUrl(state.school);
+  resetVisibleProducts();
+  renderProducts();
+}
+
+function bindSchoolFilterUI() {
+  const inputs = schoolInputsList();
+  const buttons = [
+    els.desktopSchoolSearchBtn,
+    els.mobileSchoolSearchBtn,
+    els.catalogSchoolSearchBtn
+  ].filter(Boolean);
+
+  const runSearchFromInputs = () => {
+    const value =
+      safeText(els.catalogSchoolSearchInput?.value) ||
+      safeText(els.desktopSchoolSearchInput?.value) ||
+      safeText(els.mobileSchoolSearchInput?.value);
+    applySchoolFilter(value);
+  };
+
+  inputs.forEach(input => {
+    input.addEventListener("input", () => {
+      syncSchoolInputs(input.value);
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        runSearchFromInputs();
+      }
+    });
+  });
+
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      runSearchFromInputs();
+    });
+  });
+
+  els.catalogSchoolClearBtn?.addEventListener("click", () => {
+    applySchoolFilter("");
+  });
+
+  updateSchoolChip();
+  syncSchoolInputs(state.school);
 }
 
 /* Cart store */
@@ -1313,7 +1448,12 @@ function renderProducts() {
 
   if (state.school) {
     document.title = `Shop ${state.school} Uniforms | BASFAY Uniforms Kenya`;
+  } else {
+    document.title = `Basfay Uniforms Kenya | School Uniforms, Scrubs, Bags & Workwear (Nairobi)`;
   }
+
+  updateSchoolChip();
+  syncSchoolInputs(state.school);
 
   els.productGrid.innerHTML = "";
   if (els.emptyState) els.emptyState.hidden = sorted.length !== 0;
@@ -1848,6 +1988,7 @@ async function loadProducts() {
     state.school = getSchoolFromUrl();
 
     bindFilters();
+    bindSchoolFilterUI();
     bindCart();
     bindModal();
 

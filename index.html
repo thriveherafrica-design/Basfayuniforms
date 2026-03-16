@@ -173,9 +173,9 @@
       .school-search-shell{
         display:grid;
         gap:8px;
-        padding-bottom:6px;
+        padding-bottom:8px;
         border-bottom:1px solid rgba(15,47,74,0.08);
-        margin-bottom:2px;
+        margin-bottom:4px;
       }
 
       .school-search-label{
@@ -211,31 +211,44 @@
         box-shadow:0 0 0 4px rgba(30,136,229,0.12);
       }
 
-      .school-search-btn,
-      .school-clear-btn{
+      .school-search-btn{
         height:42px;
         border-radius:14px;
-        border:1px solid rgba(15,47,74,0.10);
-        padding:0 14px;
+        border:none;
+        padding:0 16px;
         font:inherit;
         font-weight:800;
         cursor:pointer;
         white-space:nowrap;
-      }
-
-      .school-search-btn{
         background:#0F2F4A;
         color:#fff;
-      }
-
-      .school-clear-btn{
-        background:rgba(15,47,74,0.05);
-        color:#0F2F4A;
       }
 
       .school-links-scroll{
         display:grid;
         gap:4px;
+      }
+
+      .school-link-list{
+        display:grid;
+        gap:8px;
+        margin-top:0;
+      }
+
+      .school-link-list a{
+        text-decoration:none;
+        color:#0F2F4A;
+        font-size:13px;
+        font-weight:700;
+        line-height:1.4;
+        padding:10px 12px;
+        border-radius:12px;
+        background:rgba(255,255,255,0.55);
+        border:1px solid rgba(15,47,74,0.08);
+      }
+
+      .school-link-list a:hover{
+        background:rgba(30,136,229,0.08);
       }
 
       .school-links-empty{
@@ -252,86 +265,13 @@
         display:block;
       }
 
-      .school-filter-card{
-        margin-bottom:16px;
-      }
-
-      .school-filter-head{
-        display:flex;
-        flex-wrap:wrap;
-        align-items:end;
-        justify-content:space-between;
-        gap:14px;
-      }
-
-      .school-filter-left{
-        display:grid;
-        gap:10px;
-        flex:1 1 520px;
-      }
-
-      .school-filter-title{
-        display:flex;
-        flex-wrap:wrap;
-        gap:10px;
-        align-items:center;
-      }
-
-      .school-filter-title h3{
-        margin:0;
-        font-size:16px;
-      }
-
-      .school-active-chip{
-        display:inline-flex;
-        align-items:center;
-        gap:6px;
-        padding:7px 12px;
-        border-radius:999px;
-        background:rgba(30,136,229,0.08);
-        border:1px solid rgba(30,136,229,0.16);
-        color:#0F2F4A;
-        font-size:12.5px;
-        font-weight:800;
-      }
-
-      .school-filter-controls{
-        display:flex;
-        flex-wrap:wrap;
-        gap:10px;
-        align-items:center;
-      }
-
-      .school-filter-controls .field{
-        margin:0;
-      }
-
-      .school-filter-controls input{
-        min-width:240px;
-      }
-
-      .school-filter-note{
-        font-size:12.5px;
-        color:rgba(15,47,74,0.72);
-      }
-
       @media (min-width: 769px){
         .header-quicklinks{ display:flex; }
       }
 
       @media (max-width: 768px){
         .header-school-nav{
-          display:none;
-        }
-
-        .school-filter-controls{
-          flex-direction:column;
-          align-items:stretch;
-        }
-
-        .school-filter-controls input,
-        .school-filter-controls button{
-          width:100%;
+          display:none !important;
         }
       }
 
@@ -492,28 +432,6 @@
       .auth-row{ display:flex; gap:10px; flex-wrap:wrap; }
       .auth-row .btn{ flex: 1 1 auto; }
 
-      .school-link-list{
-        display:grid;
-        gap:8px;
-        margin-top:12px;
-      }
-
-      .school-link-list a{
-        text-decoration:none;
-        color:#0F2F4A;
-        font-size:13px;
-        font-weight:700;
-        line-height:1.4;
-        padding:10px 12px;
-        border-radius:12px;
-        background:rgba(255,255,255,0.55);
-        border:1px solid rgba(15,47,74,0.08);
-      }
-
-      .school-link-list a:hover{
-        background:rgba(30,136,229,0.08);
-      }
-
       @media (max-width: 768px){
         .header .container.header-inner{
           display:flex !important;
@@ -560,6 +478,15 @@
         .header-cart{
           display:inline-flex !important;
           flex-shrink:0 !important;
+        }
+
+        #menuSchoolList .school-search-row{
+          flex-direction:column;
+          align-items:stretch;
+        }
+
+        #menuSchoolList .school-search-btn{
+          width:100%;
         }
       }
 
@@ -1016,40 +943,6 @@
             <p class="muted">Select size, add to order, or open full item details.</p>
           </div>
 
-          <div class="card soft school-filter-card">
-            <div class="school-filter-head">
-              <div class="school-filter-left">
-                <div class="school-filter-title">
-                  <h3>Shop by School</h3>
-                  <div class="school-active-chip" id="activeSchoolChip" hidden>
-                    <span>School:</span>
-                    <span id="activeSchoolText">-</span>
-                  </div>
-                </div>
-
-                <div class="school-filter-controls">
-                  <div class="field" style="min-width:260px; flex:1 1 300px;">
-                    <label for="catalogSchoolSearchInput">Search school</label>
-                    <input
-                      id="catalogSchoolSearchInput"
-                      class="school-search-input"
-                      type="search"
-                      placeholder="Search school name"
-                      autocomplete="off"
-                    />
-                  </div>
-
-                  <button class="school-search-btn" id="catalogSchoolSearchBtn" type="button">Search School</button>
-                  <button class="school-clear-btn" id="catalogSchoolClearBtn" type="button">Clear</button>
-                </div>
-
-                <div class="school-filter-note">
-                  Pick a school from the menu above or search here to apply a school filter.
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div class="card soft" style="margin-bottom: 16px;">
             <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:end; justify-content:space-between;">
               <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:end;">
@@ -1305,7 +1198,6 @@
             <p class="muted">Add products from the catalog.</p>
           </div>
 
-          <!-- STEP 1 -->
           <section id="checkoutStep1" class="checkout-step">
             <div class="card soft pay-card">
               <div class="pay-title">How would you like to receive your order?</div>
@@ -1369,7 +1261,6 @@
             </div>
           </section>
 
-          <!-- STEP 2 -->
           <section id="checkoutStep2" class="checkout-step is-hidden" hidden>
             <div class="card soft pay-card">
               <div class="pay-title">How would you like to pay?</div>
@@ -1406,7 +1297,6 @@
             </div>
           </section>
 
-          <!-- STEP 3 -->
           <section id="checkoutStep3" class="checkout-step is-hidden" hidden>
             <div class="card soft pay-card">
               <div class="pay-title">Final details</div>
@@ -1447,7 +1337,6 @@
             </div>
           </section>
 
-          <!-- STEP 4 -->
           <section id="checkoutStep4" class="checkout-step is-hidden" hidden>
             <div class="card soft pay-card">
               <div class="pay-title">Review order</div>
@@ -1597,9 +1486,10 @@
               <div class="card soft" style="padding:12px;">
                 <div style="font-weight:900;margin-bottom:10px;">Shop by School</div>
 
-                <div class="school-search-shell" style="margin-bottom:10px;">
+                <div class="school-search-shell">
                   <div class="school-search-label">Find your school</div>
-                  <div class="school-search-row" style="flex-wrap:wrap;">
+
+                  <div class="school-search-row">
                     <input
                       class="school-search-input"
                       id="mobileSchoolSearchInput"
@@ -1607,7 +1497,9 @@
                       placeholder="Search school name"
                       autocomplete="off"
                     />
-                    <button class="school-search-btn" id="mobileSchoolSearchBtn" type="button">Search</button>
+                    <button class="school-search-btn" id="mobileSchoolSearchBtn" type="button">
+                      Search School
+                    </button>
                   </div>
                 </div>
 
@@ -2029,143 +1921,6 @@
         });
 
         document.addEventListener("DOMContentLoaded", refreshAuthUI);
-      })();
-    </script>
-
-    <script>
-      (function () {
-        const schoolInputs = [
-          document.getElementById("desktopSchoolSearchInput"),
-          document.getElementById("mobileSchoolSearchInput"),
-          document.getElementById("catalogSchoolSearchInput")
-        ].filter(Boolean);
-
-        const schoolButtons = [
-          document.getElementById("desktopSchoolSearchBtn"),
-          document.getElementById("mobileSchoolSearchBtn"),
-          document.getElementById("catalogSchoolSearchBtn")
-        ].filter(Boolean);
-
-        const clearBtn = document.getElementById("catalogSchoolClearBtn");
-        const activeSchoolChip = document.getElementById("activeSchoolChip");
-        const activeSchoolText = document.getElementById("activeSchoolText");
-
-        const desktopLinksWrap = document.getElementById("desktopSchoolLinks");
-        const mobileLinksWrap = document.getElementById("mobileSchoolLinks");
-        const desktopEmpty = document.getElementById("desktopSchoolEmpty");
-        const mobileEmpty = document.getElementById("mobileSchoolEmpty");
-
-        const schoolCollections = [
-          { wrap: desktopLinksWrap, empty: desktopEmpty },
-          { wrap: mobileLinksWrap, empty: mobileEmpty }
-        ].filter(item => item.wrap);
-
-        const params = new URLSearchParams(window.location.search);
-        const schoolFromUrl = (params.get("school") || "").trim();
-
-        function normalizeValue(value) {
-          return String(value || "")
-            .replace(/\s+/g, " ")
-            .trim();
-        }
-
-        function syncInputs(value) {
-          const clean = normalizeValue(value);
-          schoolInputs.forEach((input) => {
-            if (input && input.value !== clean) input.value = clean;
-          });
-        }
-
-        function updateActiveChip(value) {
-          const clean = normalizeValue(value);
-          if (!activeSchoolChip || !activeSchoolText) return;
-
-          if (clean) {
-            activeSchoolText.textContent = clean;
-            activeSchoolChip.hidden = false;
-          } else {
-            activeSchoolText.textContent = "";
-            activeSchoolChip.hidden = true;
-          }
-        }
-
-        function setSchoolUrl(value) {
-          const clean = normalizeValue(value);
-          const next = new URL(window.location.href);
-
-          if (clean) {
-            next.searchParams.set("school", clean);
-          } else {
-            next.searchParams.delete("school");
-          }
-
-          window.location.href = next.toString();
-        }
-
-        function filterSchoolLinks(value) {
-          const clean = normalizeValue(value).toLowerCase();
-
-          schoolCollections.forEach(({ wrap, empty }) => {
-            const links = Array.from(wrap.querySelectorAll("a[data-school-name]"));
-            let visibleCount = 0;
-
-            links.forEach((link) => {
-              const label = String(link.dataset.schoolName || link.textContent || "").toLowerCase();
-              const show = !clean || label.includes(clean);
-              link.style.display = show ? "" : "none";
-              if (show) visibleCount += 1;
-            });
-
-            if (empty) {
-              empty.classList.toggle("is-visible", clean.length > 0 && visibleCount === 0);
-            }
-          });
-        }
-
-        function runSchoolSearch() {
-          const firstFilled = schoolInputs.find((input) => normalizeValue(input.value));
-          const value = firstFilled ? firstFilled.value : "";
-          const clean = normalizeValue(value);
-
-          syncInputs(clean);
-          updateActiveChip(clean);
-
-          if (clean) {
-            setSchoolUrl(clean);
-          } else {
-            setSchoolUrl("");
-          }
-        }
-
-        schoolInputs.forEach((input) => {
-          input.addEventListener("input", (e) => {
-            const value = e.target.value;
-            syncInputs(value);
-            filterSchoolLinks(value);
-          });
-
-          input.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              runSchoolSearch();
-            }
-          });
-        });
-
-        schoolButtons.forEach((btn) => {
-          btn.addEventListener("click", runSchoolSearch);
-        });
-
-        clearBtn?.addEventListener("click", () => {
-          syncInputs("");
-          updateActiveChip("");
-          filterSchoolLinks("");
-          setSchoolUrl("");
-        });
-
-        syncInputs(schoolFromUrl);
-        updateActiveChip(schoolFromUrl);
-        filterSchoolLinks(schoolFromUrl);
       })();
     </script>
 

@@ -132,17 +132,17 @@
         position:absolute;
         top:calc(100% + 10px);
         left:0;
-        min-width:280px;
-        max-height:420px;
+        min-width:320px;
+        max-height:460px;
         overflow:auto;
-        padding:10px;
+        padding:12px;
         background:rgba(255,255,255,0.96);
         backdrop-filter: blur(10px);
         border:1px solid rgba(15,47,74,0.10);
         border-radius:16px;
         box-shadow:0 16px 40px rgba(15,28,43,0.10);
         display:grid;
-        gap:4px;
+        gap:8px;
         opacity:0;
         visibility:hidden;
         transform:translateY(8px);
@@ -170,6 +170,151 @@
         transform:translateY(0);
       }
 
+      .school-search-shell{
+        display:grid;
+        gap:8px;
+        padding-bottom:6px;
+        border-bottom:1px solid rgba(15,47,74,0.08);
+        margin-bottom:2px;
+      }
+
+      .school-search-label{
+        font-size:11px;
+        font-weight:900;
+        text-transform:uppercase;
+        letter-spacing:.08em;
+        color:#0F2F4A;
+        opacity:.72;
+      }
+
+      .school-search-row{
+        display:flex;
+        gap:8px;
+        align-items:center;
+      }
+
+      .school-search-input{
+        width:100%;
+        min-width:0;
+        height:42px;
+        border-radius:14px;
+        border:1px solid rgba(15,47,74,0.12);
+        background:#fff;
+        padding:0 14px;
+        font:inherit;
+        color:#0F2F4A;
+        outline:none;
+      }
+
+      .school-search-input:focus{
+        border-color:rgba(30,136,229,0.45);
+        box-shadow:0 0 0 4px rgba(30,136,229,0.12);
+      }
+
+      .school-search-btn,
+      .school-clear-btn{
+        height:42px;
+        border-radius:14px;
+        border:1px solid rgba(15,47,74,0.10);
+        padding:0 14px;
+        font:inherit;
+        font-weight:800;
+        cursor:pointer;
+        white-space:nowrap;
+      }
+
+      .school-search-btn{
+        background:#0F2F4A;
+        color:#fff;
+      }
+
+      .school-clear-btn{
+        background:rgba(15,47,74,0.05);
+        color:#0F2F4A;
+      }
+
+      .school-links-scroll{
+        display:grid;
+        gap:4px;
+      }
+
+      .school-links-empty{
+        display:none;
+        padding:10px 12px;
+        border-radius:12px;
+        background:rgba(15,47,74,0.04);
+        color:#0F2F4A;
+        font-size:12.5px;
+        font-weight:700;
+      }
+
+      .school-links-empty.is-visible{
+        display:block;
+      }
+
+      .school-filter-card{
+        margin-bottom:16px;
+      }
+
+      .school-filter-head{
+        display:flex;
+        flex-wrap:wrap;
+        align-items:end;
+        justify-content:space-between;
+        gap:14px;
+      }
+
+      .school-filter-left{
+        display:grid;
+        gap:10px;
+        flex:1 1 520px;
+      }
+
+      .school-filter-title{
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        align-items:center;
+      }
+
+      .school-filter-title h3{
+        margin:0;
+        font-size:16px;
+      }
+
+      .school-active-chip{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        padding:7px 12px;
+        border-radius:999px;
+        background:rgba(30,136,229,0.08);
+        border:1px solid rgba(30,136,229,0.16);
+        color:#0F2F4A;
+        font-size:12.5px;
+        font-weight:800;
+      }
+
+      .school-filter-controls{
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        align-items:center;
+      }
+
+      .school-filter-controls .field{
+        margin:0;
+      }
+
+      .school-filter-controls input{
+        min-width:240px;
+      }
+
+      .school-filter-note{
+        font-size:12.5px;
+        color:rgba(15,47,74,0.72);
+      }
+
       @media (min-width: 769px){
         .header-quicklinks{ display:flex; }
       }
@@ -177,6 +322,16 @@
       @media (max-width: 768px){
         .header-school-nav{
           display:none;
+        }
+
+        .school-filter-controls{
+          flex-direction:column;
+          align-items:stretch;
+        }
+
+        .school-filter-controls input,
+        .school-filter-controls button{
+          width:100%;
         }
       }
 
@@ -780,18 +935,38 @@
               </button>
 
               <div class="header-school-menu" id="schoolMenuPanel" aria-hidden="true">
-                <a href="/?school=Kangemi%20Primary">Kangemi Primary</a>
-                <a href="/?school=New%20Kihumbuini%20Primary">New Kihumbuini</a>
-                <a href="/?school=Old%20Kihumbuini">Old Kihumbuini</a>
-                <a href="/?school=St%20Joseph%20Primary">St Joseph Primary</a>
-                <a href="/?school=Westlands%20Primary">Westlands Primary</a>
-                <a href="/?school=Uthiru%20Genesis">Uthiru Genesis</a>
-                <a href="/?school=Nairobi%20School">Nairobi School</a>
-                <a href="/?school=Joy%20Shiru">Joy Shiru</a>
-                <a href="/?school=Aga%20Khan">Aga Khan</a>
-                <a href="/?school=Umoja%20Primary">Umoja Primary</a>
-                <a href="/?school=Consolata%20School">Consolata School</a>
-                <a href="/?school=Kianda%20School">Kianda School</a>
+                <div class="school-search-shell">
+                  <div class="school-search-label">Find your school</div>
+                  <div class="school-search-row">
+                    <input
+                      class="school-search-input"
+                      id="desktopSchoolSearchInput"
+                      type="search"
+                      placeholder="Search school name"
+                      autocomplete="off"
+                    />
+                    <button class="school-search-btn" id="desktopSchoolSearchBtn" type="button">Search</button>
+                  </div>
+                </div>
+
+                <div class="school-links-scroll" id="desktopSchoolLinks">
+                  <a href="/?school=Kangemi%20Primary" data-school-name="Kangemi Primary">Kangemi Primary</a>
+                  <a href="/?school=New%20Kihumbuini%20Primary" data-school-name="New Kihumbuini Primary">New Kihumbuini</a>
+                  <a href="/?school=Old%20Kihumbuini" data-school-name="Old Kihumbuini">Old Kihumbuini</a>
+                  <a href="/?school=St%20Joseph%20Primary" data-school-name="St Joseph Primary">St Joseph Primary</a>
+                  <a href="/?school=Westlands%20Primary" data-school-name="Westlands Primary">Westlands Primary</a>
+                  <a href="/?school=Uthiru%20Genesis" data-school-name="Uthiru Genesis">Uthiru Genesis</a>
+                  <a href="/?school=Nairobi%20School" data-school-name="Nairobi School">Nairobi School</a>
+                  <a href="/?school=Joy%20Shiru" data-school-name="Joy Shiru">Joy Shiru</a>
+                  <a href="/?school=Aga%20Khan" data-school-name="Aga Khan">Aga Khan</a>
+                  <a href="/?school=Umoja%20Primary" data-school-name="Umoja Primary">Umoja Primary</a>
+                  <a href="/?school=Consolata%20School" data-school-name="Consolata School">Consolata School</a>
+                  <a href="/?school=Kianda%20School" data-school-name="Kianda School">Kianda School</a>
+                </div>
+
+                <div class="school-links-empty" id="desktopSchoolEmpty">
+                  No school matched that search.
+                </div>
               </div>
             </div>
 
@@ -839,6 +1014,40 @@
           <div class="section-head">
             <h2>Catalog</h2>
             <p class="muted">Select size, add to order, or open full item details.</p>
+          </div>
+
+          <div class="card soft school-filter-card">
+            <div class="school-filter-head">
+              <div class="school-filter-left">
+                <div class="school-filter-title">
+                  <h3>Shop by School</h3>
+                  <div class="school-active-chip" id="activeSchoolChip" hidden>
+                    <span>School:</span>
+                    <span id="activeSchoolText">-</span>
+                  </div>
+                </div>
+
+                <div class="school-filter-controls">
+                  <div class="field" style="min-width:260px; flex:1 1 300px;">
+                    <label for="catalogSchoolSearchInput">Search school</label>
+                    <input
+                      id="catalogSchoolSearchInput"
+                      class="school-search-input"
+                      type="search"
+                      placeholder="Search school name"
+                      autocomplete="off"
+                    />
+                  </div>
+
+                  <button class="school-search-btn" id="catalogSchoolSearchBtn" type="button">Search School</button>
+                  <button class="school-clear-btn" id="catalogSchoolClearBtn" type="button">Clear</button>
+                </div>
+
+                <div class="school-filter-note">
+                  Pick a school from the menu above or search here to apply a school filter.
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="card soft" style="margin-bottom: 16px;">
@@ -1387,19 +1596,38 @@
             <div id="menuSchoolList" class="is-hidden" style="margin-top:12px;">
               <div class="card soft" style="padding:12px;">
                 <div style="font-weight:900;margin-bottom:10px;">Shop by School</div>
-                <div class="school-link-list">
-                  <a href="/?school=Kangemi%20Primary">Kangemi Primary</a>
-                  <a href="/?school=New%20Kihumbuini%20Primary">New Kihumbuini</a>
-                  <a href="/?school=Old%20Kihumbuini">Old Kihumbuini</a>
-                  <a href="/?school=St%20Joseph%20Primary">St Joseph Primary</a>
-                  <a href="/?school=Westlands%20Primary">Westlands Primary</a>
-                  <a href="/?school=Uthiru%20Genesis">Uthiru Genesis</a>
-                  <a href="/?school=Nairobi%20School">Nairobi School</a>
-                  <a href="/?school=Joy%20Shiru">Joy Shiru</a>
-                  <a href="/?school=Aga%20Khan">Aga Khan</a>
-                  <a href="/?school=Umoja%20Primary">Umoja Primary</a>
-                  <a href="/?school=Consolata%20School">Consolata School</a>
-                  <a href="/?school=Kianda%20School">Kianda School</a>
+
+                <div class="school-search-shell" style="margin-bottom:10px;">
+                  <div class="school-search-label">Find your school</div>
+                  <div class="school-search-row" style="flex-wrap:wrap;">
+                    <input
+                      class="school-search-input"
+                      id="mobileSchoolSearchInput"
+                      type="search"
+                      placeholder="Search school name"
+                      autocomplete="off"
+                    />
+                    <button class="school-search-btn" id="mobileSchoolSearchBtn" type="button">Search</button>
+                  </div>
+                </div>
+
+                <div class="school-link-list" id="mobileSchoolLinks">
+                  <a href="/?school=Kangemi%20Primary" data-school-name="Kangemi Primary">Kangemi Primary</a>
+                  <a href="/?school=New%20Kihumbuini%20Primary" data-school-name="New Kihumbuini Primary">New Kihumbuini</a>
+                  <a href="/?school=Old%20Kihumbuini" data-school-name="Old Kihumbuini">Old Kihumbuini</a>
+                  <a href="/?school=St%20Joseph%20Primary" data-school-name="St Joseph Primary">St Joseph Primary</a>
+                  <a href="/?school=Westlands%20Primary" data-school-name="Westlands Primary">Westlands Primary</a>
+                  <a href="/?school=Uthiru%20Genesis" data-school-name="Uthiru Genesis">Uthiru Genesis</a>
+                  <a href="/?school=Nairobi%20School" data-school-name="Nairobi School">Nairobi School</a>
+                  <a href="/?school=Joy%20Shiru" data-school-name="Joy Shiru">Joy Shiru</a>
+                  <a href="/?school=Aga%20Khan" data-school-name="Aga Khan">Aga Khan</a>
+                  <a href="/?school=Umoja%20Primary" data-school-name="Umoja Primary">Umoja Primary</a>
+                  <a href="/?school=Consolata%20School" data-school-name="Consolata School">Consolata School</a>
+                  <a href="/?school=Kianda%20School" data-school-name="Kianda School">Kianda School</a>
+                </div>
+
+                <div class="school-links-empty" id="mobileSchoolEmpty" style="margin-top:10px;">
+                  No school matched that search.
                 </div>
               </div>
             </div>
@@ -1801,6 +2029,143 @@
         });
 
         document.addEventListener("DOMContentLoaded", refreshAuthUI);
+      })();
+    </script>
+
+    <script>
+      (function () {
+        const schoolInputs = [
+          document.getElementById("desktopSchoolSearchInput"),
+          document.getElementById("mobileSchoolSearchInput"),
+          document.getElementById("catalogSchoolSearchInput")
+        ].filter(Boolean);
+
+        const schoolButtons = [
+          document.getElementById("desktopSchoolSearchBtn"),
+          document.getElementById("mobileSchoolSearchBtn"),
+          document.getElementById("catalogSchoolSearchBtn")
+        ].filter(Boolean);
+
+        const clearBtn = document.getElementById("catalogSchoolClearBtn");
+        const activeSchoolChip = document.getElementById("activeSchoolChip");
+        const activeSchoolText = document.getElementById("activeSchoolText");
+
+        const desktopLinksWrap = document.getElementById("desktopSchoolLinks");
+        const mobileLinksWrap = document.getElementById("mobileSchoolLinks");
+        const desktopEmpty = document.getElementById("desktopSchoolEmpty");
+        const mobileEmpty = document.getElementById("mobileSchoolEmpty");
+
+        const schoolCollections = [
+          { wrap: desktopLinksWrap, empty: desktopEmpty },
+          { wrap: mobileLinksWrap, empty: mobileEmpty }
+        ].filter(item => item.wrap);
+
+        const params = new URLSearchParams(window.location.search);
+        const schoolFromUrl = (params.get("school") || "").trim();
+
+        function normalizeValue(value) {
+          return String(value || "")
+            .replace(/\s+/g, " ")
+            .trim();
+        }
+
+        function syncInputs(value) {
+          const clean = normalizeValue(value);
+          schoolInputs.forEach((input) => {
+            if (input && input.value !== clean) input.value = clean;
+          });
+        }
+
+        function updateActiveChip(value) {
+          const clean = normalizeValue(value);
+          if (!activeSchoolChip || !activeSchoolText) return;
+
+          if (clean) {
+            activeSchoolText.textContent = clean;
+            activeSchoolChip.hidden = false;
+          } else {
+            activeSchoolText.textContent = "";
+            activeSchoolChip.hidden = true;
+          }
+        }
+
+        function setSchoolUrl(value) {
+          const clean = normalizeValue(value);
+          const next = new URL(window.location.href);
+
+          if (clean) {
+            next.searchParams.set("school", clean);
+          } else {
+            next.searchParams.delete("school");
+          }
+
+          window.location.href = next.toString();
+        }
+
+        function filterSchoolLinks(value) {
+          const clean = normalizeValue(value).toLowerCase();
+
+          schoolCollections.forEach(({ wrap, empty }) => {
+            const links = Array.from(wrap.querySelectorAll("a[data-school-name]"));
+            let visibleCount = 0;
+
+            links.forEach((link) => {
+              const label = String(link.dataset.schoolName || link.textContent || "").toLowerCase();
+              const show = !clean || label.includes(clean);
+              link.style.display = show ? "" : "none";
+              if (show) visibleCount += 1;
+            });
+
+            if (empty) {
+              empty.classList.toggle("is-visible", clean.length > 0 && visibleCount === 0);
+            }
+          });
+        }
+
+        function runSchoolSearch() {
+          const firstFilled = schoolInputs.find((input) => normalizeValue(input.value));
+          const value = firstFilled ? firstFilled.value : "";
+          const clean = normalizeValue(value);
+
+          syncInputs(clean);
+          updateActiveChip(clean);
+
+          if (clean) {
+            setSchoolUrl(clean);
+          } else {
+            setSchoolUrl("");
+          }
+        }
+
+        schoolInputs.forEach((input) => {
+          input.addEventListener("input", (e) => {
+            const value = e.target.value;
+            syncInputs(value);
+            filterSchoolLinks(value);
+          });
+
+          input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              runSchoolSearch();
+            }
+          });
+        });
+
+        schoolButtons.forEach((btn) => {
+          btn.addEventListener("click", runSchoolSearch);
+        });
+
+        clearBtn?.addEventListener("click", () => {
+          syncInputs("");
+          updateActiveChip("");
+          filterSchoolLinks("");
+          setSchoolUrl("");
+        });
+
+        syncInputs(schoolFromUrl);
+        updateActiveChip(schoolFromUrl);
+        filterSchoolLinks(schoolFromUrl);
       })();
     </script>
 

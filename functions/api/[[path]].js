@@ -10,11 +10,24 @@
 //    POST /api/reviews/submit
 // ✅ Admin recent orders:
 //    GET /api/admin/orders/recent?key=...
+// ✅ Admin update order status:
+//    POST /api/admin/orders/status?key=...  { order_id, status }
 
 const COOKIE_NAME = "basfay_session";
 const SESSION_TTL_DAYS = 30;
 const PBKDF2_ITERS = 100000; // keep <= 100000 on CF
 const GOOGLE_STATE_COOKIE = "basfay_google_state";
+
+// ✅ Allowed status values (so you don’t end up with "deliveredddd" in your DB)
+const ORDER_STATUS_ALLOWLIST = new Set([
+  "pending_payment",
+  "cash_pending",
+  "confirmed",
+  "ready_for_pickup",
+  "out_for_delivery",
+  "delivered",
+  "cancelled",
+]);
 
 export async function onRequest(context) {
   const { request, env, params } = context;
@@ -107,9 +120,15 @@ export async function onRequest(context) {
     /* -----------------------------
        Admin recent orders
        - GET /api/admin/orders/recent?key=...
+       Admin update status
+       - POST /api/admin/orders/status?key=...
     ----------------------------- */
     if (request.method === "GET" && endpoint === "admin" && sub === "orders" && action === "recent") {
       return await adminRecentOrders(request, env);
+    }
+
+    if (request.method === "POST" && endpoint === "admin" && sub === "orders" && action === "status") {
+      return await adminUpdateOrderStatus(request, env);
     }
 
     return json({ error: "Not found" }, 404);
@@ -213,27 +232,56 @@ async function me(request, env) {
 
 async function createOrder(request, env) {
   const body = await safeJson(request);
-  const items = body.items;
+  const items = Array.isArray(body.items) ? body.items : [];
   const totalKes = Number(body.total_kes);
 
-  if (!Array.isArray(items) || !Number.isFinite(totalKes) || totalKes <= 0) {
+  if (!items.length || !Number.isFinite(totalKes) || totalKes <= 0) {
     return json({ error: "Invalid order payload." }, 400);
   }
   if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
 
-  const customerName = cleanText(body.customer_name, 80);
-  const customerPhoneRaw = cleanText(body.customer_phone, 30);
+  const customerName = cleanText(body.customer_name || body?.customer?.name, 80);
+  const customerPhoneRaw = cleanText(body.customer_phone || body?.customer?.phone, 30);
   const customerPhone = customerPhoneRaw ? normalizePhone(customerPhoneRaw) : "";
-  const note = cleanText(body.note, 300);
-
   const user = await getAuthedUser(request, env);
+
+  const paymentMethod = cleanText(body.payment_method || body?.payment?.method, 20).toLowerCase();
+  const fulfillmentMethod = cleanText(body.fulfillment_method || body?.fulfillment?.method, 20).toLowerCase();
+
+  // ✅ Default initial status (don’t mark orders “received” at creation)
+  let status = paymentMethod === "cash" ? "cash_pending" : "pending_payment";
+
+  // Only allow client to request these two initial statuses
+  const requestedStatus = cleanText(body.status, 40);
+  if (requestedStatus === "cash_pending" || requestedStatus === "pending_payment") {
+    status = requestedStatus;
+  }
+
+  // Extra metadata packed into note (until you add proper columns)
+  const noteRaw = cleanText(body.note, 300);
+  const clientRef = cleanText(body.client_order_ref || body.clientRef, 80);
+  const schoolFilter = cleanText(body.school_filter, 120);
+  const deliveryArea = cleanText(body.delivery_area || body?.fulfillment?.delivery_area, 120);
+  const orderSummary = cleanText(body.order_summary, 240);
+
+  const metaBits = [
+    clientRef ? `ref:${clientRef}` : "",
+    paymentMethod ? `pay:${paymentMethod}` : "",
+    fulfillmentMethod ? `ful:${fulfillmentMethod}` : "",
+    deliveryArea ? `area:${deliveryArea}` : "",
+    schoolFilter ? `school:${schoolFilter}` : "",
+    orderSummary ? `items:${orderSummary}` : ""
+  ].filter(Boolean).join(" | ");
+
+  let note = metaBits ? `${metaBits}${noteRaw ? ` | note:${noteRaw}` : ""}` : noteRaw;
+  if (note.length > 300) note = note.slice(0, 300);
 
   const id = crypto.randomUUID();
   const createdAt = now();
 
   await env.DB.prepare(`
     INSERT INTO orders (id, user_id, customer_name, customer_phone, items_json, total_kes, status, note, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, 'received', ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     id,
     user ? user.id : null,
@@ -241,11 +289,12 @@ async function createOrder(request, env) {
     customerPhone || null,
     JSON.stringify(items),
     Math.trunc(totalKes),
+    status,
     note || null,
     createdAt
   ).run();
 
-  return json({ ok: true, orderId: id }, 200);
+  return json({ ok: true, orderId: id, status }, 200);
 }
 
 async function listOrders(request, env) {
@@ -317,6 +366,31 @@ async function adminRecentOrders(request, env) {
   }));
 
   return json({ ok: true, orders }, 200);
+}
+
+// ✅ Admin: update order status
+async function adminUpdateOrderStatus(request, env) {
+  if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
+
+  const url = new URL(request.url);
+  const key = cleanText(url.searchParams.get("key"), 200);
+  const adminKey = cleanText(env.BASFAY_ADMIN_KEY, 200);
+
+  if (!adminKey) return json({ error: "BASFAY_ADMIN_KEY missing in environment variables." }, 500);
+  if (!key || key !== adminKey) return json({ error: "Unauthorized" }, 401);
+
+  const body = await safeJson(request);
+  const orderId = cleanText(body.order_id || body.orderId, 120);
+  const status = cleanText(body.status, 40);
+
+  if (!orderId || !status) return json({ error: "order_id and status are required." }, 400);
+  if (!ORDER_STATUS_ALLOWLIST.has(status)) return json({ error: "Invalid status." }, 400);
+
+  const existing = await env.DB.prepare(`SELECT id FROM orders WHERE id = ? LIMIT 1`).bind(orderId).first();
+  if (!existing) return json({ error: "Not found" }, 404);
+
+  await env.DB.prepare(`UPDATE orders SET status = ? WHERE id = ?`).bind(status, orderId).run();
+  return json({ ok: true, order_id: orderId, status }, 200);
 }
 
 /* -----------------------------

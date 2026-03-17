@@ -512,8 +512,8 @@ async function submitReview(request, env) {
     return json({ error: "rating must be an integer between 1 and 5." }, 400);
   }
 
-  if (reviewText.length < 8) {
-    return json({ error: "Review is too short." }, 400);
+  if (!reviewText) {
+      return json({ error: "Review text is required." }, 400);
   }
 
   if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);

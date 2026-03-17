@@ -15,10 +15,9 @@
 
 const COOKIE_NAME = "basfay_session";
 const SESSION_TTL_DAYS = 30;
-const PBKDF2_ITERS = 100000; // keep <= 100000 on CF
+const PBKDF2_ITERS = 100000;
 const GOOGLE_STATE_COOKIE = "basfay_google_state";
 
-// ✅ Allowed status values (so you don’t end up with "deliveredddd" in your DB)
 const ORDER_STATUS_ALLOWLIST = new Set([
   "pending_payment",
   "cash_pending",
@@ -32,7 +31,6 @@ const ORDER_STATUS_ALLOWLIST = new Set([
 export async function onRequest(context) {
   const { request, env, params } = context;
 
-  // ✅ Robust: params.path can be ["orders","track"] OR "orders/track"
   const rawPath = Array.isArray(params?.path)
     ? params.path.join("/")
     : String(params?.path || "");
@@ -43,14 +41,10 @@ export async function onRequest(context) {
   const action = segs[2] || "";
 
   try {
-    // Basic same-origin protection for state-changing requests
     if (["POST", "PUT", "PATCH", "DELETE"].includes(request.method)) {
       if (!isSameOrigin(request)) return json({ error: "Bad origin" }, 403);
     }
 
-    /* -----------------------------
-       ✅ GOOGLE OAUTH ROUTES
-    ----------------------------- */
     if (request.method === "GET" && endpoint === "auth" && sub === "google" && action === "start") {
       return await googleStart(request, env);
     }
@@ -58,9 +52,6 @@ export async function onRequest(context) {
       return await googleCallback(request, env);
     }
 
-    /* -----------------------------
-       Health / DB sanity
-    ----------------------------- */
     if (request.method === "GET" && endpoint === "ping") {
       return json({ ok: true, message: "API is alive" }, 200);
     }
@@ -83,19 +74,11 @@ export async function onRequest(context) {
       }
     }
 
-    /* -----------------------------
-       Auth (email/password)
-    ----------------------------- */
     if (request.method === "POST" && endpoint === "register") return await register(request, env);
     if (request.method === "POST" && endpoint === "login") return await login(request, env);
     if (request.method === "POST" && endpoint === "logout") return await logout(request, env);
     if (request.method === "GET" && endpoint === "me") return await me(request, env);
 
-    /* -----------------------------
-       Reviews
-       - GET  /api/reviews?product_id=...
-       - POST /api/reviews/submit
-    ----------------------------- */
     if (request.method === "GET" && endpoint === "reviews" && !sub) {
       return await getProductReviews(request, env);
     }
@@ -104,12 +87,6 @@ export async function onRequest(context) {
       return await submitReview(request, env);
     }
 
-    /* -----------------------------
-       Orders
-       - POST /api/orders
-       - GET  /api/orders
-       - POST /api/orders/track
-    ----------------------------- */
     if (request.method === "POST" && endpoint === "orders" && sub === "track") {
       return await trackOrder(request, env);
     }
@@ -117,12 +94,6 @@ export async function onRequest(context) {
     if (endpoint === "orders" && !sub && request.method === "POST") return await createOrder(request, env);
     if (endpoint === "orders" && !sub && request.method === "GET") return await listOrders(request, env);
 
-    /* -----------------------------
-       Admin recent orders
-       - GET /api/admin/orders/recent?key=...
-       Admin update status
-       - POST /api/admin/orders/status?key=...
-    ----------------------------- */
     if (request.method === "GET" && endpoint === "admin" && sub === "orders" && action === "recent") {
       return await adminRecentOrders(request, env);
     }
@@ -248,16 +219,13 @@ async function createOrder(request, env) {
   const paymentMethod = cleanText(body.payment_method || body?.payment?.method, 20).toLowerCase();
   const fulfillmentMethod = cleanText(body.fulfillment_method || body?.fulfillment?.method, 20).toLowerCase();
 
-  // ✅ Default initial status (don’t mark orders “received” at creation)
   let status = paymentMethod === "cash" ? "cash_pending" : "pending_payment";
 
-  // Only allow client to request these two initial statuses
   const requestedStatus = cleanText(body.status, 40);
   if (requestedStatus === "cash_pending" || requestedStatus === "pending_payment") {
     status = requestedStatus;
   }
 
-  // Extra metadata packed into note (until you add proper columns)
   const noteRaw = cleanText(body.note, 300);
   const clientRef = cleanText(body.client_order_ref || body.clientRef, 80);
   const schoolFilter = cleanText(body.school_filter, 120);
@@ -368,7 +336,6 @@ async function adminRecentOrders(request, env) {
   return json({ ok: true, orders }, 200);
 }
 
-// ✅ Admin: update order status
 async function adminUpdateOrderStatus(request, env) {
   if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
 
@@ -394,9 +361,7 @@ async function adminUpdateOrderStatus(request, env) {
 }
 
 /* -----------------------------
-   ✅ GUEST TRACKING
-   POST /api/orders/track
-   { order_id, phone }
+   GUEST TRACKING
 ----------------------------- */
 async function trackOrder(request, env) {
   const body = await safeJson(request);
@@ -422,7 +387,6 @@ async function trackOrder(request, env) {
   const storedPhone = row.customer_phone ? normalizePhone(String(row.customer_phone)) : "";
   const phoneOk = storedPhone && storedPhone === phone;
 
-  // Don’t leak order existence
   if (!owns && !phoneOk) return json({ error: "Not found" }, 404);
 
   return json({
@@ -512,10 +476,6 @@ async function submitReview(request, env) {
     return json({ error: "rating must be an integer between 1 and 5." }, 400);
   }
 
-  if (!reviewText) {
-      return json({ error: "Review text is required." }, 400);
-  }
-
   if (!env?.DB) return json({ error: "DB binding missing (env.DB)" }, 500);
 
   const turnstile = await verifyTurnstileToken(turnstileToken, request, env);
@@ -538,7 +498,6 @@ async function submitReview(request, env) {
   const storedPhone = row.customer_phone ? normalizePhone(String(row.customer_phone)) : "";
   const phoneOk = storedPhone && storedPhone === phone;
 
-  // Don’t leak order existence
   if (!owns && !phoneOk) {
     return json({ error: "Order not found." }, 404);
   }
@@ -549,7 +508,7 @@ async function submitReview(request, env) {
   if (!matchedItem) {
     return json({
       error: "This product was not found in that order.",
-      detail: "Order items must include product_id, productId, or id for review verification to work."
+      detail: "Order items must include product_id, productId, id, or slug for review verification to work."
     }, 400);
   }
 
@@ -641,23 +600,33 @@ async function verifyTurnstileToken(token, request, env) {
 
 function findProductInOrder(items, productId) {
   if (!Array.isArray(items)) return null;
-  return items.find((item) => extractOrderItemProductId(item) === productId) || null;
+  const wanted = normalizeLooseId(productId);
+  if (!wanted) return null;
+
+  return items.find((item) => {
+    const candidates = extractOrderItemProductCandidates(item);
+    return candidates.some((candidate) => normalizeLooseId(candidate) === wanted);
+  }) || null;
 }
 
-function extractOrderItemProductId(item) {
-  if (!item || typeof item !== "object") return "";
-  return cleanText(
-    item.product_id ||
-    item.productId ||
-    item.id ||
-    item?.product?.id ||
-    "",
-    120
-  );
+function extractOrderItemProductCandidates(item) {
+  if (!item || typeof item !== "object") return [];
+  return [
+    item.product_id,
+    item.productId,
+    item.id,
+    item.slug,
+    item?.product?.id,
+    item?.product?.slug
+  ].map((v) => cleanText(v, 120)).filter(Boolean);
+}
+
+function normalizeLooseId(v) {
+  return cleanText(v, 120).toLowerCase();
 }
 
 /* -----------------------------
-   ✅ GOOGLE OAUTH
+   GOOGLE OAUTH
 ----------------------------- */
 
 function baseUrlFromEnv(env) {
@@ -902,13 +871,19 @@ function isSameOrigin(request) {
   return origin === `${url.protocol}//${url.host}`;
 }
 
-// ✅ normalize so 0712... matches 254712...
 function normalizePhone(v) {
-  const digits = String(v || "").replace(/[^\d]/g, "");
+  const raw = String(v || "").trim();
+  if (!raw) return "";
+
+  let digits = raw.replace(/[^\d]/g, "");
   if (!digits) return "";
+
+  if (digits.startsWith("254") && digits.length === 12) return digits;
+  if (raw.startsWith("+254") && digits.length === 12) return digits;
   if (digits.startsWith("0") && digits.length === 10) return "254" + digits.slice(1);
   if (digits.startsWith("7") && digits.length === 9) return "254" + digits;
-  if (digits.startsWith("254") && digits.length === 12) return digits;
+  if (digits.startsWith("1") && digits.length === 9) return "254" + digits;
+
   return digits;
 }
 

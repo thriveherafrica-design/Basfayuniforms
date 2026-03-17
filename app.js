@@ -5,9 +5,10 @@
    Dead products auto-filtered
    Safer image loading + lighter mobile rendering
    School filter support
+   Stronger order-save-first checkout flow
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (STEP CHECKOUT + DIRECT MPESA + SCHOOL FILTER)");
+console.log("✅ BASFAY app.js LOADED (ORDER SAVE FIRST + DIRECT MPESA + SCHOOL FILTER)");
 
 const CONFIG = {
   currency: "KES",
@@ -17,6 +18,9 @@ const CONFIG = {
 
   reviewsListEndpoint: "/api/reviews",
   reviewSubmitEndpoint: "/api/reviews/submit",
+
+  ordersEndpoint: "/api/orders",
+  mpesaStkEndpoint: "/api/mpesa/stkpush",
 
   deliveryAreas: {
     "Kangemi": 100,
@@ -28,6 +32,17 @@ const CONFIG = {
     "Kasarani": 200,
     "Embakasi": 200
   }
+};
+
+const ORDER_STATUSES = {
+  pending: "pending",
+  pendingPayment: "pending_payment",
+  cashPending: "cash_pending",
+  confirmed: "confirmed",
+  readyForPickup: "ready_for_pickup",
+  outForDelivery: "out_for_delivery",
+  delivered: "delivered",
+  cancelled: "cancelled"
 };
 
 const FUTURE_CATEGORIES = [
@@ -122,7 +137,6 @@ const els = {
   modalSize: document.getElementById("modalSize"),
   modalViewDetails: document.getElementById("modalViewDetails"),
 
-  // School filter UI
   desktopSchoolSearchInput: document.getElementById("desktopSchoolSearchInput"),
   desktopSchoolSearchBtn: document.getElementById("desktopSchoolSearchBtn"),
   mobileSchoolSearchInput: document.getElementById("mobileSchoolSearchInput"),
@@ -140,9 +154,10 @@ let visibleProductCount = INITIAL_VISIBLE_PRODUCTS;
 let revealObserver = null;
 let checkoutStep = 1;
 
-const CART_KEY = "basfay_cart_v3";
-const LAST_ORDER_ID_KEY = "basfay_last_order_id_v3";
-const LAST_CUSTOMER_PHONE_KEY = "basfay_last_customer_phone_v3";
+const CART_KEY = "basfay_cart_v4";
+const LAST_ORDER_ID_KEY = "basfay_last_order_id_v4";
+const LAST_CUSTOMER_PHONE_KEY = "basfay_last_customer_phone_v4";
+const LAST_ORDER_REF_KEY = "basfay_last_order_ref_v4";
 
 const reviewState = {
   currentProductId: "",
@@ -204,6 +219,22 @@ function reviewDateText(ts) {
   } catch {
     return "";
   }
+}
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+function generateClientOrderRef() {
+  const stamp = Date.now().toString(36).toUpperCase();
+  const rand = Math.random().toString(36).slice(2, 7).toUpperCase();
+  return `BSF-${stamp}-${rand}`;
+}
+
+function getInitialOrderStatus(paymentMethod) {
+  return paymentMethod === "cash"
+    ? ORDER_STATUSES.cashPending
+    : ORDER_STATUSES.pendingPayment;
 }
 
 function getProductsJsonPath() {
@@ -520,6 +551,42 @@ async function announceOrderId(orderId) {
   }
 }
 
+function setCheckoutBusy(isBusy, text) {
+  if (!els.checkoutBtn) return;
+  if (isBusy) {
+    els.checkoutBtn.disabled = true;
+    els.checkoutBtn.dataset.originalText = els.checkoutBtn.dataset.originalText || els.checkoutBtn.textContent;
+    els.checkoutBtn.textContent = text || "Processing...";
+    return;
+  }
+
+  els.checkoutBtn.disabled = false;
+  els.checkoutBtn.textContent = els.checkoutBtn.dataset.originalText || "Place order";
+}
+
+function extractSavedOrderId(orderRes) {
+  return safeText(
+    orderRes?.orderId ||
+    orderRes?.order_id ||
+    orderRes?.order?.id ||
+    orderRes?.order?.orderId ||
+    orderRes?.id
+  );
+}
+
+function buildOrderNote(payload) {
+  if (payload.fulfillment_method === "pickup") {
+    return `Pickup at ${CONFIG.pickup} | Payment: ${payload.payment_method}`;
+  }
+
+  const area = safeText(payload.delivery_area);
+  const address = safeText(payload.delivery_address);
+  const landmark = safeText(payload.delivery_landmark);
+
+  const locationParts = [area, address, landmark].filter(Boolean).join(", ");
+  return `Delivery to ${locationParts || area || "selected address"} | Payment: ${payload.payment_method}`;
+}
+
 /* School filter UI */
 function schoolInputsList() {
   return [
@@ -663,6 +730,7 @@ function buildOrderItemsPayload() {
     return {
       product_id: item.id,
       id: item.id,
+      slug: safeText(p?.slug),
       name: p?.name || safeText(item.id),
       color: p?.color || "",
       type: p?.type || "",
@@ -670,10 +738,21 @@ function buildOrderItemsPayload() {
       schools: Array.isArray(p?.schools) ? p.schools : [],
       size: item.size,
       qty: Number(item.qty) || 1,
+      unit_price_kes: Number(item.price) || 0,
       price: Number(item.price) || 0,
+      line_total_kes: (Number(item.price) || 0) * (Number(item.qty) || 0),
       line_total: (Number(item.price) || 0) * (Number(item.qty) || 0)
     };
   });
+}
+
+function buildOrderSummaryText(items) {
+  if (!Array.isArray(items) || !items.length) return "";
+  return items.map(item => {
+    const qty = Number(item.qty) || 1;
+    const size = safeText(item.size);
+    return `${qty}x ${safeText(item.name)}${size && size !== "-" ? ` (${size})` : ""}`;
+  }).join(", ");
 }
 
 function setCart(items) {
@@ -767,24 +846,74 @@ function getCheckoutPayload() {
 
   const rawPhone = cleanPhone(els.customerPhone?.value);
   const customerPhone = normalizeKenyanPhone(rawPhone);
+  const items = buildOrderItemsPayload();
+  const subtotal = Math.round(calcSubtotal());
+  const deliveryFee = Math.round(getDeliveryFee());
+  const total = Math.round(calcOrderTotal());
+  const clientOrderRef = generateClientOrderRef();
+  const createdAt = nowIso();
 
   const payload = {
+    client_order_ref: clientOrderRef,
+    order_source: "website",
+    order_channel: "basfay_web",
+    business_name: CONFIG.businessName,
+    currency: CONFIG.currency,
+    created_at_client: createdAt,
+    updated_at_client: createdAt,
+
     customer_name: safeText(els.customerName?.value),
     customer_phone: customerPhone,
     customer_email: safeText(els.customerEmail?.value),
+
     payment_method: paymentMethod,
     fulfillment_method: fulfillmentMethod,
     pickup_location: fulfillmentMethod === "pickup" ? CONFIG.pickup : "",
     delivery_area: fulfillmentMethod === "delivery" ? safeText(els.deliveryArea?.value) : "",
     delivery_address: fulfillmentMethod === "delivery" ? safeText(els.deliveryAddress?.value) : "",
     delivery_landmark: fulfillmentMethod === "delivery" ? safeText(els.deliveryLandmark?.value) : "",
-    subtotal_kes: Math.round(calcSubtotal()),
-    delivery_fee_kes: Math.round(getDeliveryFee()),
-    total_kes: Math.round(calcOrderTotal()),
-    currency: CONFIG.currency,
-    status: paymentMethod === "cash" ? "cash_pending" : "pending_payment",
+
+    subtotal_kes: subtotal,
+    delivery_fee_kes: deliveryFee,
+    total_kes: total,
+
+    status: getInitialOrderStatus(paymentMethod),
     school_filter: state.school || "",
-    items: buildOrderItemsPayload()
+    items,
+    item_count: items.reduce((sum, item) => sum + (Number(item.qty) || 0), 0),
+    order_summary: buildOrderSummaryText(items)
+  };
+
+  payload.note = buildOrderNote(payload);
+
+  payload.customer = {
+    name: payload.customer_name,
+    phone: payload.customer_phone,
+    email: payload.customer_email
+  };
+
+  payload.payment = {
+    method: payload.payment_method,
+    status: paymentMethod === "cash" ? "pending_cash_collection" : "awaiting_mpesa",
+    currency: payload.currency,
+    subtotal_kes: payload.subtotal_kes,
+    delivery_fee_kes: payload.delivery_fee_kes,
+    total_kes: payload.total_kes
+  };
+
+  payload.fulfillment = {
+    method: payload.fulfillment_method,
+    pickup_location: payload.pickup_location,
+    delivery_area: payload.delivery_area,
+    delivery_address: payload.delivery_address,
+    delivery_landmark: payload.delivery_landmark
+  };
+
+  payload.totals = {
+    currency: payload.currency,
+    subtotal_kes: payload.subtotal_kes,
+    delivery_fee_kes: payload.delivery_fee_kes,
+    total_kes: payload.total_kes
   };
 
   return payload;
@@ -809,7 +938,7 @@ function validateStep(step) {
     if (!payment) return "Please select a payment method.";
   }
 
-  if (step === 3) {
+  if (step === 3 || step === 4) {
     const needsPhone = payment === "mpesa" || fulfillment === "delivery";
     if (needsPhone) {
       if (!phone) return "Please enter your phone number.";
@@ -1851,19 +1980,14 @@ function bindCart() {
   els.checkoutBtn?.addEventListener("click", async (e) => {
     e.preventDefault();
 
-    const err = validateStep(3);
+    const err = validateStep(4);
     if (err) {
       alert(err);
       showCheckoutStep(3);
       return;
     }
 
-    const payload = {
-      ...getCheckoutPayload(),
-      note: getSelectedFulfillmentMethod() === "pickup"
-        ? `Pickup at ${CONFIG.pickup} | Payment: ${getSelectedPayMethod()}`
-        : `Delivery to ${safeText(els.deliveryArea?.value)} | Payment: ${getSelectedPayMethod()}`
-    };
+    const payload = getCheckoutPayload();
 
     if (!payload.items.length) {
       alert("No items in cart.");
@@ -1873,24 +1997,26 @@ function bindCart() {
     if (payload.customer_phone) {
       localStorage.setItem(LAST_CUSTOMER_PHONE_KEY, payload.customer_phone);
     }
-
-    const originalBtnText = els.checkoutBtn.textContent;
-    els.checkoutBtn.disabled = true;
-    els.checkoutBtn.textContent = payload.payment_method === "mpesa" ? "Sending STK..." : "Placing order...";
+    if (payload.client_order_ref) {
+      localStorage.setItem(LAST_ORDER_REF_KEY, payload.client_order_ref);
+    }
 
     try {
-      const orderRes = await apiPostJson("/api/orders", payload);
-      const orderId = safeText(orderRes?.orderId || orderRes?.order?.id || orderRes?.id);
+      setCheckoutBusy(true, "Saving order...");
 
-      if (orderId) {
-        await announceOrderId(orderId);
+      const orderRes = await apiPostJson(CONFIG.ordersEndpoint, payload);
+      const orderId = extractSavedOrderId(orderRes);
+
+      if (!orderId) {
+        throw new Error("Order was sent but no order ID was returned.");
       }
+
+      await announceOrderId(orderId);
 
       if (payload.payment_method === "cash") {
         toast("Order placed ✅");
-        alert(orderId
-          ? `Order placed successfully.\n\nOrder ID: ${orderId}\nPayment: Cash\nFulfilment: ${payload.fulfillment_method}`
-          : `Order placed successfully.\nPayment: Cash\nFulfilment: ${payload.fulfillment_method}`
+        alert(
+          `Order placed successfully.\n\nOrder ID: ${orderId}\nPayment: Cash\nFulfilment: ${payload.fulfillment_method}`
         );
 
         setCart([]);
@@ -1899,26 +2025,45 @@ function bindCart() {
         return;
       }
 
+      setCheckoutBusy(true, "Sending STK...");
+
       const mpesaPayload = {
         order_id: orderId,
+        client_order_ref: payload.client_order_ref,
         phone: payload.customer_phone,
         amount_kes: payload.total_kes,
-        account_reference: orderId || "BASFAY ORDER",
+        account_reference: orderId || payload.client_order_ref || "BASFAY ORDER",
         transaction_desc: `${CONFIG.businessName} order`
       };
 
-      const mpesaRes = await apiPostJson("/api/mpesa/stkpush", mpesaPayload);
+      try {
+        const mpesaRes = await apiPostJson(CONFIG.mpesaStkEndpoint, mpesaPayload);
 
-      toast("STK prompt sent ✅");
-      alert(
-        mpesaRes?.customerMessage ||
-        mpesaRes?.response?.CustomerMessage ||
-        "M-Pesa prompt sent to your phone. Enter your PIN to complete payment."
-      );
+        toast("STK prompt sent ✅");
+        alert(
+          mpesaRes?.customerMessage ||
+          mpesaRes?.response?.CustomerMessage ||
+          `Order saved successfully.\n\nOrder ID: ${orderId}\n\nM-Pesa prompt sent to your phone. Enter your PIN to complete payment.`
+        );
 
-      setCart([]);
-      closeDrawer();
-      showCheckoutStep(1);
+        setCart([]);
+        closeDrawer();
+        showCheckoutStep(1);
+      } catch (mpesaErr) {
+        console.error("STK push error:", mpesaErr);
+
+        const stkMessage =
+          mpesaErr?.data?.error ||
+          mpesaErr?.data?.response?.errorMessage ||
+          mpesaErr?.data?.response?.ResponseDescription ||
+          mpesaErr?.data?.response?.CustomerMessage ||
+          mpesaErr?.message ||
+          "STK push failed.";
+
+        alert(
+          `Your order was saved successfully, but M-Pesa prompt failed.\n\nOrder ID: ${orderId}\n\nReason: ${stkMessage}\n\nDo not place the order again blindly. Retry payment using this saved order.`
+        );
+      }
     } catch (err2) {
       console.error("Checkout error:", err2);
 
@@ -1932,8 +2077,7 @@ function bindCart() {
 
       alert(detailedMessage);
     } finally {
-      els.checkoutBtn.disabled = false;
-      els.checkoutBtn.textContent = originalBtnText;
+      setCheckoutBusy(false);
       refreshAllCartUIs();
     }
   });

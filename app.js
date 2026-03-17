@@ -6,14 +6,15 @@
    Safer image loading + lighter mobile rendering
    School filter support
    Stronger order-save-first checkout flow
+   Track Order menu support
    ============================ */
 
-console.log("✅ BASFAY app.js LOADED (ORDER SAVE FIRST + DIRECT MPESA + SCHOOL FILTER)");
+console.log("✅ BasFay app.js LOADED (ORDER SAVE FIRST + DIRECT MPESA + SCHOOL FILTER + TRACK ORDER)");
 
 const CONFIG = {
   currency: "KES",
   pickup: "Kangemi",
-  businessName: "BASFAY Uniforms",
+  businessName: "BasFay Uniforms",
   turnstileSiteKey: "0x4AAAAAACnvQa10Y55LL_Rg",
 
   reviewsListEndpoint: "/api/reviews",
@@ -145,7 +146,10 @@ const els = {
   catalogSchoolSearchBtn: document.getElementById("catalogSchoolSearchBtn"),
   catalogSchoolClearBtn: document.getElementById("catalogSchoolClearBtn"),
   activeSchoolChip: document.getElementById("activeSchoolChip"),
-  activeSchoolText: document.getElementById("activeSchoolText")
+  activeSchoolText: document.getElementById("activeSchoolText"),
+
+  // hamburger / menu buttons
+  menuTrackOrderBtn: document.getElementById("menuTrackOrderBtn"),
 };
 
 let PRODUCTS = [];
@@ -523,19 +527,9 @@ function getReviewsUrl(productId) {
 }
 
 async function submitReviewRequest(payload) {
-  try {
-    return await apiPostJson(CONFIG.reviewSubmitEndpoint, payload);
-  } catch (err) {
-    if (err?.status === 404) {
-      return await apiPostJson(CONFIG.reviewsListEndpoint, {
-        product_id: payload.product_id,
-        customer_name: payload.customer_name,
-        rating: payload.rating,
-        review_text: payload.review_text
-      });
-    }
-    throw err;
-  }
+  // Submit only to the real submit route.
+  // The old fallback to POST /api/reviews was nonsense because your backend only GETs there.
+  return await apiPostJson(CONFIG.reviewSubmitEndpoint, payload);
 }
 
 async function announceOrderId(orderId) {
@@ -585,6 +579,13 @@ function buildOrderNote(payload) {
 
   const locationParts = [area, address, landmark].filter(Boolean).join(", ");
   return `Delivery to ${locationParts || area || "selected address"} | Payment: ${payload.payment_method}`;
+}
+
+/* Menu buttons */
+function bindMenuButtons() {
+  els.menuTrackOrderBtn?.addEventListener("click", () => {
+    window.location.href = "/track-order.html";
+  });
 }
 
 /* School filter UI */
@@ -1491,7 +1492,7 @@ async function submitReviewFromModal() {
 
   const productId = safeText(reviewState.currentProductId);
   const orderId = safeText(ui.orderId.value);
-  const phone = cleanPhone(ui.phone.value);
+  const phone = normalizeKenyanPhone(ui.phone.value);
   const name = safeText(ui.name.value);
   const rating = Number(ui.rating.value);
   const reviewText = safeText(ui.text.value);
@@ -1505,7 +1506,7 @@ async function submitReviewFromModal() {
     ui.msg.textContent = "Please enter your Order ID.";
     return;
   }
-  if (!phone || phone.length < 9) {
+  if (!phone || phone.length < 12) {
     ui.msg.textContent = "Please enter a valid phone number.";
     return;
   }
@@ -1513,8 +1514,9 @@ async function submitReviewFromModal() {
     ui.msg.textContent = "Please select a rating.";
     return;
   }
-  if (reviewText.length < 8) {
-    ui.msg.textContent = "Please write a slightly longer review.";
+  // Frontend no longer blocks short reviews.
+  if (!reviewText) {
+    ui.msg.textContent = "Please write your review.";
     return;
   }
   if (!turnstileToken) {
@@ -1556,7 +1558,7 @@ async function submitReviewFromModal() {
     }
   } catch (err) {
     if (err?.status === 404) {
-      ui.msg.textContent = "Cloudflare review route is missing. Fix backend route first.";
+      ui.msg.textContent = "Review submit route was not found. Deploy the latest /api code first.";
     } else {
       ui.msg.textContent = err.message || "Could not submit review.";
     }
@@ -2135,6 +2137,7 @@ async function loadProducts() {
     bindSchoolFilterUI();
     bindCart();
     bindModal();
+    bindMenuButtons();
 
     resetVisibleProducts();
     renderProducts();

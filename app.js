@@ -148,8 +148,7 @@ const els = {
   activeSchoolChip: document.getElementById("activeSchoolChip"),
   activeSchoolText: document.getElementById("activeSchoolText"),
 
-  // hamburger / menu buttons
-  menuTrackOrderBtn: document.getElementById("menuTrackOrderBtn"),
+  menuTrackOrderBtn: document.getElementById("menuTrackOrderBtn")
 };
 
 let PRODUCTS = [];
@@ -527,8 +526,6 @@ function getReviewsUrl(productId) {
 }
 
 async function submitReviewRequest(payload) {
-  // Submit only to the real submit route.
-  // The old fallback to POST /api/reviews was nonsense because your backend only GETs there.
   return await apiPostJson(CONFIG.reviewSubmitEndpoint, payload);
 }
 
@@ -1514,7 +1511,6 @@ async function submitReviewFromModal() {
     ui.msg.textContent = "Please select a rating.";
     return;
   }
-  // Frontend no longer blocks short reviews.
   if (!reviewText) {
     ui.msg.textContent = "Please write your review.";
     return;

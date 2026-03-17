@@ -13,7 +13,7 @@
       padding:20px;
     }
     .wrap{
-      max-width:900px;
+      max-width:980px;
       margin:0 auto;
     }
     h1{
@@ -29,7 +29,7 @@
       flex-wrap:wrap;
       margin:18px 0 20px;
     }
-    input, button{
+    input, button, select{
       padding:12px 14px;
       border-radius:12px;
       border:1px solid #d7deea;
@@ -39,6 +39,10 @@
       flex:1 1 260px;
       min-width:220px;
     }
+    select{
+      background:#fff;
+      color:#0f1c2b;
+    }
     button{
       cursor:pointer;
       background:#0f2f4a;
@@ -46,19 +50,28 @@
       border:none;
       font-weight:700;
     }
+    button:disabled{
+      opacity:.65;
+      cursor:not-allowed;
+    }
+    .ghost-btn{
+      background:#eef3f8;
+      color:#0f2f4a;
+      border:1px solid #d7deea;
+    }
     .status{
       margin:10px 0 18px;
       font-size:14px;
     }
     .list{
       display:grid;
-      gap:12px;
+      gap:14px;
     }
     .card{
       background:#fff;
       border:1px solid #e4e9f2;
       border-radius:16px;
-      padding:14px;
+      padding:16px;
       box-shadow:0 6px 18px rgba(15,28,43,0.05);
     }
     .row{
@@ -66,6 +79,7 @@
       justify-content:space-between;
       gap:12px;
       flex-wrap:wrap;
+      align-items:center;
     }
     .id{
       font-family: monospace;
@@ -73,12 +87,54 @@
       word-break:break-all;
     }
     .badge{
-      display:inline-block;
-      padding:5px 10px;
+      display:inline-flex;
+      align-items:center;
+      padding:7px 12px;
       border-radius:999px;
-      background:#eef3f8;
       font-size:12px;
       font-weight:700;
+      letter-spacing:.01em;
+      border:1px solid transparent;
+    }
+    .badge.pending-payment{
+      background:#fff4db;
+      color:#8a5a00;
+      border-color:#f4d38b;
+    }
+    .badge.cash-pending{
+      background:#eef8df;
+      color:#3f6b00;
+      border-color:#cfe7a1;
+    }
+    .badge.confirmed{
+      background:#e8f2ff;
+      color:#0b4ea2;
+      border-color:#bdd5ff;
+    }
+    .badge.ready-for-pickup{
+      background:#ede8ff;
+      color:#5c33b3;
+      border-color:#d4c7ff;
+    }
+    .badge.out-for-delivery{
+      background:#e7f7ff;
+      color:#006f8f;
+      border-color:#b6e7f7;
+    }
+    .badge.delivered{
+      background:#e7f8ee;
+      color:#117a3f;
+      border-color:#b9e4c8;
+    }
+    .badge.cancelled{
+      background:#fdeaea;
+      color:#a12626;
+      border-color:#efb7b7;
+    }
+    .badge.unknown{
+      background:#eef3f8;
+      color:#4d5a68;
+      border-color:#d7deea;
     }
     .toast{
       position:fixed;
@@ -102,6 +158,39 @@
       font-size:14px;
       line-height:1.45;
       border:1px solid #e8edf5;
+    }
+    .meta{
+      margin-top:6px;
+    }
+    .admin-actions{
+      margin-top:14px;
+      padding-top:14px;
+      border-top:1px solid #edf1f7;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .admin-actions select{
+      min-width:220px;
+      flex:1 1 220px;
+    }
+    .small-note{
+      font-size:12px;
+      color:#5f6b7a;
+    }
+
+    @media (max-width:640px){
+      body{ padding:14px; }
+      .card{ padding:14px; }
+      .admin-actions{
+        flex-direction:column;
+        align-items:stretch;
+      }
+      .admin-actions select,
+      .admin-actions button{
+        width:100%;
+      }
     }
   </style>
 </head>
@@ -134,6 +223,16 @@
     const KEY_STORAGE = "basfay_admin_key_v1";
     const LAST_SEEN_STORAGE = "basfay_last_seen_order_v1";
     const POLL_MS = 10000;
+
+    const STATUS_OPTIONS = [
+      "pending_payment",
+      "cash_pending",
+      "confirmed",
+      "ready_for_pickup",
+      "out_for_delivery",
+      "delivered",
+      "cancelled"
+    ];
 
     function fmtMoney(n) {
       return `KES ${Number(n || 0).toLocaleString("en-KE")}`;
@@ -222,6 +321,28 @@
       }
     }
 
+    function prettifyStatus(status) {
+      const raw = String(status || "").trim();
+      if (!raw) return "Unknown";
+      return raw
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (m) => m.toUpperCase());
+    }
+
+    function statusBadgeClass(status) {
+      const value = String(status || "").trim().toLowerCase();
+      switch (value) {
+        case "pending_payment": return "pending-payment";
+        case "cash_pending": return "cash-pending";
+        case "confirmed": return "confirmed";
+        case "ready_for_pickup": return "ready-for-pickup";
+        case "out_for_delivery": return "out-for-delivery";
+        case "delivered": return "delivered";
+        case "cancelled": return "cancelled";
+        default: return "unknown";
+      }
+    }
+
     function renderOrderItems(items) {
       if (!Array.isArray(items) || !items.length) {
         return `<div class="muted">No item details found.</div>`;
@@ -231,7 +352,8 @@
         const qty = Number(item.qty || 1);
         const name = item.name || item.id || "Item";
         const size = item.size && item.size !== "-" ? ` • Size ${escapeHtml(item.size)}` : "";
-        const price = item.price ? ` • ${fmtMoney(item.price)}` : "";
+        const unitPrice = item.unit_price_kes ?? item.price;
+        const price = unitPrice ? ` • ${fmtMoney(unitPrice)}` : "";
 
         return `
           <div class="item-chip">
@@ -241,29 +363,111 @@
       }).join("");
     }
 
+    function renderStatusOptions(currentStatus) {
+      return STATUS_OPTIONS.map(status => `
+        <option value="${escapeHtml(status)}" ${status === currentStatus ? "selected" : ""}>
+          ${escapeHtml(prettifyStatus(status))}
+        </option>
+      `).join("");
+    }
+
     function renderOrders(orders) {
-      els.ordersList.innerHTML = orders.map(o => `
-        <div class="card">
-          <div class="row">
-            <strong>${fmtMoney(o.total_kes)}</strong>
-            <span class="badge">${escapeHtml(o.status || "received")}</span>
-          </div>
+      els.ordersList.innerHTML = orders.map(o => {
+        const safeStatus = String(o.status || "").trim().toLowerCase() || "unknown";
+        const badgeClass = statusBadgeClass(safeStatus);
 
-          <div style="margin-top:8px;" class="id"><strong>ID:</strong> ${escapeHtml(o.id || "-")}</div>
-          <div style="margin-top:6px;"><strong>Name:</strong> ${escapeHtml(o.customer_name || "-")}</div>
-          <div style="margin-top:6px;"><strong>Phone:</strong> ${escapeHtml(o.customer_phone || "-")}</div>
+        return `
+          <div class="card">
+            <div class="row">
+              <strong>${fmtMoney(o.total_kes)}</strong>
+              <span class="badge ${badgeClass}">${escapeHtml(prettifyStatus(safeStatus))}</span>
+            </div>
 
-          <div class="items-wrap">
-            <strong>Order:</strong>
-            <div style="margin-top:6px; display:grid; gap:6px;">
-              ${renderOrderItems(o.items)}
+            <div style="margin-top:8px;" class="id"><strong>ID:</strong> ${escapeHtml(o.id || "-")}</div>
+            <div style="margin-top:6px;"><strong>Name:</strong> ${escapeHtml(o.customer_name || "-")}</div>
+            <div style="margin-top:6px;"><strong>Phone:</strong> ${escapeHtml(o.customer_phone || "-")}</div>
+
+            <div class="items-wrap">
+              <strong>Order:</strong>
+              <div style="margin-top:6px; display:grid; gap:6px;">
+                ${renderOrderItems(o.items)}
+              </div>
+            </div>
+
+            <div class="meta"><strong>Note:</strong> ${escapeHtml(o.note || "-")}</div>
+            <div style="margin-top:6px;" class="muted"><strong>Placed:</strong> ${fmtDate(o.created_at)}</div>
+
+            <div class="admin-actions">
+              <select data-status-select="${escapeHtml(o.id)}" aria-label="Update status for ${escapeHtml(o.id)}">
+                ${renderStatusOptions(safeStatus)}
+              </select>
+              <button type="button" data-update-order="${escapeHtml(o.id)}">
+                Update status
+              </button>
+              <div class="small-note">Choose the correct order stage, then update.</div>
             </div>
           </div>
+        `;
+      }).join("");
 
-          <div style="margin-top:8px;"><strong>Note:</strong> ${escapeHtml(o.note || "-")}</div>
-          <div style="margin-top:6px;" class="muted"><strong>Placed:</strong> ${fmtDate(o.created_at)}</div>
-        </div>
-      `).join("");
+      bindOrderUpdateButtons();
+    }
+
+    async function updateOrderStatus(orderId, newStatus, buttonEl) {
+      const key = getAdminKey();
+      if (!key) {
+        toast("Save the admin key first.");
+        return;
+      }
+
+      const originalText = buttonEl.textContent;
+      buttonEl.disabled = true;
+      buttonEl.textContent = "Updating...";
+
+      try {
+        const res = await fetch(`/api/admin/orders/status?key=${encodeURIComponent(key)}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            order_id: orderId,
+            status: newStatus
+          })
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.error || "Could not update status");
+        }
+
+        toast(`Order updated to ${prettifyStatus(newStatus)} ✅`);
+        await fetchOrders({ silent: true });
+      } catch (err) {
+        toast(err.message || "Could not update status.");
+      } finally {
+        buttonEl.disabled = false;
+        buttonEl.textContent = originalText;
+      }
+    }
+
+    function bindOrderUpdateButtons() {
+      const buttons = document.querySelectorAll("[data-update-order]");
+      buttons.forEach(button => {
+        button.addEventListener("click", async () => {
+          const orderId = button.getAttribute("data-update-order");
+          const select = document.querySelector(`[data-status-select="${CSS.escape(orderId)}"]`);
+          const newStatus = select?.value || "";
+
+          if (!orderId || !newStatus) {
+            toast("Missing order ID or status.");
+            return;
+          }
+
+          await updateOrderStatus(orderId, newStatus, button);
+        });
+      });
     }
 
     async function fetchOrders({ silent = false } = {}) {

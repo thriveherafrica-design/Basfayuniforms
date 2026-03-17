@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Track Your Order | BASFAY Uniforms</title>
+  <meta name="description" content="Track your BASFAY order using your order ID and phone number." />
+  <style>
+    :root{
+      --bg:#f7f9fc;
+      --card:#ffffff;
+      --ink:#0f1c2b;
+      --muted:#5f6b7a;
+      --line:#e4e9f2;
+      --brand:#0f2f4a;
+
+      --pending-bg:#fff4db;
+      --pending-ink:#8a5a00;
+      --pending-line:#f4d38b;
+
+      --cash-bg:#eef8df;
+      --cash-ink:#3f6b00;
+      --cash-line:#cfe7a1;
+
+      --confirmed-bg:#e8f2ff;
+      --confirmed-ink:#0b4ea2;
+      --confirmed-line:#bdd5ff;
+
+      --pickup-bg:#ede8ff;
+      --pickup-ink:#5c33b3;
+      --pickup-line:#d4c7ff;
+
+      --delivery-bg:#e7f7ff;
+      --delivery-ink:#006f8f;
+      --delivery-line:#b6e7f7;
+
+      --done-bg:#e7f8ee;
+      --done-ink:#117a3f;
+      --done-line:#b9e4c8;
+
+      --cancel-bg:#fdeaea;
+      --cancel-ink:#a12626;
+      --cancel-line:#efb7b7;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family:Arial, sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+      padding:20px;
+    }
+
+    .wrap{
+      max-width:760px;
+      margin:0 auto;
+    }
+
+    .hero{
+      margin-bottom:18px;
+    }
+
+    h1{
+      margin:0 0 8px;
+      font-size:clamp(30px, 5vw, 48px);
+      line-height:1.05;
+    }
+
+    .muted{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      box-shadow:0 8px 24px rgba(15,28,43,0.05);
+    }
+
+    .stack{
+      display:grid;
+      gap:14px;
+    }
+
+    label{
+      display:block;
+      font-size:14px;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+
+    input, button{
+      width:100%;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid #d7deea;
+      font:inherit;
+    }
+
+    input{
+      background:#fff;
+      color:var(--ink);
+    }
+
+    input:focus{
+      outline:none;
+      border-color:#8fb4d9;
+      box-shadow:0 0 0 4px rgba(15,47,74,0.08);
+    }
+
+    button{
+      border:none;
+      background:var(--brand);
+      color:#fff;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    button:disabled{
+      opacity:.7;
+      cursor:not-allowed;
+    }
+
+    .helper{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:6px;
+    }
+
+    .status-line{
+      margin-top:14px;
+      min-height:20px;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .result{
+      margin-top:18px;
+      display:none;
+    }
+
+    .result.show{
+      display:block;
+    }
+
+    .top-row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-bottom:10px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      border:1px solid transparent;
+    }
+
+    .badge.pending-payment{
+      background:var(--pending-bg);
+      color:var(--pending-ink);
+      border-color:var(--pending-line);
+    }
+
+    .badge.cash-pending{
+      background:var(--cash-bg);
+      color:var(--cash-ink);
+      border-color:var(--cash-line);
+    }
+
+    .badge.confirmed{
+      background:var(--confirmed-bg);
+      color:var(--confirmed-ink);
+      border-color:var(--confirmed-line);
+    }
+
+    .badge.ready-for-pickup{
+      background:var(--pickup-bg);
+      color:var(--pickup-ink);
+      border-color:var(--pickup-line);
+    }
+
+    .badge.out-for-delivery{
+      background:var(--delivery-bg);
+      color:var(--delivery-ink);
+      border-color:var(--delivery-line);
+    }
+
+    .badge.delivered{
+      background:var(--done-bg);
+      color:var(--done-ink);
+      border-color:var(--done-line);
+    }
+
+    .badge.cancelled{
+      background:var(--cancel-bg);
+      color:var(--cancel-ink);
+      border-color:var(--cancel-line);
+    }
+
+    .badge.unknown{
+      background:#eef3f8;
+      color:#4d5a68;
+      border-color:#d7deea;
+    }
+
+    .meta{
+      display:grid;
+      gap:8px;
+      margin:14px 0;
+    }
+
+    .meta-row{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      padding:10px 0;
+      border-bottom:1px solid #edf1f7;
+    }
+
+    .meta-row:last-child{
+      border-bottom:none;
+    }
+
+    .meta-label{
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .meta-value{
+      font-weight:700;
+      text-align:right;
+      word-break:break-word;
+    }
+
+    .section-title{
+      margin:16px 0 8px;
+      font-size:16px;
+      font-weight:800;
+    }
+
+    .items{
+      display:grid;
+      gap:8px;
+    }
+
+    .item{
+      border:1px solid #e8edf5;
+      background:#f6f8fb;
+      border-radius:12px;
+      padding:10px 12px;
+      line-height:1.5;
+      font-size:14px;
+    }
+
+    .empty{
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .tip{
+      margin-top:16px;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.6;
+      background:#f8fbff;
+      border:1px solid #e7eef7;
+      border-radius:14px;
+      padding:12px 14px;
+    }
+
+    .error-box{
+      margin-top:14px;
+      display:none;
+      padding:12px 14px;
+      border-radius:14px;
+      background:#fff1f1;
+      border:1px solid #f3c4c4;
+      color:#8b1f1f;
+      font-size:14px;
+      line-height:1.5;
+    }
+
+    .error-box.show{
+      display:block;
+    }
+
+    @media (max-width:640px){
+      body{ padding:14px; }
+      .card{ padding:15px; }
+      .meta-value{ text-align:left; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>Track Your Order</h1>
+      <div class="muted">
+        Enter your BASFAY order ID and the phone number used during checkout.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stack">
+        <div>
+          <label for="orderId">Order ID</label>
+          <input id="orderId" type="text" placeholder="Paste your order ID" autocomplete="off" />
+          <div class="helper">Example: e3844bc7-7456-4616-b6b8-c045b72033ad</div>
+        </div>
+
+        <div>
+          <label for="phone">Phone Number</label>
+          <input id="phone" type="tel" placeholder="07XXXXXXXX or 2547XXXXXXXX" inputmode="tel" autocomplete="tel" />
+        </div>
+
+        <button id="trackBtn" type="button">Track order</button>
+      </div>
+
+      <div class="status-line" id="statusText">Waiting for your order details.</div>
+      <div class="error-box" id="errorBox"></div>
+
+      <div class="result card" id="resultCard" style="margin-top:18px;">
+        <div class="top-row">
+          <strong id="resultTotal">KES 0</strong>
+          <span class="badge unknown" id="resultBadge">Unknown</span>
+        </div>
+
+        <div class="meta">
+          <div class="meta-row">
+            <div class="meta-label">Order ID</div>
+            <div class="meta-value" id="resultOrderId">-</div>
+          </div>
+          <div class="meta-row">
+            <div class="meta-label">Status</div>
+            <div class="meta-value" id="resultStatus">-</div>
+          </div>
+          <div class="meta-row">
+            <div class="meta-label">Placed</div>
+            <div class="meta-value" id="resultPlaced">-</div>
+          </div>
+          <div class="meta-row">
+            <div class="meta-label">Customer</div>
+            <div class="meta-value" id="resultCustomer">-</div>
+          </div>
+          <div class="meta-row">
+            <div class="meta-label">Note</div>
+            <div class="meta-value" id="resultNote">-</div>
+          </div>
+        </div>
+
+        <div class="section-title">Items</div>
+        <div class="items" id="resultItems"></div>
+
+        <div class="tip" id="statusTip">
+          Order updates will appear here as BASFAY processes your order.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const els = {
+      orderId: document.getElementById("orderId"),
+      phone: document.getElementById("phone"),
+      trackBtn: document.getElementById("trackBtn"),
+      statusText: document.getElementById("statusText"),
+      errorBox: document.getElementById("errorBox"),
+
+      resultCard: document.getElementById("resultCard"),
+      resultTotal: document.getElementById("resultTotal"),
+      resultBadge: document.getElementById("resultBadge"),
+      resultOrderId: document.getElementById("resultOrderId"),
+      resultStatus: document.getElementById("resultStatus"),
+      resultPlaced: document.getElementById("resultPlaced"),
+      resultCustomer: document.getElementById("resultCustomer"),
+      resultNote: document.getElementById("resultNote"),
+      resultItems: document.getElementById("resultItems"),
+      statusTip: document.getElementById("statusTip"),
+    };
+
+    const LAST_TRACK_ORDER_ID = "basfay_track_order_id_v1";
+    const LAST_TRACK_PHONE = "basfay_track_phone_v1";
+
+    function safeText(value) {
+      return String(value ?? "").trim();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function fmtMoney(n) {
+      return `KES ${Number(n || 0).toLocaleString("en-KE")}`;
+    }
+
+    function fmtDate(ts) {
+      if (!ts) return "-";
+      try {
+        return new Date(ts * 1000).toLocaleString();
+      } catch {
+        return "-";
+      }
+    }
+
+    function normalizePhone(v) {
+      const digits = String(v || "").replace(/[^\d]/g, "");
+      if (!digits) return "";
+      if (digits.startsWith("0") && digits.length === 10) return "254" + digits.slice(1);
+      if (digits.startsWith("7") && digits.length === 9) return "254" + digits;
+      if (digits.startsWith("1") && digits.length === 9) return "254" + digits;
+      if (digits.startsWith("254") && digits.length === 12) return digits;
+      return digits;
+    }
+
+    function prettifyStatus(status) {
+      const raw = safeText(status);
+      if (!raw) return "Unknown";
+      return raw
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, m => m.toUpperCase());
+    }
+
+    function statusBadgeClass(status) {
+      const value = safeText(status).toLowerCase();
+      switch (value) {
+        case "pending_payment": return "pending-payment";
+        case "cash_pending": return "cash-pending";
+        case "confirmed": return "confirmed";
+        case "ready_for_pickup": return "ready-for-pickup";
+        case "out_for_delivery": return "out-for-delivery";
+        case "delivered": return "delivered";
+        case "cancelled": return "cancelled";
+        default: return "unknown";
+      }
+    }
+
+    function statusTipText(status) {
+      switch (safeText(status).toLowerCase()) {
+        case "pending_payment":
+          return "Your order was received and is waiting for payment confirmation.";
+        case "cash_pending":
+          return "Your order was received and is awaiting cash payment on pickup or delivery.";
+        case "confirmed":
+          return "Your order has been confirmed and BASFAY is preparing it.";
+        case "ready_for_pickup":
+          return "Your order is ready for pickup.";
+        case "out_for_delivery":
+          return "Your order is on the way.";
+        case "delivered":
+          return "Your order has been marked as delivered.";
+        case "cancelled":
+          return "This order has been cancelled.";
+        default:
+          return "Order updates will appear here as BASFAY processes your order.";
+      }
+    }
+
+    function setBusy(isBusy, text = "Checking order...") {
+      els.trackBtn.disabled = isBusy;
+      els.trackBtn.textContent = isBusy ? "Checking..." : "Track order";
+      els.statusText.textContent = text;
+    }
+
+    function showError(message) {
+      els.errorBox.textContent = message;
+      els.errorBox.classList.add("show");
+    }
+
+    function clearError() {
+      els.errorBox.textContent = "";
+      els.errorBox.classList.remove("show");
+    }
+
+    function hideResult() {
+      els.resultCard.classList.remove("show");
+    }
+
+    function showResult() {
+      els.resultCard.classList.add("show");
+    }
+
+    function renderItems(items) {
+      if (!Array.isArray(items) || !items.length) {
+        els.resultItems.innerHTML = `<div class="empty">No item details found.</div>`;
+        return;
+      }
+
+      els.resultItems.innerHTML = items.map(item => {
+        const qty = Number(item.qty || 1);
+        const name = safeText(item.name || item.id || "Item");
+        const size = item.size && item.size !== "-" ? ` • Size ${escapeHtml(item.size)}` : "";
+        const price = (item.unit_price_kes ?? item.price) ? ` • ${fmtMoney(item.unit_price_kes ?? item.price)}` : "";
+        return `
+          <div class="item">
+            ${qty} × ${escapeHtml(name)}${size}${price}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderOrder(order) {
+      const status = safeText(order.status);
+      const badgeClass = statusBadgeClass(status);
+
+      els.resultTotal.textContent = fmtMoney(order.total_kes || 0);
+      els.resultBadge.className = `badge ${badgeClass}`;
+      els.resultBadge.textContent = prettifyStatus(status);
+
+      els.resultOrderId.textContent = safeText(order.id || "-");
+      els.resultStatus.textContent = prettifyStatus(status);
+      els.resultPlaced.textContent = fmtDate(order.created_at);
+      els.resultCustomer.textContent = safeText(order.customer_name || "-");
+      els.resultNote.textContent = safeText(order.note || "-");
+      els.statusTip.textContent = statusTipText(status);
+
+      renderItems(order.items);
+      showResult();
+    }
+
+    async function trackOrder() {
+      const orderId = safeText(els.orderId.value);
+      const phone = normalizePhone(els.phone.value);
+
+      clearError();
+      hideResult();
+
+      if (!orderId) {
+        showError("Please enter your order ID.");
+        return;
+      }
+
+      if (!phone || phone.length < 12) {
+        showError("Please enter the phone number used during checkout.");
+        return;
+      }
+
+      localStorage.setItem(LAST_TRACK_ORDER_ID, orderId);
+      localStorage.setItem(LAST_TRACK_PHONE, phone);
+
+      setBusy(true, "Checking your order...");
+
+      try {
+        const res = await fetch("/api/orders/track", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            order_id: orderId,
+            phone
+          })
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          throw new Error(data.error || "Could not find that order.");
+        }
+
+        if (!data?.order) {
+          throw new Error("Order details were not returned.");
+        }
+
+        renderOrder(data.order);
+        els.statusText.textContent = "Order found.";
+      } catch (err) {
+        showError(err.message || "Could not track that order.");
+        els.statusText.textContent = "Could not track order.";
+      } finally {
+        setBusy(false, els.statusText.textContent);
+      }
+    }
+
+    els.trackBtn.addEventListener("click", trackOrder);
+
+    els.phone.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") trackOrder();
+    });
+
+    els.orderId.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") trackOrder();
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedOrderId = localStorage.getItem(LAST_TRACK_ORDER_ID) || "";
+      const savedPhone = localStorage.getItem(LAST_TRACK_PHONE) || "";
+
+      if (savedOrderId) els.orderId.value = savedOrderId;
+      if (savedPhone) els.phone.value = savedPhone;
+    });
+  </script>
+</body>
+</html>

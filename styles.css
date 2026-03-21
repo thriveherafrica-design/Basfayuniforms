@@ -1747,3 +1747,72 @@ input:focus,select:focus{
   top: 0;
   width: 100%;
 }
+
+/* ===== DESKTOP SHOP BY SCHOOL FIX ===== */
+#schoolMenuPanel,
+#schoolMenuPanel * {
+  box-sizing: border-box;
+}
+
+#schoolMenuPanel {
+  background: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#desktopSchoolLinks {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  max-height: 420px !important;
+  overflow-y: auto !important;
+  padding: 8px 4px 8px 0 !important;
+  background: #ffffff !important;
+  opacity: 1 !important;
+}
+
+#desktopSchoolLinks a {
+  display: block !important;
+  width: 100% !important;
+  padding: 14px 16px !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  border: 1px solid #dfe7ef !important;
+  color: #16324a !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+  text-decoration: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  -webkit-text-fill-color: #16324a !important;
+}
+
+#desktopSchoolLinks a:hover,
+#desktopSchoolLinks a:focus {
+  background: #f4f8fc !important;
+  border-color: #b9cfe3 !important;
+  color: #0f2f4a !important;
+  -webkit-text-fill-color: #0f2f4a !important;
+}
+
+#desktopSchoolLinks a[hidden] {
+  display: none !important;
+}
+
+#schoolMenuPanel .school-search-input {
+  color: #16324a !important;
+  background: #ffffff !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: #16324a !important;
+}
+
+#schoolMenuPanel .school-search-input::placeholder {
+  color: #6f7f90 !important;
+  opacity: 1 !important;
+}
+
+#schoolMenuPanel .school-search-btn {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}

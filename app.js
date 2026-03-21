@@ -48,7 +48,7 @@ const ORDER_STATUSES = {
 
 const FUTURE_CATEGORIES = [
   "Sweater", "Shirt", "Dress", "Socks", "Marvin", "Tracksuit", "Gameskit", "PE Shirt",
-  "Trousers", "School Bag", "Shoes", "Blazer", "Materials", "Cardigan", "Accessory",
+  "Trousers", "customized, quality Bags", "Shoes", "Blazer", "Materials", "Cardigan", "Accessory",
 ];
 
 const INITIAL_VISIBLE_PRODUCTS = 9999;

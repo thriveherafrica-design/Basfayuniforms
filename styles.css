@@ -1699,3 +1699,15 @@ input:focus,select:focus{
     width: min(92vw, 320px);
   }
 }
+
+#desktopSchoolLinks,
+#mobileSchoolLinks{
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+#desktopSchoolLinks a,
+#mobileSchoolLinks a{
+  display: block;
+}

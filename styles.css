@@ -1711,3 +1711,39 @@ input:focus,select:focus{
 #mobileSchoolLinks a{
   display: block;
 }
+
+/* ===== FIX: desktop school dropdown text visible ===== */
+.header .school-menu-dropdown,
+.header .school-menu-dropdown * {
+  color: #16324a !important;
+}
+
+.header .school-menu-dropdown a {
+  color: #16324a !important;
+}
+
+.header .school-menu-dropdown .school-search-input {
+  color: #0f2f4a !important;
+}
+
+.header .school-menu-dropdown .school-search-input::placeholder {
+  color: rgba(15, 47, 74, 0.6) !important;
+}
+
+.header .school-menu-dropdown .school-search-btn {
+  color: #ffffff !important;
+}
+
+.loader-text {
+  color: transparent !important;
+  position: relative;
+}
+
+.loader-text::after {
+  content: "Prepared with care, made to last.";
+  color: #16324a;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+}

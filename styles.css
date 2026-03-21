@@ -1816,3 +1816,53 @@ input:focus,select:focus{
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+/* ===== FORCE DESKTOP SHOP BY SCHOOL TEXT TO SHOW ===== */
+#schoolMenuPanel,
+#schoolMenuPanel .school-menu-dropdown,
+#schoolMenuPanel .school-links-scroll,
+#schoolMenuPanel #desktopSchoolLinks,
+#schoolMenuPanel #desktopSchoolLinks a,
+#schoolMenuPanel #desktopSchoolLinks span,
+#schoolMenuPanel #desktopSchoolLinks div,
+#schoolMenuPanel #desktopSchoolLinks p {
+  color: #16324a !important;
+  -webkit-text-fill-color: #16324a !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  text-shadow: none !important;
+}
+
+#schoolMenuPanel #desktopSchoolLinks a {
+  display: block !important;
+  background: #ffffff !important;
+  border: 1px solid #dfe7ef !important;
+  border-radius: 16px !important;
+  padding: 14px 16px !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+}
+
+#schoolMenuPanel #desktopSchoolLinks a:hover,
+#schoolMenuPanel #desktopSchoolLinks a:focus {
+  color: #0f2f4a !important;
+  -webkit-text-fill-color: #0f2f4a !important;
+  background: #f5f9fc !important;
+  border-color: #bdd0e0 !important;
+}
+
+#schoolMenuPanel .school-search-input {
+  color: #16324a !important;
+  -webkit-text-fill-color: #16324a !important;
+  background: #ffffff !important;
+}
+
+#schoolMenuPanel .school-search-input::placeholder {
+  color: #718295 !important;
+  opacity: 1 !important;
+}
+
+#schoolMenuPanel .school-search-btn {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
